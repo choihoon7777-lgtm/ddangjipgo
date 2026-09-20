@@ -1,0 +1,1 @@
+import{events}from"../../lib/demo-data";export default function Alerts(){return <main><a href="/">← 홈</a><h1>알림</h1><p className="muted">중요한 변화만 모아 보여드립니다. 현재 항목은 DEMO입니다.</p>{events.map(e=><article key={e.id}><div className="dot">+{e.impact}</div><div><strong>{e.type} · {e.title}</strong><p>{e.summary}</p></div></article>)}</main>}
