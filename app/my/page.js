@@ -1,0 +1,1 @@
+export default function My(){return <main><a href="/">← 홈</a><h1>MY</h1><div className="result"><b>내 관심부지</b><span>등록한 토지·건물·아파트를 한곳에서 관리합니다.</span></div><div className="result"><b>알림 설정</b><span>변화점수와 이벤트 종류별 알림 기준을 설정합니다.</span></div><div className="result"><b>데이터 출처</b><span>공식 데이터와 AI 분석을 구분해 확인합니다.</span></div></main>}
