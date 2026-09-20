@@ -1,0 +1,1 @@
+export default function Map(){return <main><a href="/">← 홈</a><h1>지도</h1><p className="muted">등록한 관심부지와 주변 변화를 지도에서 확인하는 화면입니다.</p><div className="mapDemo"><b>원촌동 112-4</b><span>관심부지</span><div className="pin">+7</div><p>실제 지도 SDK 연결 전 DEMO 영역</p></div></main>}
