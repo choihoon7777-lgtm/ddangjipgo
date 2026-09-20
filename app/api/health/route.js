@@ -1,0 +1,1 @@
+export async function GET(){return Response.json({service:"ddangjipgo",status:"ok",version:"0.2.0",dataMode:"demo",timestamp:new Date().toISOString()})}
