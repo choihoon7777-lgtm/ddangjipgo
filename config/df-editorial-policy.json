@@ -1,0 +1,37 @@
+{
+  "principle": "사실은 정확하게. 쟁점은 분명하게. 판단은 독자에게.",
+  "source_policy": {
+    "collect": [
+      "government",
+      "local_government",
+      "public_institution",
+      "official_gazette",
+      "official_disclosure",
+      "company_ir"
+    ],
+    "other_media": "discovery_only_never_rewrite"
+  },
+  "categories": [
+    "최신뉴스",
+    "지역 FOCUS",
+    "개발사업",
+    "정책·고시",
+    "분양",
+    "금융",
+    "건설사 동향"
+  ],
+  "article_rules": [
+    "confirmed_facts_first",
+    "no_fabricated_interviews",
+    "publicly_documented_sides_only",
+    "no_opposition_invention",
+    "separate_fact_context_analysis_watch",
+    "show_published_and_modified_time",
+    "material_corrections_visible"
+  ],
+  "risk": {
+    "GREEN": "official straightforward factual report",
+    "YELLOW": "evaluation or material uncertainty requiring review",
+    "RED": "crime corruption favoritism fraud illegality reputation allegation without strong documentary basis; publish locked"
+  }
+}
