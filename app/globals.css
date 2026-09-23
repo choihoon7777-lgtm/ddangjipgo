@@ -16,3 +16,7 @@
 .focusRegions span{font-size:7px;letter-spacing:1px;margin-top:2px}
 .focusRegions small{font-size:7px;white-space:nowrap}
 .focusRegions:after{content:"→";flex:0 0 28px;align-self:center;color:#f47721;font-size:20px;font-weight:800}
+
+.focusAll{font-size:9px;color:#f47721;font-weight:800}
+.focusRegions>.focusRegionCard{min-width:94px;width:94px;height:82px;padding:11px 10px;border-radius:14px;scroll-snap-align:start;flex:0 0 94px;background:#102f53;color:#fff;display:flex;flex-direction:column}
+.focusRegionCard b{font-size:15px;line-height:1.1}.focusRegionCard span{font-size:7px;letter-spacing:1px;margin-top:2px;color:#f47721}.focusRegionCard small{margin-top:auto;color:#cad4de;font-size:7px;white-space:nowrap}
