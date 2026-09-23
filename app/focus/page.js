@@ -2,11 +2,16 @@
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFSectionTitle}from"../../components/df-shell";
-const sections=["최신뉴스","지역 FOCUS","개발사업","정책·고시","분양","금융","건설사 동향"];
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
-export default function FocusHome(){const[news,setNews]=useState([]);useEffect(()=>{(async()=>{const{data}=await dfSupabase.from("df_articles").select("id,title,category,published_at,updated_at").eq("status","published").order("published_at",{ascending:false}).limit(5);setNews(data||[])})()},[]);return <main className="focusShell dfHigh">
-<DFBrandHeader/>
-<section className="focusHero"><div className="focusLandBox"><div className="focusLandBoxHead"><div><small>LAND INTELLIGENCE</small><h1>땅짚고</h1></div><span className="focusLandBadge">내 부동산 관리</span></div><p className="focusLandTagline">내 땅의 변화를 놓치지 않도록</p><p className="focusLandDesc">내 토지·건물을 등록하면 주변 개발사업·도시계획·실거래·개발호재의 변화를 한곳에서 확인합니다.</p><div className="focusLandFeatures"><span><b>01</b>개발사업</span><span><b>02</b>도시계획·고시</span><span><b>03</b>실거래</span><span><b>04</b>개발호재</span></div><div className="focusHeroActions"><a className="focusHeroPrimary" href="/search">내 부동산 등록</a><a className="focusHeroSecondary" href="/search">땅짚고 보기 →</a></div></div></section>
-<section className="focusBlock"><DFSectionTitle eyebrow="TODAY" title="오늘의 주요 뉴스" href="/focus/live"/>{news.length?news.map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}</small><h3>{a.title}</h3><p>{a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":""}공식자료 기반</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>발행 준비 중입니다</b><span>검증·승인된 기사만 이곳에 노출됩니다.</span></div>}</section>
-<section className="focusBlock"><DFSectionTitle eyebrow="REGIONAL" title="지역별 FOCUS" href="/focus/region" label="전국보기 →"/><div className="focusRegions">{regions.map(x=><a href={"/focus/region?name="+encodeURIComponent(x)} className="focusRegionCard" key={x}><b>{x}</b><span>FOCUS</span><small>개발정보 →</small></a>)}</div></section>
-<DFBottomNav active="home"/></main>}
+export default function FocusHome(){
+ const[news,setNews]=useState([]);
+ useEffect(()=>{(async()=>{const{data}=await dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").eq("status","published").order("published_at",{ascending:false}).limit(6);setNews(data||[])})()},[]);
+ return <main className="focusShell dfHigh"><DFBrandHeader/>
+ <section className="focusBlock dfHomeLead"><DFSectionTitle eyebrow="TODAY" title="오늘의 주요 뉴스" href="/focus/live"/>
+ {news.length?news.slice(0,3).map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3>{i===0&&a.subtitle&&<p className="dfNewsSubtitle">{a.subtitle}</p>}<p>{a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":""}공식자료 기반</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>발행 준비 중입니다</b><span>검증·승인된 기사만 이곳에 노출됩니다.</span></div>}
+ </section>
+ <section className="focusHero dfLandCompact"><div className="focusLandBox"><div className="focusLandBoxHead"><div><small>LAND INTELLIGENCE</small><h1>땅짚고</h1></div><span className="focusLandBadge">내 부동산 관리</span></div><p className="focusLandTagline">내 땅의 변화를 놓치지 않도록</p><p className="focusLandDesc">토지·건물을 등록하면 주변 개발사업·도시계획·실거래·개발호재 변화를 추적합니다.</p><div className="focusHeroActions"><a className="focusHeroPrimary" href="/search">내 부동산 등록</a><a className="focusHeroSecondary" href="/search">땅짚고 보기 →</a></div></div></section>
+ <section className="focusBlock"><DFSectionTitle eyebrow="MORE" title="최신 개발뉴스" href="/focus/live"/>{news.slice(3).map(a=><a className="focusNews" href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3><p>{a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":""}공식자료 기반</p></div><span className="newsArrow">→</span></a>)}</section>
+ <section className="focusBlock"><DFSectionTitle eyebrow="REGIONAL" title="지역별 FOCUS" href="/focus/region" label="전국보기 →"/><div className="focusRegions">{regions.map(x=><a href={"/focus/region?name="+encodeURIComponent(x)} className="focusRegionCard" key={x}><b>{x}</b><span>FOCUS</span><small>개발정보 →</small></a>)}</div></section>
+ <DFBottomNav active="home"/></main>
+}
