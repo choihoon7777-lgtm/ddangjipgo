@@ -12,7 +12,7 @@ export default function Search(){
  async function smart(){if(!address)return;try{await navigator.clipboard.writeText(address)}catch{}window.open("https://www.kgeop.go.kr","_blank","noopener")}
  return <main className="parcelFinder">
   <a className="parcelBack" href="/focus">← 개발포커스</a>
-  <section className="parcelIntro"><small>땅짚고</small><h1>주소 하나로<br/>그 땅의 모든 것을 알아보세요.</h1><p>토지 기본정보와 실거래, 토지규제, 건축 가능 규모부터 주변 개발변화까지 확인합니다.</p></section>
+  <section className="parcelIntro"><small>LAND INTELLIGENCE</small><h1>내 부동산의 변화를<br/>한곳에서 확인하세요.</h1><p>주소와 지번을 기준으로 토지정보·규제·실거래·주변 개발변화를 연결합니다.</p></section>
   <section className="parcelCard"><h2>1. 토지 선택 & 공식 토지정보</h2><p>주소와 지번을 선택하면 공식 토지정보를 조회합니다.</p><b>사업지 주소 <em>*</em></b>
    <div className="parcelGrid">
     <label>시·도<select value={s1} onChange={e=>sido(e.target.value)}><option value="">시·도 선택</option>{sidos.map(x=><option key={x}>{x}</option>)}</select></label>
