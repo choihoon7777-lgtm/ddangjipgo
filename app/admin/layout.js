@@ -1,0 +1,1 @@
+export const metadata={title:"개발포커스 모바일 편집국"}; export default function Layout({children}){return children}
