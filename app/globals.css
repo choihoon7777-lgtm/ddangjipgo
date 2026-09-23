@@ -107,3 +107,5 @@
 .dfComingSoon{margin:14px 16px;padding:22px;border-radius:18px;background:#0b2748;color:#fff}.dfComingSoon small{font-size:7px;font-weight:850;letter-spacing:1.3px;color:#f47721}.dfComingSoon h1{font-size:24px;line-height:1.25;letter-spacing:-1px;margin:7px 0 10px}.dfComingSoon p{font-size:10px;line-height:1.65;color:#cad5df}.dfComingSoon b{display:block;margin-top:15px;padding-top:13px;border-top:1px solid #ffffff1a;font-size:10px}.dfComingSoon a{display:inline-block;margin-top:13px;padding:10px 12px;border-radius:10px;background:#f47721;color:#fff;font-size:9px;font-weight:800}
 
 .dfOtpActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.dfOtpActions .adminSecondary{margin:0}
+
+.dfLoginMode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;padding:4px;border-radius:12px;background:#f1f4f7}.dfLoginMode button{height:38px;border:0;border-radius:9px;background:transparent;color:#748190;font-size:9px;font-weight:800}.dfLoginMode button.on{background:#0b2748;color:#fff;box-shadow:0 4px 12px #0b274814}
