@@ -8,3 +8,11 @@
 
 .deskEmpty,.deskPipeline{background:#fff;border-radius:16px;padding:18px}.deskEmpty b,.deskPipeline b{display:block;font-size:12px}.deskEmpty p,.deskPipeline p{font-size:9px;line-height:1.6;color:#778492}.deskEmpty span,.deskPipeline small{font-size:8px;color:#f47721}.deskPipeline b{margin-top:7px;line-height:1.5;color:#102f53}
 .focusEntry{display:inline-block;margin-top:12px;font-size:10px;font-weight:800;color:#f47721;text-decoration:none}
+/* Regional FOCUS mobile carousel refinement */
+.focusRegions{display:flex;gap:8px;overflow-x:auto;padding:2px 18px 8px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.focusRegions::-webkit-scrollbar{display:none}
+.focusRegions>div{min-width:94px;width:94px;height:82px;padding:11px 10px;border-radius:14px;scroll-snap-align:start;flex:0 0 94px}
+.focusRegions b{font-size:15px;line-height:1.1}
+.focusRegions span{font-size:7px;letter-spacing:1px;margin-top:2px}
+.focusRegions small{font-size:7px;white-space:nowrap}
+.focusRegions:after{content:"→";flex:0 0 28px;align-self:center;color:#f47721;font-size:20px;font-weight:800}
