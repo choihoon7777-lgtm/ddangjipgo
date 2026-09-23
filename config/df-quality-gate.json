@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "minimum_score": 9,
+  "quantity_is_not_target": true,
+  "dimensions": [
+    "primary_source_integrity",
+    "fact_accuracy",
+    "change_detection",
+    "headline_accuracy",
+    "neutrality",
+    "mobile_readability",
+    "original_news_value",
+    "source_traceability",
+    "low_template_ai_feel",
+    "reader_utility"
+  ],
+  "hard_fail": [
+    "fabricated_source",
+    "unsupported_allegation",
+    "thin_rewrite_of_other_media",
+    "missing_primary_source",
+    "material_number_or_date_error",
+    "invented_quote_or_reaction",
+    "certainty_overclaim",
+    "unverified_illegality_or_corruption_claim"
+  ],
+  "required": [
+    "primary_source",
+    "source_date",
+    "fact_bundle",
+    "article",
+    "verification",
+    "risk_gate"
+  ]
+}
