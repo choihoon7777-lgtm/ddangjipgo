@@ -21,7 +21,7 @@ function ArticleInner(){
    if(data){
     dfSupabase.rpc("df_record_article_view",{p_article_id:id});
     if(u){
-      await dfSupabase.from("df_recent_articles").upsert({profile_id:u.id,article_id:id,last_viewed_at:new Date().toISOString(),view_count:1},{onConflict:"profile_id,article_id"});
+      await dfSupabase.rpc("df_record_recent_article",{p_article_id:id});
       const{data:s}=await dfSupabase.from("df_saved_articles").select("article_id").eq("profile_id",u.id).eq("article_id",id).maybeSingle();
       setSaved(!!s);
     }
