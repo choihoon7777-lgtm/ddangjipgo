@@ -18,8 +18,8 @@ export default function System(){
  useEffect(()=>{load()},[]);
  const c=health?.components||{};
  const items=[
-  ["공식자료 URL 수집",c.officialCollector==="manual_url"?"연결됨":"확인 필요"],
-  ["자동 순회 수집","다음 단계"],
+  ["공식자료 URL 수집","연결됨"],
+  ["공식 RSS 수집",c.officialCollector==="rss_manual"?"연결됨 · 수동 실행":"확인 필요"],
   ["중복·변경 감지","연결됨"],
   ["AI 기사작성",c.ai==="configured"?"연결됨 · "+(c.aiTransport||""):"인증 확인 필요"],
   ["검증·발행 게이트","연결됨"],
