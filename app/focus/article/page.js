@@ -1,6 +1,7 @@
 "use client";
 import{Suspense,useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
+import{DFSubHeader,DFBottomNav}from"../../../components/df-shell";
 
 function normalizeBody(body){
  if(Array.isArray(body))return body.map(x=>typeof x==="string"?x:(x?.text||"")).filter(Boolean).join("\n\n");
@@ -16,7 +17,7 @@ function ArticleInner(){
  const summaries=Array.isArray(a.summary_3line)?a.summary_3line.filter(Boolean):[];
  const modified=a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
  return <main className="focusShell dfHigh">
-  <header className="dfArticleTop"><a href="/focus">←</a><b>개발포커스</b><a href="/search">⌕</a></header>
+  <DFSubHeader title="개발포커스" kicker="ARTICLE"/>
   <article className="dfNewsArticle">
    <div className="dfArticleMeta"><span>{a.category||"최신뉴스"}</span>{a.region_code&&<em>{a.region_code}</em>}</div>
    <h1>{a.title}</h1>
@@ -25,7 +26,7 @@ function ArticleInner(){
    {summaries.length>0&&<section className="dfKeySummary"><small>KEY POINTS</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
    <div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>
    <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다.</span></section>
-  </article>
+  </article><DFBottomNav active="news"/>
  </main>
 }
 export default function Article(){return <Suspense fallback={<main className="focusShell dfHigh"><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>}><ArticleInner/></Suspense>}
