@@ -24,3 +24,4 @@
 .focusLandTop{padding-bottom:27px}.focusLandVisual{background:linear-gradient(145deg,#0b2945,#173e5e);height:160px}
 .focusHeroActions{display:flex;gap:8px;margin-top:16px}.focusHeroActions a{display:flex;align-items:center;justify-content:center;border-radius:11px;height:42px;font-size:10px;font-weight:800}
 .focusHeroPrimary{flex:1;background:#f47721;color:#fff}.focusHeroSecondary{padding:0 14px;background:#eef2f5;color:#102f53}
+.focusLandTop h1{font-size:34px;margin-top:8px}.focusLandTagline{font-size:15px!important;font-weight:800!important;color:#102f53!important;margin:8px 0 5px!important;line-height:1.45!important}
