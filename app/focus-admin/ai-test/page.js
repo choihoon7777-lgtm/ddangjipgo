@@ -42,6 +42,7 @@ export default function AITest(){
   try{
    const lines=r.article.split("\n").map(x=>x.trim()).filter(Boolean);
    const title=(lines[0]||"AI 기사 후보").replace(/^제목[:：]?\s*/,"");
+   const articleBody=lines.slice(1).join("\n")||r.article;
    const risk=(r.verification||"").trim().toUpperCase().startsWith("RED")?"red":(r.verification||"").trim().toUpperCase().startsWith("YELLOW")?"yellow":"green";
    const meta=sourceMeta(s);
    const{data:dupe}=await dfSupabase.from("df_editorial_queue").select("id").eq("source_text",s).limit(1);
@@ -49,7 +50,7 @@ export default function AITest(){
    const legal=risk==="red"?"blocked":risk==="yellow"?"manual_required":"pending";
    const{data,error}=await dfSupabase.rpc("df_create_article_candidate",{
     p_title:title,
-    p_body:r.article,
+    p_body:articleBody,
     p_category:category,
     p_region_code:region==="전국"?null:region,
     p_risk_level:risk,
