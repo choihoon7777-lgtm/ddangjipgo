@@ -1,0 +1,1 @@
+export default function Projects(){return <main className="focusShell"><header className="subHead"><a href="/focus">←</a><div><b>개발사업</b><small>PROJECT DATABASE</small></div></header><section className="focusBlock"><div className="projectSearch">사업명 · 지역 · 시행자 검색</div><div className="emptyFocus">개별 기사와 분리된 개발사업 DB입니다.<br/>공식자료가 연결되면 사업별 변경이 누적됩니다.</div></section></main>}
