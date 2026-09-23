@@ -27,7 +27,7 @@ export async function POST(req){
   const result=await buildArticle(source);
   return NextResponse.json(result);
  }catch(e){
-  const missing=e.message==="OPENAI_API_KEY_NOT_CONFIGURED";
+  const missing=e.message==="OPENAI_API_KEY_NOT_CONFIGURED"||e.message==="AI_AUTH_NOT_CONFIGURED";
   return NextResponse.json({error:missing?"AI API 키 연결이 필요합니다.":e.message},{status:missing?503:500});
  }
 }
