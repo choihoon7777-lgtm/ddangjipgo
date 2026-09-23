@@ -16,7 +16,7 @@ export async function GET(){
    ai:direct||gateway?"configured":"missing",
    aiTransport:direct?"openai-direct":gateway?"vercel-ai-gateway":"missing",
    landTradeApi:process.env.DATA_GO_KR_SERVICE_KEY?"configured":"missing",
-   officialCollector:"manual_url"
+   officialCollector:"rss_manual"
   },
   timestamp:new Date().toISOString()
  })
