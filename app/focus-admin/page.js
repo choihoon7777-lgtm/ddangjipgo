@@ -1,7 +1,7 @@
 const queue=[];export default function FocusAdmin(){return <main className="focusAdmin">
 <header className="focusAdminHead"><div><b>DEVELOPMENT FOCUS</b><small>모바일 편집국</small></div><button>관리자</button></header>
 <section className="deskHero"><small>오늘의 편집국</small><h1>발행할 기사만<br/>확인하세요.</h1><div className="deskStats"><div><b>0</b><span>발행가능</span></div><div><b>0</b><span>추가확인</span></div><div><b>0</b><span>위험검토</span></div></div></section>
-<section className="deskSection"><div className="focusTitle"><h2>발행 대기</h2><span>실데이터 기준</span></div><div className="deskEmpty"><b>아직 발행 대기 기사가 없습니다.</b><p>공식자료 수집 → 검증 → 기사작성까지 완료된 기사만 이곳에 표시됩니다.</p><span>샘플 숫자와 가짜 기사는 표시하지 않습니다.</span></div></section>
+<section className="deskSection"><div className="focusTitle"><h2>발행 대기</h2><a href="/focus-admin/publish">발행센터 →</a></div><div className="deskEmpty"><b>아직 발행 대기 기사가 없습니다.</b><p>공식자료 수집 → 검증 → 기사작성까지 완료된 기사만 이곳에 표시됩니다.</p><span>샘플 숫자와 가짜 기사는 표시하지 않습니다.</span></div></section>
 <section className="deskSection"><div className="focusTitle"><h2>운영센터</h2></div><div className="deskGrid">{[["기사 관리","발행·정정·휴지통"],["공지 관리","전체·지역·예약"],["광고 센터","심사·기간·성과"],["트래픽","연결 전 · 가짜 수치 미표시"],["땅짚고","관심부동산·알림"],["설정·감사","권한·작업이력"]].map(x=><div key={x[0]}><b>{x[0]}</b><span>{x[1]}</span></div>)}</div></section>
 <section className="deskSection"><div className="deskPipeline"><small>AUTOMATION PIPELINE</small><b>SOURCE → FACT → PROJECT → ARTICLE → REGION → LAND → USER</b><p>검증 5종과 법적 위험검토를 통과해야 발행 버튼이 활성화되는 구조로 연결합니다.</p></div></section>
 <nav className="focusBottom"><span>⌂<b>홈</b></span><span>▤<b>편집국</b></span><span>AD<b>광고</b></span><span>↗<b>통계</b></span><span>☰<b>관리</b></span></nav></main>}
