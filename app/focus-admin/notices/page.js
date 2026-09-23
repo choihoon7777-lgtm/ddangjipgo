@@ -13,7 +13,7 @@ export default function Notices(){
    const{data:{user}}=await dfSupabase.auth.getUser();
    const start=form.starts_at?new Date(form.starts_at).toISOString():new Date().toISOString();
    const end=form.ends_at?new Date(form.ends_at).toISOString():null;
-   const status=desiredStatus==="published"&&new Date(start)>new Date()?"scheduled":desiredStatus;
+   const status=desiredStatus;
    const{error}=await dfSupabase.from("df_notices").insert({title:form.title.trim(),body:form.body.trim(),notice_type:form.notice_type,placement:form.placement,region_code:form.region_code.trim()||null,starts_at:start,ends_at:end,is_pinned:form.is_pinned,status,created_by:user?.id||null,updated_at:new Date().toISOString()});
    if(error)throw error;setForm(initial);setShow(false);await load();setMsg("공지를 저장했습니다.");
   }catch(e){setMsg(e.message||"공지 저장 실패")}finally{setBusy(false)}
