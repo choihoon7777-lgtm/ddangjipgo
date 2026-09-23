@@ -1,0 +1,2 @@
+import{NextResponse}from"next/server";import{buildArticle}from"../../../lib/df-ai";
+export async function POST(req){try{const{source}=await req.json();if(!source||source.trim().length<80)return NextResponse.json({error:"공식자료 원문이 너무 짧습니다."},{status:400});const result=await buildArticle(source);return NextResponse.json(result);}catch(e){const missing=e.message==="OPENAI_API_KEY_NOT_CONFIGURED";return NextResponse.json({error:missing?"AI API 키 연결이 필요합니다.":e.message},{status:missing?503:500});}}
