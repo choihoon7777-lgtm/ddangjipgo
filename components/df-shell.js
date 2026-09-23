@@ -17,8 +17,8 @@ export function DFSectionTitle({eyebrow,title,href,label="전체보기 →"}){
 }
 
 
-export function DFAdminHeader({title="편집국 운영센터",kicker="ADMIN",back="/my"}){
- return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">서비스 보기</a></header>
+export function DFAdminHeader({title="편집국 운영센터",kicker="NEWSROOM",back="/my"}){
+ return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">개발포커스</a></header>
 }
 export function DFAdminBottomNav({active="home"}){
  const items=[["home","⌂","운영","/focus-admin"],["editor","▤","편집국","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
