@@ -32,3 +32,14 @@
 .focusLandBoxHead>span{font-size:8px;background:#102f53;color:#fff;padding:7px 9px;border-radius:20px}
 .focusLandBox .focusLandTagline{font-size:14px!important;margin-top:12px!important}
 .focusLandDesc{font-size:10px!important;line-height:1.65!important;color:#657382!important}
+
+/* polished Ddangjipgo service card */
+.focusHero{padding-top:16px}
+.focusLandBox{margin-top:0;padding:20px 18px 17px;border-radius:22px;background:linear-gradient(145deg,#f7f9fb,#eef2f5);border:1px solid #e0e6eb;box-shadow:0 10px 28px #102f530d}
+.focusLandBadge{font-size:8px!important;background:#102f53!important;color:#fff!important;padding:7px 9px!important;border-radius:20px!important}
+.focusLandBox .focusLandTagline{font-size:16px!important;letter-spacing:-.5px;margin:15px 0 5px!important;color:#102f53!important}
+.focusLandBox .focusLandDesc{font-size:10px!important;line-height:1.7!important;margin:0 0 15px!important}
+.focusLandFeatures{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 16px}
+.focusLandFeatures span{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e5eaee;border-radius:10px;padding:9px;font-size:9px;font-weight:700;color:#33475b}
+.focusLandFeatures b{font-size:7px;color:#f47721}
+.focusLandBox .focusHeroActions{margin-top:0}
