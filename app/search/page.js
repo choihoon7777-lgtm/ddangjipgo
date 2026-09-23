@@ -1,5 +1,6 @@
 "use client";
 import{useEffect,useState}from"react";
+import{DFSubHeader,DFBottomNav}from"../../components/df-shell";
 const ADDRESS_DATA_URL="https://cdn.jsdelivr.net/gh/Guk0/KoreanAddressJson@master/address2.json";
 export default function Search(){
  const[data,setData]=useState({}),[status,setStatus]=useState("전국 행정구역 불러오는 중…"),[s1,setS1]=useState(""),[s2,setS2]=useState(""),[s3,setS3]=useState(""),[lot,setLot]=useState("");
