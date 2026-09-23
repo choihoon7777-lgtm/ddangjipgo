@@ -1,0 +1,1 @@
+export default function Live(){return <main className="focusShell"><header className="subHead"><a href="/focus">←</a><div><b>최신뉴스</b><small>VERIFIED NEWS</small></div></header><section className="focusBlock"><div className="emptyFocus">현재 발행된 검증 기사만 표시하는 영역입니다.<br/>데모 기사를 실제 뉴스처럼 표시하지 않습니다.</div></section></main>}
