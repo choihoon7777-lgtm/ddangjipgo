@@ -3,9 +3,9 @@ const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시",
 const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
- return <><header className="focusHeader"><a className="focusBrand" href="/focus"><span className="focusSymbol" aria-hidden="true"><i></i></span><div><strong>개발포커스</strong><small>DEVELOPMENT FOCUS</small></div></a><div className="focusTools"><a href="/focus/region">전국⌄</a><a href="/search" aria-label="검색">⌕</a><a href="/my" aria-label="마이">☰</a></div></header><div className="focusTabs"><a href="/focus">홈</a>{categories.map(x=><a href={hrefFor(x)} key={x}>{x}</a>)}</div></>
+ return <><header className="focusHeader"><a className="focusBrand" href="/focus"><span className="focusSymbol" aria-hidden="true"><i></i></span><div><strong>개발포커스</strong><small>DEVELOPMENT FOCUS</small></div></a><div className="focusTools"><a href="/focus/region">전국⌄</a><a href="/focus/search" aria-label="통합검색">⌕</a><a href="/my" aria-label="마이">☰</a></div></header><div className="focusTabs"><a href="/focus">홈</a>{categories.map(x=><a href={hrefFor(x)} key={x}>{x}</a>)}</div></>
 }
-export function DFSubHeader({title,back="/focus",right="/search",kicker}){
+export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
  return <header className="dfArticleTop"><a href={back}>←</a><div className="dfSubTitle"><b>{title}</b>{kicker&&<small>{kicker}</small>}</div>{right?<a href={right}>⌕</a>:<span></span>}</header>
 }
 export function DFBottomNav({active=""}){
