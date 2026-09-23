@@ -8,6 +8,7 @@ export default function Write(){
  async function submit(){
   setBusy(true);setMsg("");
   try{
+   const{data:cmp,error:cmpErr}=await dfSupabase.rpc("df_source_compare",{p_source_url:sourceUrl.trim()||null,p_source_text:sourceText.trim()||""});if(cmpErr)throw cmpErr;const sourceStatus=cmp?.[0]?.status||"new";
    const{data,error}=await dfSupabase.rpc("df_create_article_candidate",{
     p_title:t.trim(),
     p_body:body.trim(),
@@ -23,14 +24,14 @@ export default function Write(){
     p_numeric_check_passed:false,
     p_date_check_passed:false,
     p_source_check_passed:false,
-    p_duplicate_check_passed:false,
+    p_duplicate_check_passed:sourceStatus!=="duplicate",
     p_legal_check_status:"manual_required",
     p_ai_fact:"",
     p_ai_verification:"",
-    p_ai_models:{}
+    p_ai_models:{source_status:sourceStatus}
    });
    if(error)throw error;
-   setMsg("검증 대기열에 저장했습니다. 각 검증항목을 확인한 뒤에만 발행할 수 있습니다.");
+   setMsg(sourceStatus==="duplicate"?"같은 공식 원문이 이미 있어 중복 확인 상태로 저장했습니다.":"검증 대기열에 저장했습니다. 공식 출처를 확인한 뒤에만 발행할 수 있습니다.");
    setT("");setBody("");setSourceTitle("");setSourceUrl("");setSourceText("");
   }catch(e){setMsg(e.message||"저장에 실패했습니다.")}finally{setBusy(false)}
  }
@@ -40,7 +41,7 @@ export default function Write(){
   <label>제목<input value={t} onChange={e=>setT(e.target.value)} placeholder="검증된 사실을 중심으로 제목 작성"/></label>
   <label>본문<textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="기사 초안"/></label>
   <div className="dfSourceEditor"><b>공식 출처</b><label>자료명<input value={sourceTitle} onChange={e=>setSourceTitle(e.target.value)} placeholder="예: 국토교통부 보도자료"/></label><label>원문 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://..."/></label><label>근거 원문<textarea value={sourceText} onChange={e=>setSourceText(e.target.value)} placeholder="기사 작성에 사용한 1차 공식자료 원문 또는 핵심 구간"/></label></div>
-  <div className="editorGate"><b>발행 안전장치</b><span>직접 작성 기사는 YELLOW로 저장됩니다. 사실·숫자·날짜·출처·중복·법적위험을 각각 확인한 뒤에만 발행할 수 있습니다.</span></div>
-  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<p className="adminDataNote">{msg}</p>}
+  <div className="editorGate"><b>발행 안전장치</b><span>직접 작성 기사는 YELLOW로 저장됩니다. 공식 출처가 반드시 필요하며 사실·숫자·날짜·출처·중복·법적위험을 각각 확인한 뒤에만 발행할 수 있습니다.</span></div>
+  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()||(!sourceText.trim()&&!sourceUrl.trim())} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<p className="adminDataNote">{msg}</p>}
  </section><DFAdminBottomNav active="editor"/></main>
 }
