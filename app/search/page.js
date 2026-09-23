@@ -23,7 +23,7 @@ export default function Search(){
    <div className={"parcelReady "+(sidos.length?"ok":"")}>{status}</div>
    <div className={ready?"parcelNotice ready":"parcelNotice"}><b>{ready?"📍 "+address:"사업지 주소를 선택하세요."}</b><span>{ready?"선택 주소를 기준으로 지적도·토지정보를 연결합니다.":"시·도 → 시·군·구 → 읍·면·동 → 지번 순으로 등록합니다."}</span></div>
    <div className="parcelInfo"><div><b>📍 선택 주소 기준<br/>지적도 · 토지정보</b></div><button onClick={smart} disabled={!ready}>토지정보 바로보기 ↗<small>K-GeoP 스마트국토정보</small></button></div>
-   <a className={ready?"parcelAnalyze":"parcelAnalyze disabled"} href={ready?"/asset/wonchon-112-4":"#"}>이 땅 분석하기 →</a>
+   <a className={ready?"parcelAnalyze":"parcelAnalyze disabled"} href={ready?"/asset/new?address="+encodeURIComponent(address):"#"}>이 땅 분석하기 →</a>
   </section>
   <section className="parcelSteps"><div><b>2. 지적도·필지</b><span>선택한 주소의 필지 경계와 토지정보</span></div><div><b>3. 토지 기본정보</b><span>지목 · 면적 · 공시지가</span></div><div><b>4. 주변 실거래</b><span>최근 거래와 주변 가격 흐름</span></div><div><b>5. 토지·규제 분석</b><span>용도지역 · 건폐율 · 용적률 · 도로</span></div><div><b>6. 무엇을 얼마나 지을 수 있을까?</b></div><div><b>7. AI 활용안 & 가설계</b></div></section>
  </main>
