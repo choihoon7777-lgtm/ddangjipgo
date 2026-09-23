@@ -86,3 +86,5 @@
 .dfProjectHero{padding:29px 18px 25px;background:linear-gradient(145deg,#0b2748,#153c63);color:#fff}.dfProjectSearchInput{width:100%;height:46px;border:1px solid #dce3e8;border-radius:12px;background:#f9fafb;padding:0 13px;font-size:12px;outline:none;color:#10233c}.dfProjectSearchInput:focus{border-color:#0b2748;background:#fff}
 .focusShell,.dfLandPage{padding-bottom:94px!important}
 @media(max-width:360px){.dfLiveHero h1,.dfProjectHero h1,.dfMyHero h1{font-size:25px}.dfNewsFilters{padding-left:13px}.dfSubTitle b{font-size:14px}}
+
+.dfHomeLead{padding-top:14px!important}.dfLandCompact{padding-top:4px!important}.dfLandCompact .focusLandBox{padding:18px}.dfLandCompact .focusLandTagline{margin-top:14px!important}.dfLandCompact .focusLandFeatures{display:none}.dfLandCompact .focusHeroActions{margin-top:14px}
