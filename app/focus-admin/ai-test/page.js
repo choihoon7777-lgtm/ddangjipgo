@@ -1,5 +1,5 @@
 "use client";
-import{useState}from"react";
+import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav}from"../../../components/df-shell";
 
@@ -35,6 +35,7 @@ function extractSummary(article){
 export default function AITest(){
  const[s,setS]=useState(""),[sourceUrl,setSourceUrl]=useState(""),[r,setR]=useState(null),[loading,setLoading]=useState(false),[importing,setImporting]=useState(false),[saving,setSaving]=useState(false),[saved,setSaved]=useState(""),[category,setCategory]=useState("개발사업"),[region,setRegion]=useState("전국");
  async function authToken(){const{data:{session}}=await dfSupabase.auth.getSession();if(!session?.access_token)throw new Error("편집국 로그인이 필요합니다.");return session.access_token}
+ useEffect(()=>{const doc=new URLSearchParams(location.search).get("doc");if(!doc)return;(async()=>{setImporting(true);try{const{data:d,error}=await dfSupabase.from("df_source_documents").select("title,source_url,content_text").eq("id",doc).single();if(error)throw error;if(d.source_url){setSourceUrl(d.source_url);const token=await authToken();const x=await fetch("/api/focus-source",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({url:d.source_url})});const p=await x.json();if(!x.ok)throw new Error(p.error||"원문 불러오기 실패");setS(`[공식자료] ${p.title}\n제목: ${p.title}\n공식URL: ${p.url}\n\n${p.text}`);setSaved("수집 자료의 공식 원문을 불러왔습니다.");}else{setS(`[공식자료] ${d.title}\n제목: ${d.title}\n\n${d.content_text||""}`);}}catch(e){setSaved(e.message)}finally{setImporting(false)}})()},[]);
  async function importOfficial(){
   setImporting(true);setSaved("");
   try{
