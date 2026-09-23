@@ -1,1 +1,1 @@
-export async function GET(){return Response.json({service:"ddangjipgo",status:"ok",version:"0.2.0",dataMode:"demo",timestamp:new Date().toISOString()})}
+export async function GET(){return Response.json({service:"development-focus",status:"ok",mode:"development",components:{database:"configured",ai:process.env.OPENAI_API_KEY?"configured":"missing",landTradeApi:process.env.DATA_GO_KR_SERVICE_KEY?"configured":"missing",officialCollector:"not_connected"},timestamp:new Date().toISOString()})}
