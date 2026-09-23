@@ -20,8 +20,15 @@ export default function Publish(){
  useEffect(()=>{load()},[]);
  async function setCheck(x,field,value=true){
   setBusy(x.article_id+field);setMsg("");
-  const{error}=await dfSupabase.from("df_editorial_queue").update({[field]:value}).eq("article_id",x.article_id);
-  if(error)setMsg(error.message);await load();setBusy("");
+  try{
+   if(field==="source_check_passed"&&value){
+    const{error:verifyError}=await dfSupabase.rpc("df_verify_article_sources",{p_article_id:x.article_id});
+    if(verifyError)throw verifyError;
+   }
+   const{error}=await dfSupabase.from("df_editorial_queue").update({[field]:value}).eq("article_id",x.article_id);
+   if(error)throw error;
+  }catch(e){setMsg(field==="source_check_passed"?"공식 출처 확인 실패: "+e.message:e.message)}
+  await load();setBusy("");
  }
  async function resolveYellow(x){
   const all=checks.every(([f])=>x[f]);
@@ -44,8 +51,10 @@ export default function Publish(){
  }
  async function hold(x){
   setBusy(x.article_id+"hold");setMsg("");
-  const{error}=await dfSupabase.from("df_articles").update({status:"held"}).eq("id",x.article_id);
-  if(error)setMsg(error.message);await load();setBusy("");
+  const{data:{user}}=await dfSupabase.auth.getUser();
+  const{error}=await dfSupabase.from("df_articles").update({status:"held",updated_at:new Date().toISOString()}).eq("id",x.article_id);
+  if(error)setMsg(error.message);else await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:"hold",actor_id:user?.id||null,reason:"편집국 보류"});
+  await load();setBusy("");
  }
  async function publish(x){
   setBusy(x.article_id+"publish");setMsg("");
