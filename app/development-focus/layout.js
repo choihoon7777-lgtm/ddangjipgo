@@ -1,0 +1,1 @@
+export const metadata={title:"개발포커스 | DEVELOPMENT FOCUS",description:"도시의 변화를 가장 먼저 읽다"}; export default function Layout({children}){return children}
