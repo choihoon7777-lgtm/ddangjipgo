@@ -20,3 +20,7 @@
 .focusAll{font-size:9px;color:#f47721;font-weight:800}
 .focusRegions>.focusRegionCard{min-width:94px;width:94px;height:82px;padding:11px 10px;border-radius:14px;scroll-snap-align:start;flex:0 0 94px;background:#102f53;color:#fff;display:flex;flex-direction:column}
 .focusRegionCard b{font-size:15px;line-height:1.1}.focusRegionCard span{font-size:7px;letter-spacing:1px;margin-top:2px;color:#f47721}.focusRegionCard small{margin-top:auto;color:#cad4de;font-size:7px;white-space:nowrap}
+
+.focusLandTop{padding-bottom:27px}.focusLandVisual{background:linear-gradient(145deg,#0b2945,#173e5e);height:160px}
+.focusHeroActions{display:flex;gap:8px;margin-top:16px}.focusHeroActions a{display:flex;align-items:center;justify-content:center;border-radius:11px;height:42px;font-size:10px;font-weight:800}
+.focusHeroPrimary{flex:1;background:#f47721;color:#fff}.focusHeroSecondary{padding:0 14px;background:#eef2f5;color:#102f53}
