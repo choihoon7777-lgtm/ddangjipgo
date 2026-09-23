@@ -25,3 +25,10 @@
 .focusHeroActions{display:flex;gap:8px;margin-top:16px}.focusHeroActions a{display:flex;align-items:center;justify-content:center;border-radius:11px;height:42px;font-size:10px;font-weight:800}
 .focusHeroPrimary{flex:1;background:#f47721;color:#fff}.focusHeroSecondary{padding:0 14px;background:#eef2f5;color:#102f53}
 .focusLandTop h1{font-size:34px;margin-top:8px}.focusLandTagline{font-size:15px!important;font-weight:800!important;color:#102f53!important;margin:8px 0 5px!important;line-height:1.45!important}
+.focusLandBox{margin-top:10px;padding:20px;border-radius:20px;background:#f3f5f7;border:1px solid #e6eaee}
+.focusLandBoxHead{display:flex;align-items:flex-start;justify-content:space-between}
+.focusLandBoxHead small{font-size:7px;color:#f47721;font-weight:800;letter-spacing:1.2px}
+.focusLandBoxHead h1{font-size:30px;margin:3px 0 0;color:#102f53}
+.focusLandBoxHead>span{font-size:8px;background:#102f53;color:#fff;padding:7px 9px;border-radius:20px}
+.focusLandBox .focusLandTagline{font-size:14px!important;margin-top:12px!important}
+.focusLandDesc{font-size:10px!important;line-height:1.65!important;color:#657382!important}
