@@ -11,8 +11,7 @@ export default function Search(){
  const ready=!!(s1&&s2&&s3&&lot.trim()),address=[s1,s2,s3,lot.trim()].filter(Boolean).join(" ");
  function sido(v){setS1(v);setS2("");setS3("")} function sigungu(v){setS2(v);setS3("")}
  async function smart(){if(!address)return;try{await navigator.clipboard.writeText(address)}catch{}window.open("https://www.kgeop.go.kr","_blank","noopener")}
- return <main className="parcelFinder">
-  <a className="parcelBack" href="/focus">← 개발포커스</a>
+ return <main className="parcelFinder dfLandPage"><DFSubHeader title="땅짚고" kicker="LAND INTELLIGENCE" right={null}/>
   <section className="parcelIntro"><small>LAND INTELLIGENCE</small><h1>내 부동산의 변화를<br/>한곳에서 확인하세요.</h1><p>주소와 지번을 기준으로 토지정보·규제·실거래·주변 개발변화를 연결합니다.</p></section>
   <section className="parcelCard"><h2>1. 토지 선택 & 공식 토지정보</h2><p>주소와 지번을 선택하면 공식 토지정보를 조회합니다.</p><b>사업지 주소 <em>*</em></b>
    <div className="parcelGrid">
@@ -27,5 +26,6 @@ export default function Search(){
    <a className={ready?"parcelAnalyze":"parcelAnalyze disabled"} href={ready?"/asset/new?address="+encodeURIComponent(address):"#"}>이 땅 분석하기 →</a>
   </section>
   <section className="parcelSteps"><div><b>2. 지적도·필지</b><span>선택한 주소의 필지 경계와 토지정보</span></div><div><b>3. 토지 기본정보</b><span>지목 · 면적 · 공시지가</span></div><div><b>4. 주변 실거래</b><span>최근 거래와 주변 가격 흐름</span></div><div><b>5. 토지·규제 분석</b><span>용도지역 · 건폐율 · 용적률 · 도로</span></div><div><b>6. 무엇을 얼마나 지을 수 있을까?</b></div><div><b>7. AI 활용안 & 가설계</b></div></section>
+  <DFBottomNav active="land"/>
  </main>
 }
