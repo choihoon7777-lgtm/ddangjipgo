@@ -1,6 +1,12 @@
 export async function GET(){
+ let oidc=false;
+ try{
+  const{getVercelOidcToken}=await import("@vercel/oidc");
+  oidc=!!(await getVercelOidcToken({project:"prj_mbS3kBWI0cYB9QTDmoFscdQB6ElL",team:"team_wAsV551VHlOwBpqCfY6hPXMg"}));
+ }catch{}
  const direct=!!process.env.OPENAI_API_KEY;
- const gateway=!!(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN);
+ const gatewayKey=!!process.env.AI_GATEWAY_API_KEY;
+ const gateway=gatewayKey||!!process.env.VERCEL_OIDC_TOKEN||oidc;
  return Response.json({
   service:"development-focus",
   status:"ok",
