@@ -1,1 +1,6 @@
-import "./globals.css"; export const metadata={title:"땅짚고",description:"내 부동산의 변화를 먼저 알려주는 AI 자산 모니터"}; export default function RootLayout({children}){return <html lang="ko"><body>{children}</body></html>}
+import "./globals.css";
+export const metadata={
+ title:{default:"개발포커스 | DEVELOPMENT FOCUS",template:"%s | 개발포커스"},
+ description:"도시의 변화를 가장 먼저 읽다. 대한민국 부동산·도시개발 뉴스·정보 플랫폼 개발포커스."
+};
+export default function RootLayout({children}){return <html lang="ko"><body>{children}</body></html>}
