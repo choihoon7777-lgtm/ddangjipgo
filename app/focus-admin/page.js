@@ -32,7 +32,7 @@ export default function Admin(){
   dfSupabase.from("df_ad_campaigns").select("id",{count:"exact",head:true}).eq("status","active"),
   dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("is_active",true)
  ]);if(live)setStats({queue:q.count??null,published:p.count??null,claims:c.count??null,ads:a.count??null,watchlists:w.count??null})})();return()=>{live=false}},[]);
- return <main className="adminShell dfAdminUnified"><DFAdminHeader/>
+ return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
   <section className="dfAdminHero"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>기사부터 운영까지<br/>한곳에서 관리합니다.</h1><p>기사·공지·광고·정정·통계·시스템을 하나의 운영센터에서 처리합니다.</p></section>
 
   <section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats"><div><b>{stats.queue??"—"}</b><span>검토대기</span></div><div><b>{stats.published??"—"}</b><span>발행기사</span></div><div><b>{stats.ads??"—"}</b><span>광고진행</span></div><div><b>{stats.claims??"—"}</b><span>정정요청</span></div></div></section>
