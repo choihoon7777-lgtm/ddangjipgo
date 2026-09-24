@@ -24,7 +24,7 @@ export function DFLiveNotice({placement="home",region=null}){
   let q=dfSupabase.from("df_notices").select("id,title,body,notice_type,placement,region_code,is_pinned,starts_at,ends_at").eq("status","published").lte("starts_at",new Date().toISOString()).or("ends_at.is.null,ends_at.gt."+new Date().toISOString()).order("is_pinned",{ascending:false}).order("starts_at",{ascending:false}).limit(8);
   const{data}=await q;
   if(!live)return;
-  const rows=(data||[]).filter(x=>(x.placement==="all"||x.placement===placement)&&(!x.region_code||!region||x.region_code===region));
+  const rows=(data||[]).filter(x=>(x.placement==="all"||x.placement===placement)&&(!x.region_code||(region&&x.region_code===region)));
   setItem(rows[0]||null);
  })();return()=>{live=false}},[placement,region]);
  if(!item)return null;
@@ -35,11 +35,11 @@ export function DFLiveAd({placement="home",region=null}){
  const[item,setItem]=useState(null);
  useEffect(()=>{let live=true;(async()=>{
   const{data:slots}=await dfSupabase.from("df_ad_slots").select("id,placement,region_code").eq("is_active",true).eq("placement",placement);
-  const slotIds=(slots||[]).filter(s=>!s.region_code||!region||s.region_code===region).map(s=>s.id);
+  const slotIds=(slots||[]).filter(s=>!s.region_code||(region&&s.region_code===region)).map(s=>s.id);
   if(!slotIds.length){if(live)setItem(null);return}
   const now=new Date().toISOString();
   const{data}=await dfSupabase.from("df_ad_campaigns").select("id,advertiser_name,creative_url,target_url,disclosure_label,region_code,start_at,end_at").eq("status","active").lte("start_at",now).gte("end_at",now).in("slot_id",slotIds).order("approved_at",{ascending:false}).limit(10);
-  const row=(data||[]).find(x=>!x.region_code||!region||x.region_code===region)||null;
+  const row=(data||[]).find(x=>!x.region_code||(region&&x.region_code===region))||null;
   if(!live)return;setItem(row);
   if(row)dfSupabase.rpc("df_record_ad_event",{p_campaign_id:row.id,p_event:"impression"});
  })();return()=>{live=false}},[placement,region]);
