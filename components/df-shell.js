@@ -5,7 +5,31 @@ const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시",
 const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
- return <><header className="focusHeader"><a className="focusBrand" href="/focus" aria-label="개발포커스 홈"><img className="focusBrandLogo" src="/development-focus-logo.jpg" alt="개발포커스 DEVELOPMENT FOCUS"/></a><div className="focusTools"><a href="/focus/region">전국⌄</a><a href="/focus/search" aria-label="통합검색">⌕</a><a href="/my" aria-label="마이">☰</a></div></header><div className="focusTabs"><a href="/focus">홈</a>{categories.map(x=><a href={hrefFor(x)} key={x}>{x}</a>)}</div></>
+ const[regionOpen,setRegionOpen]=useState(false),[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState("");
+ useEffect(()=>{setRoute(location.pathname+location.search);const close=e=>{if(e.key==="Escape"){setRegionOpen(false);setMenuOpen(false)}};window.addEventListener("keydown",close);return()=>window.removeEventListener("keydown",close)},[]);
+ const currentPath=route.split("?")[0]||"";
+ const params=new URLSearchParams(route.includes("?")?route.slice(route.indexOf("?")+1):"");
+ const currentCategory=params.get("category");
+ const activeFor=x=>{
+  if(x==="홈")return currentPath==="/focus";
+  if(x==="최신뉴스")return currentPath==="/focus/live"&&!currentCategory;
+  if(x==="지역 FOCUS")return currentPath==="/focus/region";
+  if(x==="개발사업")return currentPath==="/focus/projects"||(currentPath==="/focus/live"&&currentCategory==="개발사업");
+  return currentPath==="/focus/live"&&currentCategory===x;
+ };
+ return <div className="focusHeaderWrap">
+  <header className="focusHeader">
+   <a className="focusBrand" href="/focus" aria-label="개발포커스 홈"><img className="focusBrandLogo" src="/development-focus-logo.jpg" alt="개발포커스 DEVELOPMENT FOCUS"/></a>
+   <div className="focusTools">
+    <button type="button" className={"focusTool focusRegionTrigger "+(regionOpen?"on":"")} aria-expanded={regionOpen} aria-controls="focus-region-menu" onClick={()=>{setRegionOpen(v=>!v);setMenuOpen(false)}}>전국 <span>⌄</span></button>
+    <a className="focusTool focusToolIcon" href="/focus/search" aria-label="통합검색"><span className="focusSearchGlyph">⌕</span></a>
+    <button type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="메뉴" onClick={()=>{setMenuOpen(v=>!v);setRegionOpen(false)}}><span className="focusMenuGlyph">☰</span></button>
+   </div>
+  </header>
+  {regionOpen&&<div className="focusHeaderPopover focusRegionMenu" id="focus-region-menu"><div className="focusPopoverHead"><b>지역 FOCUS</b><a href="/focus/region">전국보기 →</a></div><div className="focusRegionMenuGrid">{["전국",...regions].map(x=><a key={x} href={x==="전국"?"/focus/region":"/focus/region?name="+encodeURIComponent(x)} onClick={()=>setRegionOpen(false)}>{x}</a>)}</div></div>}
+  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu"><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/my/saved"><b>저장기사</b><span>다시 볼 기사 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>부동산 분석 →</span></a></div>}
+  <nav className="focusTabs" aria-label="개발포커스 주요 메뉴"><a className={activeFor("홈")?"active":""} href="/focus">홈</a>{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
+ </div>
 }
 export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
  return <header className="dfArticleTop"><a href={back}>←</a><div className="dfSubTitle"><b>{title}</b>{kicker&&<small>{kicker}</small>}</div>{right?<a href={right}>⌕</a>:<span></span>}</header>

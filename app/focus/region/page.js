@@ -1,13 +1,13 @@
 "use client";
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
-import{DFSubHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
+import{DFBrandHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 export default function Region(){
  const[name,setName]=useState("전국"),[items,setItems]=useState([]),[loading,setLoading]=useState(true);
  useEffect(()=>{const q=new URLSearchParams(location.search).get("name")||"전국";setName(q);(async()=>{let query=dfSupabase.from("df_articles").select("id,title,category,region_code,published_at,updated_at").in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(12);if(q!=="전국")query=query.eq("region_code",q);const{data}=await query;setItems(data||[]);setLoading(false)})()},[]);
  return <main className="focusShell dfHigh">
-  <DFSubHeader title={name+" FOCUS"} kicker="REGIONAL"/>
+  <DFBrandHeader/>
   <DFLiveNotice placement="home" region={name==="전국"?null:name}/><section className="dfRegionIntro"><small>REGIONAL INTELLIGENCE</small><h1>{name==="전국"?"전국 개발 흐름":name+"의 개발 흐름"}</h1><p>개발사업·정책·고시·분양·금융 정보를 지역 기준으로 모아봅니다.</p></section>
   <section className="dfRegionPicker"><div className="focusTitle"><div><small className="focusEyebrow">REGION</small><h2>지역 선택</h2></div></div><div className="regionGrid">{["전국",...regions].map(x=><a className={x===name?"on":""} href={"/focus/region?name="+encodeURIComponent(x)} key={x}>{x}</a>)}</div></section>
   <section className="focusBlock"><DFSectionTitle eyebrow="LATEST" title={name+" 주요 개발정보"} href="/focus/live"/>
