@@ -74,10 +74,10 @@ export function DFLiveAd({placement="home",region=null}){
  return <a className="dfLiveAd" href={item.target_url} target="_blank" rel="noreferrer" onClick={click}>{inner}</a>
 }
 
-export function DFAdminHeader({title="편집국 운영센터",kicker="NEWSROOM",back="/my"}){
+export function DFAdminHeader({title="개발포커스 운영센터",kicker="OPERATIONS",back="/my"}){
  return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">개발포커스</a></header>
 }
 export function DFAdminBottomNav({active="home"}){
- const items=[["home","⌂","운영","/focus-admin"],["editor","▤","편집국","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
+ const items=[["home","⌂","운영","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
  return <nav className="adminBottom dfAdminBottom">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} href={href} key={id}><span>{icon}</span><b>{label}</b></a>)}</nav>
 }

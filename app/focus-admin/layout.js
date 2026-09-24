@@ -15,6 +15,6 @@ export default function FocusAdminLayout({children}){
    if(error||!data){await dfSupabase.auth.signOut();location.replace("/focus-admin/login?denied=1");return}
    setStatus("ready");
  })();return()=>{live=false}},[path]);
- if(status!=="ready")return <main className="adminShell dfAdminUnified"><section className="dfAdminAuthState"><b>편집국 권한을 확인하고 있습니다.</b><span>승인된 운영자만 접근할 수 있습니다.</span></section></main>;
+ if(status!=="ready")return <main className="adminShell dfAdminUnified"><section className="dfAdminAuthState"><b>운영센터 권한을 확인하고 있습니다.</b><span>승인된 운영 계정만 접근할 수 있습니다.</span></section></main>;
  return children;
 }

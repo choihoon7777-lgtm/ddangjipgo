@@ -270,3 +270,16 @@
  .dfNewsArticle{padding-left:15px!important;padding-right:15px!important}
  .dfNewsArticle h1{font-size:27px}
 }
+
+
+/* Unified Development Focus operations center */
+.dfAdminGroups{padding:0 12px 8px;display:grid;gap:10px}
+.dfAdminGroup{padding:15px;border:1px solid #edf0f3;border-radius:16px;background:#fff}
+.dfAdminGroupHead{margin-bottom:7px}
+.dfAdminGroupHead small{display:block;font-size:7px;font-weight:850;letter-spacing:1.15px;color:#f47721}
+.dfAdminGroupHead h2{margin:3px 0 0;font-size:15px;letter-spacing:-.45px;color:#10233c}
+.dfAdminGroup .adminMenu{padding:0}
+.dfAdminGroup .adminMenu a{margin-top:7px;border:1px solid #edf0f3;border-radius:12px;background:#f9fafb}
+.dfAdminRoleNote{margin:2px 12px 14px;padding:14px;border-radius:14px;background:#0b2748;color:#fff}
+.dfAdminRoleNote b{display:block;font-size:10px}
+.dfAdminRoleNote span{display:block;margin-top:5px;font-size:8px;line-height:1.55;color:#cad5df}
