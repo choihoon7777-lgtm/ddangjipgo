@@ -242,3 +242,31 @@
  .dfHomeTrust b{font-size:6px}
  .dfHomeTrust span{font-size:6.5px}
 }
+
+
+/* Development Focus article + personal flows final */
+.dfArticleCrumb{height:38px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f3;background:#fff}
+.dfArticleCrumb a{font-size:8.5px;font-weight:800;color:#0b2748}
+.dfArticleCrumb span{font-size:6.5px;letter-spacing:1.1px;color:#f47721}
+.dfNewsArticle{padding-top:22px!important}
+.dfNewsArticle h1{word-break:keep-all}
+.dfArticleActions{margin-top:15px}
+.dfArticleActions button:disabled{opacity:.5;cursor:default}
+.dfArticleActions button[aria-pressed="true"]{background:#0b2748;border-color:#0b2748;color:#fff}
+.dfArticleActionMsg{margin:-8px 0 17px!important;padding:8px 10px;border-radius:9px;background:#f6f8fa;font-size:8px!important;color:#6d7b89!important}
+.dfPublicSources>a,.dfPublicSourceStatic{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #edf0f3}
+.dfPublicSources>a:hover{background:#fafbfc}
+.dfPublicSources>a div,.dfPublicSourceStatic div{min-width:0}
+.dfPublicSources>a b,.dfPublicSourceStatic b{display:block;font-size:10px;color:#10233c}
+.dfPublicSources>a span,.dfPublicSourceStatic span{display:block;margin-top:3px;font-size:9px;line-height:1.45;color:#687789}
+.dfPublicSources>a em,.dfPublicSourceStatic em{display:block;margin-top:3px;font-style:normal;font-size:7.5px;color:#9aa4af}
+.dfPublicSources>a strong,.dfPublicSourceStatic strong{align-self:center;color:#f47721;font-size:12px}
+.dfPublicSourceStatic{cursor:default}
+.dfListActions button:disabled,.dfSavedRow>button:disabled,.miniBtn:disabled{opacity:.45;cursor:default}
+.focusEmpty>a{display:inline-block;margin-top:9px;font-size:8.5px;font-weight:800;color:#f47721}
+.editorGate a{font-size:8px;font-weight:800;color:#f47721}
+@media(max-width:390px){
+ .dfArticleCrumb{padding:0 13px}
+ .dfNewsArticle{padding-left:15px!important;padding-right:15px!important}
+ .dfNewsArticle h1{font-size:27px}
+}
