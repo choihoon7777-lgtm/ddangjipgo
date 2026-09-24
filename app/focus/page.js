@@ -5,7 +5,7 @@ import{DFBrandHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../..
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 export default function FocusHome(){
  const[news,setNews]=useState([]);
- useEffect(()=>{(async()=>{const{data}=await dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").eq("status","published").order("published_at",{ascending:false}).limit(6);setNews(data||[])})()},[]);
+ useEffect(()=>{(async()=>{const{data}=await dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(6);setNews(data||[])})()},[]);
  return <main className="focusShell dfHigh"><DFBrandHeader/>
  <DFLiveNotice placement="home"/><section className="focusBlock dfHomeLead"><DFSectionTitle eyebrow="TODAY" title="오늘의 주요 뉴스" href="/focus/live"/>
  {news.length?news.slice(0,3).map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3>{i===0&&a.subtitle&&<p className="dfNewsSubtitle">{a.subtitle}</p>}<p>{a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":""}공식자료 기반</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>발행 준비 중입니다</b><span>검증·승인된 기사만 이곳에 노출됩니다.</span></div>}
