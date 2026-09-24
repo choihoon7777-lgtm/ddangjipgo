@@ -2,7 +2,7 @@ export async function GET(){
  let oidc=false;
  try{
   const{getVercelOidcToken}=await import("@vercel/oidc");
-  oidc=!!(await getVercelOidcToken({project:"prj_mbS3kBWI0cYB9QTDmoFscdQB6ElL",team:"team_wAsV551VHlOwBpqCfY6hPXMg"}));
+  oidc=!!(await getVercelOidcToken());
  }catch{}
  const direct=!!process.env.OPENAI_API_KEY;
  const gatewayKey=!!process.env.AI_GATEWAY_API_KEY;
