@@ -14,7 +14,7 @@ const checks=[
 export default function Publish(){
  const[items,setItems]=useState([]),[busy,setBusy]=useState(""),[msg,setMsg]=useState("");
  async function load(){
-  const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at)").order("queued_at",{ascending:false});
+  const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
   if(error){setMsg(error.message);return}setItems(data||[]);
  }
  useEffect(()=>{load()},[]);
@@ -79,8 +79,8 @@ export default function Publish(){
   <div className="dfReviewActions"><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
    {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}
    {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
-   <button className="adminSecondary" disabled={busy!==""} onClick={()=>hold(x)}>보류</button>
-   <button className="adminPrimary" disabled={!passed||busy!==""||a.status==="published"} onClick={()=>publish(x)}>{a.status==="published"?"발행완료":"발행"}</button>
+   <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>보류</button>
+   <button className="adminPrimary" disabled={!passed||busy!==""||["published","corrected"].includes(a.status)} onClick={()=>publish(x)}>{["published","corrected"].includes(a.status)?"발행완료":"발행"}</button>
   </div>
  </article>})}
  </section><DFAdminBottomNav active="editor"/></main>
