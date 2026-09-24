@@ -3,7 +3,7 @@ import{createClient}from"@supabase/supabase-js";
 import{createHash}from"crypto";
 
 const SUPABASE_URL="https://svafsvyjjufbqvxzoqee.supabase.co";
-const SUPABASE_KEY="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";
+const SUPABASE_KEY="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";\nexport const maxDuration=60;
 
 const FALLBACK_LISTS={
  "국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp",
@@ -80,7 +80,7 @@ export async function POST(req){
     if(source.feed_url){
       try{
        const feed=await fetchText(source.feed_url,10000);
-       rows=rssItems(feed.text).slice(0,20);
+       rows=rssItems(feed.text).slice(0,20).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
        if(!rows.length)throw new Error("RSS 항목 0건");
       }catch(e){feedError=e.message;rows=[]}
     }
@@ -89,7 +89,7 @@ export async function POST(req){
       const listUrl=FALLBACK_LISTS[source.name];
       if(!listUrl)throw new Error(feedError||"사용 가능한 수집 경로 없음");
       const list=await fetchText(listUrl,12000);
-      rows=htmlListItems(source.name,list.url,list.text).slice(0,8);
+      rows=htmlListItems(source.name,list.url,list.text).slice(0,5);
       if(!rows.length)throw new Error((feedError?feedError+" / ":"")+"목록 파싱 0건");
     }
     discovered+=rows.length;
