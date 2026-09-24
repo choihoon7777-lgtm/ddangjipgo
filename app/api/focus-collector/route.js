@@ -3,7 +3,8 @@ import{createClient}from"@supabase/supabase-js";
 import{createHash}from"crypto";
 
 const SUPABASE_URL="https://svafsvyjjufbqvxzoqee.supabase.co";
-const SUPABASE_KEY="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";\nexport const maxDuration=60;
+const SUPABASE_KEY="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";
+export const maxDuration=60;
 
 const FALLBACK_LISTS={
  "국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp",
