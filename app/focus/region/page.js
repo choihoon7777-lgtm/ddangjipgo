@@ -5,7 +5,7 @@ import{DFSubHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../../.
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 export default function Region(){
  const[name,setName]=useState("전국"),[items,setItems]=useState([]),[loading,setLoading]=useState(true);
- useEffect(()=>{const q=new URLSearchParams(location.search).get("name")||"전국";setName(q);(async()=>{let query=dfSupabase.from("df_articles").select("id,title,category,region_code,published_at,updated_at").eq("status","published").order("published_at",{ascending:false}).limit(12);if(q!=="전국")query=query.eq("region_code",q);const{data}=await query;setItems(data||[]);setLoading(false)})()},[]);
+ useEffect(()=>{const q=new URLSearchParams(location.search).get("name")||"전국";setName(q);(async()=>{let query=dfSupabase.from("df_articles").select("id,title,category,region_code,published_at,updated_at").in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(12);if(q!=="전국")query=query.eq("region_code",q);const{data}=await query;setItems(data||[]);setLoading(false)})()},[]);
  return <main className="focusShell dfHigh">
   <DFSubHeader title={name+" FOCUS"} kicker="REGIONAL"/>
   <DFLiveNotice placement="home" region={name==="전국"?null:name}/><section className="dfRegionIntro"><small>REGIONAL INTELLIGENCE</small><h1>{name==="전국"?"전국 개발 흐름":name+"의 개발 흐름"}</h1><p>개발사업·정책·고시·분양·금융 정보를 지역 기준으로 모아봅니다.</p></section>
