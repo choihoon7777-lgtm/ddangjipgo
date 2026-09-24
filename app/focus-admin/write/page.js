@@ -42,7 +42,7 @@ export default function Write(){
   <label>제목<input value={t} onChange={e=>setT(e.target.value)} placeholder="검증된 사실을 중심으로 제목 작성"/></label>
   <label>본문<textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="기사 초안"/></label>
   <div className="dfSourceEditor"><b>공식 출처</b><label>자료명<input value={sourceTitle} onChange={e=>setSourceTitle(e.target.value)} placeholder="예: 국토교통부 보도자료"/></label><label>원문 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://..."/></label><label>근거 원문<textarea value={sourceText} onChange={e=>setSourceText(e.target.value)} placeholder="기사 작성에 사용한 1차 공식자료 원문 또는 핵심 구간"/></label></div>
-  <div className="editorGate"><b>발행 안전장치</b><span>직접 작성 기사는 YELLOW로 저장됩니다. 공식 출처가 반드시 필요하며 사실·숫자·날짜·출처·중복·법적위험을 각각 확인한 뒤에만 발행할 수 있습니다.</span></div>
-  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()||(!sourceText.trim()&&!sourceUrl.trim())} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<p className="adminDataNote">{msg}</p>}
+  <div className="editorGate"><b>발행 안전장치</b><span>직접 작성 기사는 YELLOW로 저장됩니다. 공식 원문 URL과 근거 원문이 모두 필요하며 사실·숫자·날짜·출처·중복·법적위험을 각각 확인한 뒤에만 발행할 수 있습니다.</span></div>
+  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()||!sourceText.trim()||!sourceUrl.trim()} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<p className="adminDataNote">{msg}</p>}
  </section><DFAdminBottomNav active="editor"/></main>
 }
