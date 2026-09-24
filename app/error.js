@@ -1,0 +1,1 @@
+"use client";export default function Error({reset}){return <main className="dfErrorPage"><div><small>SERVICE ERROR</small><h1>화면을 불러오지 못했습니다.</h1><p>잠시 후 다시 시도해 주세요. 같은 문제가 반복되면 운영센터에서 시스템 상태를 확인하세요.</p><button onClick={()=>reset()}>다시 시도</button><a href="/focus">홈으로 →</a></div></main>}
