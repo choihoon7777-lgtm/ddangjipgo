@@ -189,3 +189,56 @@
  .focusHeaderWrap .focusRegionTrigger{min-width:47px}
  .focusHeaderWrap .focusTabs{gap:15px}
 }
+
+
+/* Development Focus home newsroom v2 */
+.dfHomeLead{padding:18px 16px 16px!important}
+.dfHomeLead .focusTitle{margin:0 0 12px}
+.dfHomeLeadCard{display:block;border:1px solid #e5eaf0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 10px 28px #102f530a}
+.dfHomeLeadVisual{min-height:132px;padding:17px 18px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(145deg,#0b2748 0%,#143b62 72%,#1c4a76 100%);color:#fff;position:relative;overflow:hidden}
+.dfHomeLeadVisual:after{content:"";position:absolute;width:135px;height:135px;border:28px solid #ffffff0a;border-radius:50%;right:-48px;top:-43px}
+.dfHomeLeadVisual>div{position:relative;z-index:1}
+.dfHomeLeadVisual small{display:block;margin-bottom:8px;color:#ff8a2b;font-size:8px;font-weight:900;letter-spacing:.35px}
+.dfHomeLeadVisual strong{font-size:20px;line-height:.95;letter-spacing:-.6px;color:#ffffff18}
+.dfHomeLeadVisual>span{position:relative;z-index:1;font-size:8px;color:#d5dfea}
+.dfHomeLeadCopy{padding:17px 18px 16px}
+.dfHomeLeadCopy h1{margin:0;font-size:22px;line-height:1.28;letter-spacing:-1.05px;color:#10233c;word-break:keep-all}
+.dfHomeLeadCopy p{margin:9px 0 0;font-size:10px;line-height:1.65;color:#6d7b89;word-break:keep-all}
+.dfHomeLeadCopy>div{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;padding-top:11px;border-top:1px solid #edf0f3}
+.dfHomeLeadCopy>div span{font-size:7.5px;color:#8a96a2}
+.dfHomeLeadCopy>div b{font-size:8.5px;color:#f47721}
+.dfHomeSecondaries{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.dfHomeSecondaries>a{min-height:126px;padding:13px;border:1px solid #e7ebef;border-radius:15px;background:#fff;display:flex;justify-content:space-between;gap:8px}
+.dfHomeSecondaries>a>div{min-width:0}
+.dfHomeSecondaries small{font-size:7px;color:#f47721;font-weight:850}
+.dfHomeSecondaries h3{margin:6px 0 10px;font-size:11.5px;line-height:1.42;letter-spacing:-.35px;color:#10233c;word-break:keep-all}
+.dfHomeSecondaries span{display:block;font-size:7px;color:#8a96a2}
+.dfHomeSecondaries>a>b{align-self:flex-end;color:#f47721;font-size:15px}
+.dfHomeTrust{margin:0 16px 12px;padding:11px 10px;border-radius:14px;background:#f6f8fa;display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:center;gap:7px}
+.dfHomeTrust div{text-align:center;min-width:0}
+.dfHomeTrust b{display:block;font-size:6.5px;letter-spacing:.7px;color:#f47721}
+.dfHomeTrust span{display:block;margin-top:3px;font-size:7px;color:#647386;white-space:nowrap}
+.dfHomeTrust i{height:25px;background:#e1e6eb}
+.dfLatestBlock{padding-top:7px!important}
+.dfLatestRow{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #edf0f3}
+.dfLatestRow>div{min-width:0}
+.dfLatestRow small{display:block;font-size:7.5px;color:#f47721;font-weight:850}
+.dfLatestRow h3{margin:5px 0 7px;font-size:13px;line-height:1.42;letter-spacing:-.35px;color:#10233c;word-break:keep-all}
+.dfLatestRow span{display:block;font-size:7.3px;color:#8a96a2}
+.dfLatestRow>b{align-self:center;color:#f47721;font-size:16px}
+.dfRegionHome{padding-top:4px!important}
+.dfRegionHomeDesc{margin:-1px 0 12px;font-size:9px;line-height:1.55;color:#778593}
+.dfRegionHome .focusRegions{padding-left:0}
+.dfRegionHome .focusRegions>.focusRegionCard{background:linear-gradient(145deg,#0b2748,#163e66);border:1px solid #173d62}
+@media(max-width:390px){
+ .dfHomeLead{padding:15px 13px 14px!important}
+ .dfHomeLeadVisual{min-height:118px;padding:15px}
+ .dfHomeLeadCopy{padding:15px}
+ .dfHomeLeadCopy h1{font-size:20px}
+ .dfHomeSecondaries{gap:7px}
+ .dfHomeSecondaries>a{min-height:120px;padding:11px}
+ .dfHomeSecondaries h3{font-size:11px}
+ .dfHomeTrust{margin-left:13px;margin-right:13px;padding:10px 8px;gap:5px}
+ .dfHomeTrust b{font-size:6px}
+ .dfHomeTrust span{font-size:6.5px}
+}
