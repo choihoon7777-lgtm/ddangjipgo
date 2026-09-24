@@ -4,15 +4,15 @@ import{dfSupabase}from"../../lib/df-browser";
 import{DFSubHeader,DFBottomNav}from"../../components/df-shell";
 
 export default function Login(){
- const[email,setEmail]=useState(""),[password,setPassword]=useState(""),[mode,setMode]=useState("login"),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");
- useEffect(()=>{(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(user){const next=new URLSearchParams(location.search).get("next")||"/my";location.replace(next)}})()},[]);
+ const[email,setEmail]=useState(""),[password,setPassword]=useState(""),[mode,setMode]=useState("login"),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");\n const safeNext=()=>{const raw=new URLSearchParams(location.search).get("next")||"/my";return raw.startsWith("/")&&!raw.startsWith("//")?raw:"/my"};
+ useEffect(()=>{(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(user){location.replace(safeNext())}})()},[]);
  async function submit(){
   setBusy(true);setMsg("");
   try{
    if(!email.trim()||password.length<8)throw new Error("이메일과 8자 이상 비밀번호를 입력하세요.");
    if(mode==="login"){
     const{error}=await dfSupabase.auth.signInWithPassword({email:email.trim().toLowerCase(),password});if(error)throw error;
-    const next=new URLSearchParams(location.search).get("next")||"/my";location.replace(next);
+    location.replace(safeNext());
    }else{
     const{data,error}=await dfSupabase.auth.signUp({email:email.trim().toLowerCase(),password});if(error)throw error;
     if(data.session){location.replace("/my");return}
