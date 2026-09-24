@@ -13,7 +13,7 @@ export default function Notices(){
    const{data:{user}}=await dfSupabase.auth.getUser();
    const start=form.starts_at?new Date(form.starts_at).toISOString():new Date().toISOString();
    const end=form.ends_at?new Date(form.ends_at).toISOString():null;
-   const status=desiredStatus;
+   if(end&&new Date(end)<=new Date(start))throw new Error("공지 종료일시는 시작일시보다 뒤여야 합니다.");\n   const status=desiredStatus;
    const{error}=await dfSupabase.from("df_notices").insert({title:form.title.trim(),body:form.body.trim(),notice_type:form.notice_type,placement:form.placement,region_code:form.region_code.trim()||null,starts_at:start,ends_at:end,is_pinned:form.is_pinned,status,created_by:user?.id||null,updated_at:new Date().toISOString()});
    if(error)throw error;setForm(initial);setShow(false);await load();setMsg("공지를 저장했습니다.");
   }catch(e){setMsg(e.message||"공지 저장 실패")}finally{setBusy(false)}
