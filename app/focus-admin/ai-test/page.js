@@ -64,7 +64,8 @@ export default function AITest(){
    const meta=sourceMeta(s);
    const{data:cmp,error:cmpErr}=await dfSupabase.rpc("df_source_compare",{p_source_url:meta.url,p_source_text:s});if(cmpErr)throw cmpErr;
    const sourceStatus=cmp?.[0]?.status||"new";
-   const duplicatePassed=sourceStatus!=="duplicate";
+   const{data:sourceSeen,error:seenErr}=await dfSupabase.rpc("df_article_source_seen",{p_source_url:meta.url,p_source_text:s});if(seenErr)throw seenErr;
+   const duplicatePassed=!sourceSeen;
    const legal=risk==="red"?"blocked":risk==="yellow"?"manual_required":"pending";
    const{data:articleId,error}=await dfSupabase.rpc("df_create_article_candidate",{
     p_title:title,p_body:articleBody,p_category:category,p_region_code:region==="전국"?null:region,p_risk_level:risk,p_confidence:risk==="green"?0.9:0.5,
@@ -76,7 +77,7 @@ export default function AITest(){
    if(error)throw error;
    const summary=extractSummary(r.article);
    if(summary.length)await dfSupabase.from("df_articles").update({summary_3line:summary}).eq("id",articleId);
-   setSaved(sourceStatus==="duplicate"?"같은 원문이 이미 있어 중복 확인 상태로 저장했습니다.":sourceStatus==="changed"?"같은 공식 URL의 변경자료로 감지해 승인대기함에 저장했습니다.":"승인대기함에 저장했습니다. 공식 출처는 사람이 확인해야 발행할 수 있습니다.");
+   setSaved(!duplicatePassed?"같은 공식자료를 사용한 기사 후보가 이미 있어 중복 확인 상태로 저장했습니다.":sourceStatus==="changed"?"같은 공식 URL의 변경자료로 감지해 승인대기함에 저장했습니다.":"승인대기함에 저장했습니다. 공식 출처는 사람이 확인해야 발행할 수 있습니다.");
   }catch(e){setSaved(e.message||"저장 실패")}finally{setSaving(false)}
  }
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="AI 편집국" kicker="SOURCE → FACT → DESK → VERIFY"/>
