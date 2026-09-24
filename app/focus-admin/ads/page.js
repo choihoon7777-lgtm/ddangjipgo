@@ -17,7 +17,7 @@ export default function Ads(){
  async function create(){
   setBusy(true);setMsg("");
   try{
-   if(!form.start_at||!form.end_at)throw new Error("광고 시작일과 종료일을 입력하세요.");
+   if(!form.start_at||!form.end_at)throw new Error("광고 시작일과 종료일을 입력하세요.");\n   if(new Date(form.end_at)<=new Date(form.start_at))throw new Error("광고 종료일시는 시작일시보다 뒤여야 합니다.");
    const{error}=await dfSupabase.from("df_ad_campaigns").insert({
     advertiser_name:form.advertiser_name.trim(),contact_name:form.contact_name.trim()||null,contact_phone:form.contact_phone.trim()||null,contact_email:form.contact_email.trim()||null,
     slot_id:form.slot_id||null,region_code:form.region_code.trim()||null,start_at:new Date(form.start_at).toISOString(),end_at:new Date(form.end_at).toISOString(),
