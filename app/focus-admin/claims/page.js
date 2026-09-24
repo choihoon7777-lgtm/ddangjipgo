@@ -12,10 +12,13 @@ export default function Claims(){
  }
  useEffect(()=>{load()},[filter]);
  async function setStatus(x,status){
-  setBusy(x.id);setMsg("");
+  setMsg("");
+  const resolution=(notes[x.id]??x.resolution_note??"").trim();
+  if((status==="resolved"||status==="rejected")&&!resolution){setMsg("처리완료 또는 반려 전 처리 메모를 입력하세요.");return}
+  setBusy(x.id);
   const{data:{user}}=await dfSupabase.auth.getUser();
   const patch={status,updated_at:new Date().toISOString()};
-  if(status==="resolved"||status==="rejected"){patch.resolved_at=new Date().toISOString();patch.resolved_by=user?.id||null;patch.resolution_note=(notes[x.id]||"").trim()||null}
+  if(status==="resolved"||status==="rejected"){patch.resolved_at=new Date().toISOString();patch.resolved_by=user?.id||null;patch.resolution_note=resolution}
   else{patch.resolved_at=null;patch.resolved_by=null}
   const{error}=await dfSupabase.from("df_claims").update(patch).eq("id",x.id);
   if(error)setMsg(error.message);await load();setBusy("");
