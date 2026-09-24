@@ -22,14 +22,14 @@ export default function Stats(){
  })()},[days]);
  const totalViews=useMemo(()=>traffic.reduce((n,x)=>n+Number(x.pageviews||0),0),[traffic]);
  const top=useMemo(()=>{const m={};for(const x of articleStats){const k=x.article_id;m[k]=m[k]||{id:k,title:x.df_articles?.title||"기사",views:0};m[k].views+=Number(x.pageviews||0)}return Object.values(m).sort((a,b)=>b.views-a.views).slice(0,5)},[articleStats]);
- const ads=useMemo(()=>adStats.reduce((o,x)=>({impressions:o.impressions+Number(x.impressions||0),clicks:o.clicks+Number(x.clicks||0)}),{impressions:0,clicks:0}),[adStats]);
+ const ads=useMemo(()=>adStats.reduce((o,x)=>({impressions:o.impressions+Number(x.impressions||0),clicks:o.clicks+Number(x.clicks||0)}),{impressions:0,clicks:0}),[adStats]);\n const collectedDays=useMemo(()=>new Set(traffic.map(x=>x.stat_date)).size,[traffic]);
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="운영 통계" kicker="ANALYTICS"/>
  <section className="adminPanel"><div className="statTabs">{[1,7,30].map(x=><button className={days===x?"on":""} onClick={()=>setDays(x)} key={x}>{x===1?"오늘":x+"일"}</button>)}</div>
  {msg&&<div className="editorGate"><span>{msg}</span></div>}
  <div className="adminStats"><div><b>{loading?"—":totalViews.toLocaleString()}</b><span>기사 조회</span></div><div><b>{counts.published??"—"}</b><span>발행기사</span></div><div><b>{counts.watchlists??"—"}</b><span>관심부동산</span></div><div><b>{counts.saved??"—"}</b><span>기사저장</span></div></div>
  </section>
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>CONTENT</small><h2>인기 기사</h2></div><span>{days}일</span></div>{top.length?<div className="dfStatsRank">{top.map((x,i)=><a href={"/focus/article?id="+x.id} key={x.id}><b>{i+1}</b><span>{x.title}</span><strong>{x.views.toLocaleString()}뷰</strong></a>)}</div>:<div className="adminEmpty"><b>아직 조회 데이터가 없습니다.</b><span>기사 공개 후 실제 열람이 발생하면 자동 집계됩니다.</span></div>}</section>
- <section className="adminPanel"><div className="adminSectionTitle"><div><small>BUSINESS</small><h2>광고·운영</h2></div></div><div className="adminStats"><div><b>{ads.impressions.toLocaleString()}</b><span>광고 노출</span></div><div><b>{ads.clicks.toLocaleString()}</b><span>광고 클릭</span></div><div><b>{counts.claims??0}</b><span>정정 처리중</span></div><div><b>{traffic.length}</b><span>집계구간</span></div></div></section>
+ <section className="adminPanel"><div className="adminSectionTitle"><div><small>BUSINESS</small><h2>광고·운영</h2></div></div><div className="adminStats"><div><b>{ads.impressions.toLocaleString()}</b><span>광고 노출</span></div><div><b>{ads.clicks.toLocaleString()}</b><span>광고 클릭</span></div><div><b>{counts.claims??0}</b><span>정정 처리중</span></div><div><b>{collectedDays}</b><span>집계일수</span></div></div></section>
  <p className="adminDataNote">조회수와 광고 노출·클릭은 개발포커스 내부 이벤트 기준 실제 집계값입니다. 외부 분석도구 수치는 별도 연동하지 않습니다.</p>
  <DFAdminBottomNav active="stats"/></main>
 }
