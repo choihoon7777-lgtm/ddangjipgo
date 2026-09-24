@@ -1,0 +1,1 @@
+export default function manifest(){return{name:"개발포커스 DEVELOPMENT FOCUS",short_name:"개발포커스",description:"도시의 변화를 가장 먼저 읽다.",start_url:"/focus",display:"standalone",background_color:"#ffffff",theme_color:"#0b2748",lang:"ko",icons:[{src:"/development-focus-logo.jpg",sizes:"300x92",type:"image/jpeg",purpose:"any"}]}}

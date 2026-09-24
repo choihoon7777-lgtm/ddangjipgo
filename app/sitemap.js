@@ -1,0 +1,1 @@
+import{getSiteUrl}from"../lib/df-site";export default function sitemap(){const base=getSiteUrl(),now=new Date();return["/focus","/focus/live","/focus/region","/focus/projects","/focus/search","/search"].map(path=>({url:base+path,lastModified:now,changeFrequency:path==="/focus"?"hourly":"daily",priority:path==="/focus"?1:.8}))}

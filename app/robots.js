@@ -1,0 +1,1 @@
+import{getSiteUrl}from"../lib/df-site";export default function robots(){const base=getSiteUrl();return{rules:{userAgent:"*",allow:"/",disallow:["/focus-admin/","/my/","/alerts","/api/"]},sitemap:base+"/sitemap.xml",host:base}}

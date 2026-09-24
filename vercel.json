@@ -1,6 +1,1 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": false
-  }
-}
+{"$schema":"https://openapi.vercel.sh/vercel.json","git":{"deploymentEnabled":false},"crons":[{"path":"/api/focus-collector","schedule":"15 */3 * * *"},{"path":"/api/focus-scheduled-publish","schedule":"*/15 * * * *"},{"path":"/api/focus-alert-dispatch","schedule":"5 * * * *"}]}

@@ -4,6 +4,7 @@ import{createHash}from"crypto";
 
 const SUPABASE_URL="https://svafsvyjjufbqvxzoqee.supabase.co";
 const SUPABASE_KEY="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";
+const SERVICE_KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||"";
 export const maxDuration=60;
 
 const FALLBACK_LISTS={
@@ -12,9 +13,12 @@ const FALLBACK_LISTS={
  "행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"
 };
 
-async function adminClient(req){
+async function authorizedClient(req){
  const auth=req.headers.get("authorization")||"";
  const token=auth.startsWith("Bearer ")?auth.slice(7):"";
+ if(process.env.CRON_SECRET&&SERVICE_KEY&&token===process.env.CRON_SECRET){
+  return createClient(SUPABASE_URL,SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+ }
  if(!token)return null;
  const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
  const{data:{user},error}=await sb.auth.getUser(token);if(error||!user)return null;
@@ -68,9 +72,9 @@ async function fullText(link,fallback){
  }catch{return fallback}
 }
 
-export async function POST(req){
+async function runCollector(req){
  try{
-  const sb=await adminClient(req);if(!sb)return NextResponse.json({error:"NEWSROOM_AUTH_REQUIRED"},{status:401});
+  const sb=await authorizedClient(req);if(!sb)return NextResponse.json({error:"NEWSROOM_AUTH_REQUIRED"},{status:401});
   const{data:sources,error}=await sb.from("df_sources").select("id,name,feed_url,base_url").eq("is_active",true).eq("collector_enabled",true);
   if(error)throw error;
   let discovered=0,created=0,changed=0,unchanged=0,failed=0;
@@ -120,3 +124,6 @@ export async function POST(req){
   return NextResponse.json({ok:true,discovered,created,changed,unchanged,failed,detail});
  }catch(e){return NextResponse.json({error:e.message||"공식자료 수집 실패"},{status:500})}
 }
+
+export async function POST(req){return runCollector(req)}
+export async function GET(req){return runCollector(req)}

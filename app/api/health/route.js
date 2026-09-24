@@ -16,7 +16,10 @@ export async function GET(){
    ai:direct||gateway?"configured":"missing",
    aiTransport:direct?"openai-direct":gateway?"vercel-ai-gateway":"missing",
    landTradeApi:process.env.DATA_GO_KR_SERVICE_KEY?"configured":"missing",
-   officialCollector:"rss_plus_html_fallback"
+   officialCollector:"rss_plus_html_fallback",
+   automation:process.env.CRON_SECRET&&process.env.SUPABASE_SERVICE_ROLE_KEY?"configured":"missing",
+   emailAlerts:process.env.RESEND_API_KEY&&process.env.ALERT_FROM_EMAIL?"configured":"missing",
+   siteUrl:process.env.NEXT_PUBLIC_SITE_URL||process.env.VERCEL_PROJECT_PRODUCTION_URL?"configured":"missing"
   },
   timestamp:new Date().toISOString()
  })
