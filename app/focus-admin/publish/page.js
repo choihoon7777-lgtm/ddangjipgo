@@ -12,9 +12,9 @@ const checks=[
 ];
 
 export default function Publish(){
- const[items,setItems]=useState([]),[busy,setBusy]=useState(""),[msg,setMsg]=useState("");
+ const[items,setItems]=useState([]),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({});
  async function load(){
-  const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
+  const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at,scheduled_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
   if(error){setMsg(error.message);return}setItems(data||[]);
  }
  useEffect(()=>{load()},[]);
@@ -53,11 +53,32 @@ export default function Publish(){
   setBusy(x.article_id+"hold");setMsg("");
   const{data:{user}}=await dfSupabase.auth.getUser();
   const next=x.df_articles?.status==="held"?"review":"held";
-  const{error}=await dfSupabase.from("df_articles").update({status:next,updated_at:new Date().toISOString()}).eq("id",x.article_id);
+  const{error}=await dfSupabase.from("df_articles").update({status:next,scheduled_at:null,scheduled_by:null,updated_at:new Date().toISOString()}).eq("id",x.article_id);
   if(error)setMsg(error.message);else{const{error:logError}=await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:next==="held"?"hold":"edit",actor_id:user?.id||null,reason:next==="held"?"편집국 보류":"편집국 보류 해제",metadata:next==="held"?{}:{workflow_action:"resume"}});if(logError)setMsg("상태는 변경됐지만 감사로그 저장에 실패했습니다: "+logError.message)}
   await load();setBusy("");
  }
+ async function schedule(x){
+  const value=scheduleTimes[x.article_id];
+  if(!value){setMsg("예약 발행일시를 선택하세요.");return}
+  const when=new Date(value);
+  if(Number.isNaN(when.getTime())||when<=new Date()){setMsg("현재 이후의 예약시간을 선택하세요.");return}
+  if(!confirm(when.toLocaleString("ko-KR")+"에 이 기사를 예약발행할까요?"))return;
+  setBusy(x.article_id+"schedule");setMsg("");
+  const{data:{user}}=await dfSupabase.auth.getUser();
+  const{error}=await dfSupabase.rpc("df_schedule_article",{p_article_id:x.article_id,p_scheduled_at:when.toISOString(),p_actor:user?.id||null});
+  if(error)setMsg(error.message);else setMsg("예약발행을 설정했습니다.");
+  await load();setBusy("");
+ }
+ async function cancelSchedule(x){
+  if(!confirm("예약발행을 취소할까요?"))return;
+  setBusy(x.article_id+"cancel");setMsg("");
+  const{data:{user}}=await dfSupabase.auth.getUser();
+  const{error}=await dfSupabase.rpc("df_cancel_scheduled_article",{p_article_id:x.article_id,p_actor:user?.id||null});
+  if(error)setMsg(error.message);else setMsg("예약발행을 취소했습니다.");
+  await load();setBusy("");
+ }
  async function publish(x){
+  if(!confirm("검증을 마친 이 기사를 지금 공개할까요?"))return;
   setBusy(x.article_id+"publish");setMsg("");
   try{
    const{data:{user}}=await dfSupabase.auth.getUser();
@@ -80,8 +101,10 @@ export default function Publish(){
   <div className="dfReviewActions"><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
    {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}
    {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
+   {passed&&!["published","corrected"].includes(a.status)&&<div className="dfScheduleBox"><input type="datetime-local" value={scheduleTimes[x.article_id]||""} onChange={e=>setScheduleTimes({...scheduleTimes,[x.article_id]:e.target.value})}/><button className="adminSecondary" disabled={busy!==""} onClick={()=>schedule(x)}>예약발행</button>{a.scheduled_at&&<button className="adminSecondary" disabled={busy!==""} onClick={()=>cancelSchedule(x)}>예약취소</button>}</div>}
+   {a.scheduled_at&&<p className="dfScheduleState">예약 · {new Date(a.scheduled_at).toLocaleString("ko-KR")}</p>}
    <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>{a.status==="held"?"보류 해제":"보류"}</button>
-   <button className="adminPrimary" disabled={!passed||busy!==""||["published","corrected"].includes(a.status)} onClick={()=>publish(x)}>{["published","corrected"].includes(a.status)?"발행완료":"발행"}</button>
+   <button className="adminPrimary" disabled={!passed||busy!==""||["published","corrected"].includes(a.status)} onClick={()=>publish(x)}>{["published","corrected"].includes(a.status)?"발행완료":a.scheduled_at?"지금 발행":"발행"}</button>
   </div>
  </article>})}
  </section><DFAdminBottomNav active="editor"/></main>

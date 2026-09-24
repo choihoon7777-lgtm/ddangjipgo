@@ -25,6 +25,9 @@ export default function System(){
   ["검증·발행 게이트","연결됨"],
   ["Supabase 운영DB",c.database==="configured"?"연결됨":c.database==="error"?"조회 실패":"확인 필요"],
   ["토지 실거래 API",c.landTradeApi==="configured"?"연결됨":"외부 API 키 미연결"],
+  ["자동수집·예약발행",c.automation==="configured"?"운영 준비됨":"배포 환경키 필요"],
+  ["이메일 알림",c.emailAlerts==="configured"?"운영 준비됨":"RESEND 키·발신주소 필요"],
+  ["SEO 사이트 URL",c.siteUrl==="configured"?"연결됨":"배포 URL 확인 필요"],
   ["땅짚고 관심부동산","연결됨"]
  ];
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="시스템 상태" kicker="OPERATIONS"/>

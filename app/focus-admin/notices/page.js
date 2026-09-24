@@ -19,7 +19,7 @@ export default function Notices(){
    if(error)throw error;setForm(initial);setShow(false);await load();setMsg("공지를 저장했습니다.");
   }catch(e){setMsg(e.message||"공지 저장 실패")}finally{setBusy(false)}
  }
- async function changeStatus(item,status){setBusy(true);setMsg("");const now=new Date();const patch={status,updated_at:now.toISOString()};if(status==="published"){const scheduled=item.starts_at&&new Date(item.starts_at)>now;patch.starts_at=scheduled?item.starts_at:now.toISOString();if(item.ends_at&&new Date(item.ends_at)<=now)patch.ends_at=null}if(status==="ended")patch.ends_at=now.toISOString();const{error}=await dfSupabase.from("df_notices").update(patch).eq("id",item.id);if(error)setMsg(error.message);await load();setBusy(false)}
+ async function changeStatus(item,status){if(status==="ended"&&!confirm("이 공지 노출을 종료할까요?"))return;setBusy(true);setMsg("");const now=new Date();const patch={status,updated_at:now.toISOString()};if(status==="published"){const scheduled=item.starts_at&&new Date(item.starts_at)>now;patch.starts_at=scheduled?item.starts_at:now.toISOString();if(item.ends_at&&new Date(item.ends_at)<=now)patch.ends_at=null}if(status==="ended")patch.ends_at=now.toISOString();const{error}=await dfSupabase.from("df_notices").update(patch).eq("id",item.id);if(error)setMsg(error.message);await load();setBusy(false)}
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="공지 관리" kicker="NOTICE"/>
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>PUBLIC NOTICE</small><h2>공지</h2></div><button className="miniBtn" onClick={()=>setShow(!show)}>+ 새 공지</button></div>
  {show&&<div className="dfAdminFormBox">

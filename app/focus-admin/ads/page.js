@@ -48,7 +48,7 @@ export default function Ads(){
  {x.payment_status!=="paid"&&<button onClick={()=>patch(x.id,{payment_status:"paid"})}>결제확인</button>}
  {["approved","paused"].includes(x.status)&&x.payment_status==="paid"&&<button onClick={()=>patch(x.id,{status:"active"})}>게시</button>}
  {x.status==="active"&&<button onClick={()=>patch(x.id,{status:"paused"})}>일시정지</button>}
- {!["ended","rejected"].includes(x.status)&&<button onClick={()=>patch(x.id,{status:"ended"})}>종료</button>}
+ {!["ended","rejected"].includes(x.status)&&<button onClick={()=>{if(confirm("이 광고 캠페인을 종료할까요?"))patch(x.id,{status:"ended"})}}>종료</button>}
  </div></article>)}</div>}
  </section><DFAdminBottomNav active="ads"/></main>
 }
