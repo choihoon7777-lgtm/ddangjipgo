@@ -9,6 +9,7 @@ export default function Write(){
   setBusy(true);setMsg("");
   try{
    const{data:cmp,error:cmpErr}=await dfSupabase.rpc("df_source_compare",{p_source_url:sourceUrl.trim()||null,p_source_text:sourceText.trim()||""});if(cmpErr)throw cmpErr;const sourceStatus=cmp?.[0]?.status||"new";
+   const{data:sourceSeen,error:seenErr}=await dfSupabase.rpc("df_article_source_seen",{p_source_url:sourceUrl.trim()||null,p_source_text:sourceText.trim()||""});if(seenErr)throw seenErr;
    const{data,error}=await dfSupabase.rpc("df_create_article_candidate",{
     p_title:t.trim(),
     p_body:body.trim(),
@@ -24,14 +25,14 @@ export default function Write(){
     p_numeric_check_passed:false,
     p_date_check_passed:false,
     p_source_check_passed:false,
-    p_duplicate_check_passed:sourceStatus!=="duplicate",
+    p_duplicate_check_passed:!sourceSeen,
     p_legal_check_status:"manual_required",
     p_ai_fact:"",
     p_ai_verification:"",
     p_ai_models:{source_status:sourceStatus}
    });
    if(error)throw error;
-   setMsg(sourceStatus==="duplicate"?"같은 공식 원문이 이미 있어 중복 확인 상태로 저장했습니다.":"검증 대기열에 저장했습니다. 공식 출처를 확인한 뒤에만 발행할 수 있습니다.");
+   setMsg(sourceSeen?"같은 공식자료를 사용한 기사 후보가 이미 있어 중복 확인 상태로 저장했습니다.":"검증 대기열에 저장했습니다. 공식 출처를 확인한 뒤에만 발행할 수 있습니다.");
    setT("");setBody("");setSourceTitle("");setSourceUrl("");setSourceText("");
   }catch(e){setMsg(e.message||"저장에 실패했습니다.")}finally{setBusy(false)}
  }
