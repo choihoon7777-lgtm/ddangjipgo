@@ -8,7 +8,9 @@ export default function Search(){
  const sidos=Object.keys(data).sort((a,b)=>a.localeCompare(b,"ko"));
  const sigungus=Object.keys(data[s1]?.children||{}).sort((a,b)=>a.localeCompare(b,"ko"));
  const dongs=Object.keys(data[s1]?.children?.[s2]?.children||{}).sort((a,b)=>a.localeCompare(b,"ko"));
- const structured=[s1,s2,s3,lot.trim()].filter(Boolean).join(" ");\n const address=manual.trim()||structured;\n const ready=manual.trim().length>=5||!!(s1&&s2&&s3&&lot.trim());
+ const structured=[s1,s2,s3,lot.trim()].filter(Boolean).join(" ");
+ const address=manual.trim()||structured;
+ const ready=manual.trim().length>=5||!!(s1&&s2&&s3&&lot.trim());
  function sido(v){setS1(v);setS2("");setS3("")} function sigungu(v){setS2(v);setS3("")}
  async function smart(){if(!address)return;try{await navigator.clipboard.writeText(address)}catch{}window.open("https://www.kgeop.go.kr","_blank","noopener")}
  return <main className="parcelFinder dfLandPage"><DFSubHeader title="땅짚고" kicker="LAND INTELLIGENCE" right={null}/><DFLiveNotice placement="land"/>
