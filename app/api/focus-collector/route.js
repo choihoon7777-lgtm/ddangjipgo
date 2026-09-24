@@ -24,7 +24,7 @@ function tag(block,name){
 function items(xml){
  return [...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].map(x=>x[1]).map(b=>({title:tag(b,"title"),link:tag(b,"link")||tag(b,"guid"),description:tag(b,"description"),pubDate:tag(b,"pubDate")||tag(b,"dc:date")})).filter(x=>x.title&&x.link);
 }
-function hash(x){return createHash("sha256").update(x||"").digest("hex")}
+function hash(x){return createHash("md5").update(x||"").digest("hex")}
 
 export async function POST(req){
  try{
