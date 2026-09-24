@@ -1,7 +1,7 @@
 "use client";
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
-const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시","분양","금융","건설사 동향"];
+const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시","분양","금융","건설사 동향"];\nconst regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
@@ -27,7 +27,7 @@ export function DFBrandHeader(){
    </div>
   </header>
   {regionOpen&&<div className="focusHeaderPopover focusRegionMenu" id="focus-region-menu"><div className="focusPopoverHead"><b>지역 FOCUS</b><a href="/focus/region">전국보기 →</a></div><div className="focusRegionMenuGrid">{["전국",...regions].map(x=><a key={x} href={x==="전국"?"/focus/region":"/focus/region?name="+encodeURIComponent(x)} onClick={()=>setRegionOpen(false)}>{x}</a>)}</div></div>}
-  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/my/saved"><b>저장기사</b><span>다시 볼 기사 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>부동산 분석 →</span></a></div>}
+  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
   <nav className="focusTabs" aria-label="개발포커스 주요 메뉴"><a className={activeFor("홈")?"active":""} href="/focus">홈</a>{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
  </div>
 }
@@ -80,4 +80,20 @@ export function DFAdminHeader({title="개발포커스 운영센터",kicker="OPER
 export function DFAdminBottomNav({active="home"}){
  const items=[["home","⌂","운영","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
  return <nav className="adminBottom dfAdminBottom">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} href={href} key={id}><span>{icon}</span><b>{label}</b></a>)}</nav>
+}
+
+
+export function DFToast({message,onClose,tone="default"}){
+ useEffect(()=>{if(!message)return;const t=setTimeout(()=>onClose?.(),2800);return()=>clearTimeout(t)},[message,onClose]);
+ if(!message)return null;
+ return <div className={"dfToast "+tone} role="status"><span>{message}</span><button type="button" aria-label="닫기" onClick={()=>onClose?.()}>×</button></div>
+}
+export function DFConfirmModal({open,title,body,confirmLabel="확인",cancelLabel="취소",danger=false,onConfirm,onCancel}){
+ if(!open)return null;
+ return <div className="dfModalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onCancel?.()}}>
+  <section className="dfConfirmModal" role="dialog" aria-modal="true" aria-labelledby="df-confirm-title">
+   <small>CONFIRM</small><h2 id="df-confirm-title">{title}</h2>{body&&<p>{body}</p>}
+   <div><button type="button" className="dfModalCancel" onClick={()=>onCancel?.()}>{cancelLabel}</button><button type="button" className={danger?"dfModalDanger":"dfModalConfirm"} onClick={()=>onConfirm?.()}>{confirmLabel}</button></div>
+  </section>
+ </div>
 }

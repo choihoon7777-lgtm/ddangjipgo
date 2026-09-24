@@ -298,3 +298,34 @@
 .focusQuickMenu .focusAdminShortcut{background:#0b2748;border-radius:11px;margin-bottom:5px;border-bottom:0}
 .focusQuickMenu .focusAdminShortcut b{color:#fff}
 .focusQuickMenu .focusAdminShortcut span{color:#ffb174}
+
+
+/* UX/UI refinement v3 */
+.dfToast{position:fixed;z-index:130;left:50%;bottom:84px;transform:translateX(-50%);width:min(420px,calc(100% - 28px));min-height:48px;padding:12px 12px 12px 15px;border-radius:14px;background:#10233c;color:#fff;box-shadow:0 16px 40px #10233c35;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dfToast span{font-size:12px;line-height:1.45}.dfToast button{width:32px;height:32px;border:0;border-radius:50%;background:#ffffff18;color:#fff;font-size:18px}
+.dfModalBackdrop{position:fixed;z-index:140;inset:0;padding:18px;background:#07142688;display:flex;align-items:flex-end;justify-content:center}
+.dfConfirmModal{width:min(440px,100%);padding:20px;border-radius:20px;background:#fff;box-shadow:0 24px 70px #07142645}
+.dfConfirmModal small{font-size:10px;letter-spacing:1.2px;color:#f47721;font-weight:900}.dfConfirmModal h2{margin:6px 0 0;font-size:20px;color:#10233c}.dfConfirmModal p{margin:9px 0 0;font-size:13px;line-height:1.55;color:#66778a}
+.dfConfirmModal>div{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}.dfConfirmModal button{height:46px;border-radius:12px;font-size:13px;font-weight:850}.dfModalCancel{border:1px solid #dfe5ea;background:#fff;color:#536579}.dfModalConfirm{border:1px solid #0b2748;background:#0b2748;color:#fff}.dfModalDanger{border:1px solid #a93535;background:#a93535;color:#fff}
+.dfHomeIntro{margin:16px;padding:22px;border-radius:22px;background:linear-gradient(145deg,#0b2748,#153d65);color:#fff}.dfHomeIntro small{font-size:10px;letter-spacing:1.15px;color:#ff8a2b;font-weight:900}.dfHomeIntro h1{margin:8px 0 0;font-size:28px;line-height:1.2;letter-spacing:-1.3px}.dfHomeIntro p{margin:10px 0 0;font-size:13px;line-height:1.55;color:#d3dde7}.dfHomeIntro>div{display:flex;gap:8px;margin-top:17px}.dfHomeIntro a{min-height:44px;padding:0 13px;border-radius:11px;background:#fff;color:#0b2748;display:flex;align-items:center;font-size:12px;font-weight:850}.dfHomeIntro a:last-child{background:#ffffff12;color:#fff;border:1px solid #ffffff28}
+.dfFeaturedRegions{grid-template-columns:repeat(3,1fr)!important}.dfAllRegions{background:#f5f7f9!important;border-color:#e3e8ed!important}.dfAllRegions b,.dfAllRegions span,.dfAllRegions small{color:#0b2748!important}
+.dfAdminHeroCompact{padding-top:20px!important;padding-bottom:15px!important}.dfAdminHeroCompact h1{font-size:26px!important}.dfAdminQuickGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dfAdminQuickGrid a{min-height:86px;padding:14px;border:1px solid #e7ebef;border-radius:14px;background:#fff;display:flex;flex-direction:column;justify-content:space-between}.dfAdminQuickGrid b{font-size:13px;color:#10233c}.dfAdminQuickGrid span{font-size:11px;color:#7b8998}.dfAdminAllMenu{margin:0 12px 12px;border:1px solid #e5eaee;border-radius:16px;background:#fff;overflow:hidden}.dfAdminAllMenu>summary{list-style:none;padding:15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}.dfAdminAllMenu>summary::-webkit-details-marker{display:none}.dfAdminAllMenu>summary small{display:block;font-size:9px;letter-spacing:1px;color:#f47721;font-weight:850}.dfAdminAllMenu>summary b{display:block;margin-top:3px;font-size:14px;color:#10233c}.dfAdminAllMenu>summary strong{font-size:11px;color:#6f7e8d}.dfAdminAllMenu[open]>summary strong{font-size:0}.dfAdminAllMenu[open]>summary strong:after{content:"접기";font-size:11px}
+.focusHeaderWrap .focusTool{min-width:40px;height:40px}.focusHeaderWrap .focusToolIcon{width:40px}.focusQuickMenu a{min-height:48px}.focusQuickMenu b{font-size:12px}.focusQuickMenu span{font-size:10px}
+.dfArticleActions button,.dfArticleActions a,.dfListActions button,.miniBtn,.adminPrimary,.adminSecondary{min-height:42px}
+.dfArticleActions button,.dfArticleActions a{font-size:11px}
+.focusEyebrow,.focusTitle>a{font-size:10px!important}.focusTitle h2{font-size:18px!important}.dfLatestRow small,.dfHomeSecondaries small{font-size:10px!important}.dfLatestRow h3{font-size:15px!important}.dfLatestRow span,.dfHomeSecondaries span{font-size:11px!important}.dfRegionHomeDesc{font-size:12px!important}
+.adminDataNote,.dfAdminGroup .adminMenu span{font-size:11px!important;line-height:1.5}.dfAdminGroup .adminMenu b{font-size:13px!important}
+@media(max-width:390px){
+ .focusHeaderWrap .focusHeader{min-height:62px;padding:8px 10px}.focusHeaderWrap .focusBrandLogo{width:166px;max-width:55vw}
+ .focusHeaderWrap .focusRegionTrigger{display:none}.focusHeaderWrap .focusTool{height:44px;min-width:44px}.focusHeaderWrap .focusToolIcon{width:44px}
+ .focusHeaderWrap .focusTabs{height:44px;padding:0 12px;gap:22px;font-size:12px}.focusHeaderWrap .focusTabs a{height:44px}.focusHeaderWrap .focusTabs a:nth-child(n+5){display:none}
+ .focusHeaderPopover{top:61px}.focusQuickMenu{width:min(270px,calc(100vw - 20px))}
+ .focusQuickMenu a{min-height:52px;padding:11px 12px}.focusQuickMenu b{font-size:13px}.focusQuickMenu span{font-size:11px}
+ .dfHomeLead{padding:14px 13px!important}.dfHomeLeadCopy h1{font-size:22px!important}.dfHomeLeadCopy p{font-size:13px!important}.dfHomeLeadCopy>div span,.dfHomeLeadCopy>div b{font-size:10px!important}
+ .dfHomeSecondaries{grid-template-columns:1fr}.dfHomeSecondaries>a{min-height:104px}.dfHomeSecondaries h3{font-size:14px!important}
+ .dfHomeTrust{grid-template-columns:1fr 1px 1fr 1px 1fr}.dfHomeTrust b{font-size:8px!important}.dfHomeTrust span{font-size:9px!important}
+ .dfHomeIntro{margin:13px;padding:20px}.dfHomeIntro h1{font-size:26px}.dfHomeIntro p{font-size:13px}.dfHomeIntro>div{display:grid}.dfHomeIntro a{justify-content:center}
+ .dfFeaturedRegions{grid-template-columns:repeat(2,1fr)!important}.focusRegionCard{min-height:92px}.focusRegionCard b{font-size:16px!important}.focusRegionCard span,.focusRegionCard small{font-size:10px!important}
+ .dfAdminHeroCompact{padding:17px 15px!important}.dfAdminQuickGrid{grid-template-columns:1fr 1fr}.dfAdminQuickGrid a{min-height:92px}.dfAdminQuickGrid b{font-size:13px}.dfAdminQuickGrid span{font-size:11px}
+ .dfModalBackdrop{align-items:flex-end;padding:10px}.dfConfirmModal{border-radius:20px 20px 14px 14px}
+}
