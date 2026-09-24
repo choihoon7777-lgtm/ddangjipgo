@@ -6,10 +6,5 @@
       "dev-focus-signature-v1": true,
       "main": false
     }
-  },
-  "crons": [
-    {"path": "/api/focus-collector", "schedule": "15 */3 * * *"},
-    {"path": "/api/focus-scheduled-publish", "schedule": "*/15 * * * *"},
-    {"path": "/api/focus-alert-dispatch", "schedule": "5 * * * *"}
-  ]
+  }
 }
