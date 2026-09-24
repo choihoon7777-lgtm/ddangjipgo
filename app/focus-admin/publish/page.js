@@ -52,8 +52,9 @@ export default function Publish(){
  async function hold(x){
   setBusy(x.article_id+"hold");setMsg("");
   const{data:{user}}=await dfSupabase.auth.getUser();
-  const{error}=await dfSupabase.from("df_articles").update({status:"held",updated_at:new Date().toISOString()}).eq("id",x.article_id);
-  if(error)setMsg(error.message);else await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:"hold",actor_id:user?.id||null,reason:"편집국 보류"});
+  const next=x.df_articles?.status==="held"?"review":"held";
+  const{error}=await dfSupabase.from("df_articles").update({status:next,updated_at:new Date().toISOString()}).eq("id",x.article_id);
+  if(error)setMsg(error.message);else await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:next==="held"?"hold":"resume",actor_id:user?.id||null,reason:next==="held"?"편집국 보류":"편집국 보류 해제"});
   await load();setBusy("");
  }
  async function publish(x){
@@ -70,7 +71,7 @@ export default function Publish(){
  {msg&&<div className="editorGate"><span>{msg}</span></div>}
  {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:items.map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
  return <article className="adminPanel dfReviewCard" key={x.id}>
-  <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()}</small>
+  <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {a.status||"review"}</small>
   <h3>{a.title}</h3>
   <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
   <div className="dfCheckGrid">{checks.map(([field,label])=><button key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
@@ -79,7 +80,7 @@ export default function Publish(){
   <div className="dfReviewActions"><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
    {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}
    {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
-   <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>보류</button>
+   <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>{a.status==="held"?"보류 해제":"보류"}</button>
    <button className="adminPrimary" disabled={!passed||busy!==""||["published","corrected"].includes(a.status)} onClick={()=>publish(x)}>{["published","corrected"].includes(a.status)?"발행완료":"발행"}</button>
   </div>
  </article>})}

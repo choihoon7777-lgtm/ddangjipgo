@@ -44,8 +44,10 @@ export function DFLiveAd({placement="home",region=null}){
   if(row)dfSupabase.rpc("df_record_ad_event",{p_campaign_id:row.id,p_event:"impression"});
  })();return()=>{live=false}},[placement,region]);
  if(!item)return null;
+ const inner=<><small>{item.disclosure_label||"광고"}</small>{item.creative_url?<img src={item.creative_url} alt={item.advertiser_name}/>:<b>{item.advertiser_name}</b>}<span>{item.target_url?"자세히 보기 ↗":"광고 캠페인"}</span></>;
+ if(!item.target_url)return <div className="dfLiveAd">{inner}</div>;
  function click(){dfSupabase.rpc("df_record_ad_event",{p_campaign_id:item.id,p_event:"click"})}
- return <a className="dfLiveAd" href={item.target_url||"#"} target={item.target_url?"_blank":undefined} rel="noreferrer" onClick={click}><small>{item.disclosure_label||"광고"}</small>{item.creative_url?<img src={item.creative_url} alt={item.advertiser_name}/>:<b>{item.advertiser_name}</b>}<span>{item.target_url?"자세히 보기 ↗":"광고 캠페인"}</span></a>
+ return <a className="dfLiveAd" href={item.target_url} target="_blank" rel="noreferrer" onClick={click}>{inner}</a>
 }
 
 export function DFAdminHeader({title="편집국 운영센터",kicker="NEWSROOM",back="/my"}){

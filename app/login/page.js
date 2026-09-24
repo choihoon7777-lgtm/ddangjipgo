@@ -16,7 +16,7 @@ export default function Login(){
     location.replace(safeNext());
    }else{
     const{data,error}=await dfSupabase.auth.signUp({email:email.trim().toLowerCase(),password});if(error)throw error;
-    if(data.session){location.replace("/my");return}
+    if(data.session){location.replace(safeNext());return}
     setMsg("가입 요청이 완료됐습니다. 이메일 확인이 필요한 경우 받은 메일의 링크를 누른 뒤 로그인하세요.");setMode("login");
    }
   }catch(e){setMsg(e.message||"로그인 처리 중 오류가 발생했습니다.")}finally{setBusy(false)}

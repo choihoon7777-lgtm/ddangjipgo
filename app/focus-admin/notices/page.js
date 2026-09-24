@@ -19,7 +19,7 @@ export default function Notices(){
    if(error)throw error;setForm(initial);setShow(false);await load();setMsg("공지를 저장했습니다.");
   }catch(e){setMsg(e.message||"공지 저장 실패")}finally{setBusy(false)}
  }
- async function changeStatus(id,status){setBusy(true);const patch={status,updated_at:new Date().toISOString()};if(status==="published")patch.starts_at=new Date().toISOString();if(status==="ended")patch.ends_at=new Date().toISOString();const{error}=await dfSupabase.from("df_notices").update(patch).eq("id",id);if(error)setMsg(error.message);await load();setBusy(false)}
+ async function changeStatus(item,status){setBusy(true);setMsg("");const now=new Date();const patch={status,updated_at:now.toISOString()};if(status==="published"){const scheduled=item.starts_at&&new Date(item.starts_at)>now;patch.starts_at=scheduled?item.starts_at:now.toISOString();if(item.ends_at&&new Date(item.ends_at)<=now)patch.ends_at=null}if(status==="ended")patch.ends_at=now.toISOString();const{error}=await dfSupabase.from("df_notices").update(patch).eq("id",item.id);if(error)setMsg(error.message);await load();setBusy(false)}
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="공지 관리" kicker="NOTICE"/>
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>PUBLIC NOTICE</small><h2>공지</h2></div><button className="miniBtn" onClick={()=>setShow(!show)}>+ 새 공지</button></div>
  {show&&<div className="dfAdminFormBox">
@@ -32,6 +32,6 @@ export default function Notices(){
    <div className="dfReviewActions"><button className="adminSecondary" disabled={busy||!form.title.trim()||!form.body.trim()} onClick={()=>create("draft")}>초안 저장</button><button className="adminPrimary" disabled={busy||!form.title.trim()||!form.body.trim()} onClick={()=>create("published")}>저장·게시</button></div>
  </div>}
  {msg&&<p className="adminDataNote">{msg}</p>}
- {!items.length?<div className="adminEmpty"><b>등록된 공지 없음</b><span>새 공지를 만들면 홈·기사·땅짚고에 실제로 노출할 수 있습니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.notice_type} · {x.placement}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.title}</b><span>{x.body}</span><em>{x.status} · {new Date(x.starts_at).toLocaleString("ko-KR")}</em></div><div className="dfListActions">{x.status!=="published"&&<button onClick={()=>changeStatus(x.id,"published")}>게시</button>}{x.status!=="ended"&&<button onClick={()=>changeStatus(x.id,"ended")}>종료</button>}<button onClick={()=>changeStatus(x.id,"draft")}>초안</button></div></article>)}</div>}
+ {!items.length?<div className="adminEmpty"><b>등록된 공지 없음</b><span>새 공지를 만들면 홈·기사·땅짚고에 실제로 노출할 수 있습니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.notice_type} · {x.placement}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.title}</b><span>{x.body}</span><em>{x.status} · {new Date(x.starts_at).toLocaleString("ko-KR")}</em></div><div className="dfListActions">{x.status!=="published"&&<button onClick={()=>changeStatus(x,"published")}>게시</button>}{x.status!=="ended"&&<button onClick={()=>changeStatus(x,"ended")}>종료</button>}<button onClick={()=>changeStatus(x,"draft")}>초안</button></div></article>)}</div>}
  </section><DFAdminBottomNav active="home"/></main>
 }
