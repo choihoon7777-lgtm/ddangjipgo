@@ -4,7 +4,8 @@ import{dfSupabase}from"../../lib/df-browser";
 import{DFSubHeader,DFBottomNav}from"../../components/df-shell";
 
 export default function Login(){
- const[email,setEmail]=useState(""),[password,setPassword]=useState(""),[mode,setMode]=useState("login"),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");\n const safeNext=()=>{const raw=new URLSearchParams(location.search).get("next")||"/my";return raw.startsWith("/")&&!raw.startsWith("//")?raw:"/my"};
+ const[email,setEmail]=useState(""),[password,setPassword]=useState(""),[mode,setMode]=useState("login"),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");
+ const safeNext=()=>{const raw=new URLSearchParams(location.search).get("next")||"/my";return raw.startsWith("/")&&!raw.startsWith("//")?raw:"/my"};
  useEffect(()=>{(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(user){location.replace(safeNext())}})()},[]);
  async function submit(){
   setBusy(true);setMsg("");
