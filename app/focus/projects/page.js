@@ -4,7 +4,7 @@ import{dfSupabase}from"../../../lib/df-browser";
 import{DFSubHeader,DFBottomNav,DFSectionTitle}from"../../../components/df-shell";
 export default function Projects(){
  const[items,setItems]=useState([]),[loading,setLoading]=useState(true),[q,setQ]=useState("");
- useEffect(()=>{(async()=>{let query=dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").eq("status","published").eq("category","개발사업").order("published_at",{ascending:false}).limit(30);const{data}=await query;setItems(data||[]);setLoading(false)})()},[]);
+ useEffect(()=>{(async()=>{let query=dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").in("status",["published","corrected"]).eq("category","개발사업").order("published_at",{ascending:false}).limit(30);const{data}=await query;setItems(data||[]);setLoading(false)})()},[]);
  const filtered=items.filter(x=>!q||[x.title,x.subtitle,x.region_code].filter(Boolean).join(" ").includes(q));
  return <main className="focusShell dfHigh"><DFSubHeader title="개발사업" kicker="PROJECT DATABASE"/>
  <section className="dfProjectHero"><small>PROJECT INTELLIGENCE</small><h1>사업별로 변화가 쌓이는<br/>개발 데이터베이스</h1><p>기사 한 건으로 끝내지 않고 같은 사업의 고시·변경·일정을 계속 연결합니다.</p></section>
