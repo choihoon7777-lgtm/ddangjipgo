@@ -22,7 +22,8 @@ export default function Stats(){
  })()},[days]);
  const totalViews=useMemo(()=>traffic.reduce((n,x)=>n+Number(x.pageviews||0),0),[traffic]);
  const top=useMemo(()=>{const m={};for(const x of articleStats){const k=x.article_id;m[k]=m[k]||{id:k,title:x.df_articles?.title||"기사",views:0};m[k].views+=Number(x.pageviews||0)}return Object.values(m).sort((a,b)=>b.views-a.views).slice(0,5)},[articleStats]);
- const ads=useMemo(()=>adStats.reduce((o,x)=>({impressions:o.impressions+Number(x.impressions||0),clicks:o.clicks+Number(x.clicks||0)}),{impressions:0,clicks:0}),[adStats]);\n const collectedDays=useMemo(()=>new Set(traffic.map(x=>x.stat_date)).size,[traffic]);
+ const ads=useMemo(()=>adStats.reduce((o,x)=>({impressions:o.impressions+Number(x.impressions||0),clicks:o.clicks+Number(x.clicks||0)}),{impressions:0,clicks:0}),[adStats]);
+ const collectedDays=useMemo(()=>new Set(traffic.map(x=>x.stat_date)).size,[traffic]);
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="운영 통계" kicker="ANALYTICS"/>
  <section className="adminPanel"><div className="statTabs">{[1,7,30].map(x=><button className={days===x?"on":""} onClick={()=>setDays(x)} key={x}>{x===1?"오늘":x+"일"}</button>)}</div>
  {msg&&<div className="editorGate"><span>{msg}</span></div>}
