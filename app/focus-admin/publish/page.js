@@ -54,7 +54,7 @@ export default function Publish(){
   const{data:{user}}=await dfSupabase.auth.getUser();
   const next=x.df_articles?.status==="held"?"review":"held";
   const{error}=await dfSupabase.from("df_articles").update({status:next,updated_at:new Date().toISOString()}).eq("id",x.article_id);
-  if(error)setMsg(error.message);else await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:next==="held"?"hold":"resume",actor_id:user?.id||null,reason:next==="held"?"편집국 보류":"편집국 보류 해제"});
+  if(error)setMsg(error.message);else{const{error:logError}=await dfSupabase.from("df_article_actions").insert({article_id:x.article_id,action:next==="held"?"hold":"edit",actor_id:user?.id||null,reason:next==="held"?"편집국 보류":"편집국 보류 해제",metadata:next==="held"?{}:{workflow_action:"resume"}});if(logError)setMsg("상태는 변경됐지만 감사로그 저장에 실패했습니다: "+logError.message)}
   await load();setBusy("");
  }
  async function publish(x){
