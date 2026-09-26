@@ -35,7 +35,7 @@ export default function Admin(){
  return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
   <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>오늘 필요한 업무부터 빠르게 처리합니다.</p></section>
 
-  <section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats"><div><b>{stats.queue??"—"}</b><span>검토대기</span></div><div><b>{stats.published??"—"}</b><span>발행기사</span></div><div><b>{stats.ads??"—"}</b><span>광고진행</span></div><div><b>{stats.claims??"—"}</b><span>정정요청</span></div></div></section>
+  <section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
    <a href="/focus-admin/sources"><b>공식자료 수집</b><span>자료 확인·변경감지</span></a>

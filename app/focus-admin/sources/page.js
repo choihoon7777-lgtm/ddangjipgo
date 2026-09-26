@@ -1,8 +1,9 @@
 "use client";
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
-import{DFAdminHeader,DFAdminBottomNav}from"../../../components/df-shell";
+import{DFAdminHeader,DFAdminBottomNav,DFToast}from"../../../components/df-shell";
 
+const statusLabel={pending:"검토대기",verified:"확인완료",rejected:"제외"};
 export default function Sources(){
  const[items,setItems]=useState([]),[sources,setSources]=useState([]),[filter,setFilter]=useState("all"),[sourceUrl,setSourceUrl]=useState(""),[busy,setBusy]=useState(false),[importing,setImporting]=useState(false),[msg,setMsg]=useState("");
 
@@ -58,10 +59,10 @@ export default function Sources(){
  <p className="adminDataNote">RSS가 없는 자료는 아래 공식 URL 직접 수집을 사용합니다. 정부·공공기관 도메인만 서버에서 허용합니다.</p>
  <div className="dfSourceImport"><label>공식자료 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://...go.kr / ...or.kr"/></label><button className="adminPrimary" disabled={importing||!sourceUrl.trim()} onClick={importUrl}>{importing?"원문 확인 중…":"공식 URL 수집"}</button></div>
  <div className="dfSourceStatus">{sources.map(s=><div key={s.id}><b>{s.name}</b><span>{s.collector_enabled?"RSS 연결":"URL 수집"}{s.last_collected_at?" · 최근 "+new Date(s.last_collected_at).toLocaleString("ko-KR"):""}</span></div>)}</div>
- {msg&&<div className="editorGate"><span>{msg}</span></div>}</section>
+ </section>
 
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>COLLECTED</small><h2>수집 자료</h2></div><span>{items.length}건</span></div>
  <div className="statTabs">{["all","pending","verified","rejected"].map(x=><button key={x} className={filter===x?"on":""} onClick={()=>setFilter(x)}>{x==="all"?"전체":x==="pending"?"검토대기":x==="verified"?"확인완료":"제외"}</button>)}</div>
- {!items.length?<div className="adminEmpty"><b>수집된 공식자료가 없습니다.</b><span>RSS 또는 공식 URL로 첫 자료를 수집하세요.</span></div>:<div className="dfSourceList">{items.map(x=><article key={x.id}><div><small>{x.df_sources?.name||"공식기관"} · {x.df_sources?.trust_grade||"S"} · {x.verification_status}</small><b>{x.title}</b><span>{x.published_at?new Date(x.published_at).toLocaleString("ko-KR"):"공개일 미확인"}</span><p>{(x.content_text||"").slice(0,180)}</p></div><div className="dfReviewActions">{x.source_url&&<a className="adminSecondary" href={x.source_url} target="_blank" rel="noreferrer">원문 ↗</a>}<a className="adminPrimary" href={"/focus-admin/ai-test?doc="+x.id}>AI 기사화</a>{x.verification_status!=="verified"&&<button className="adminSecondary" disabled={busy} onClick={()=>verify(x.id,"verified")}>확인</button>}{x.verification_status!=="rejected"&&<button className="adminSecondary" disabled={busy} onClick={()=>verify(x.id,"rejected")}>제외</button>}</div></article>)}</div>}
- </section><DFAdminBottomNav active="system"/></main>
+ {!items.length?<div className="adminEmpty"><b>수집된 공식자료가 없습니다.</b><span>RSS 또는 공식 URL로 첫 자료를 수집하세요.</span></div>:<div className="dfSourceList">{items.map(x=><article key={x.id}><div><small>{x.df_sources?.name||"공식기관"} · {x.df_sources?.trust_grade||"S"} · {statusLabel[x.verification_status]||x.verification_status}</small><b>{x.title}</b><span>{x.published_at?new Date(x.published_at).toLocaleString("ko-KR"):"공개일 미확인"}</span><p>{(x.content_text||"").slice(0,180)}</p></div><div className="dfReviewActions">{x.source_url&&<a className="adminSecondary" href={x.source_url} target="_blank" rel="noreferrer">원문 ↗</a>}<a className="adminPrimary" href={"/focus-admin/ai-test?doc="+x.id}>AI 기사화</a>{x.verification_status!=="verified"&&<button className="adminSecondary" disabled={busy} onClick={()=>verify(x.id,"verified")}>확인</button>}{x.verification_status!=="rejected"&&<button className="adminSecondary" disabled={busy} onClick={()=>verify(x.id,"rejected")}>제외</button>}</div></article>)}</div>}
+ </section><DFToast message={msg} onClose={()=>setMsg("")}/><DFAdminBottomNav active="system"/></main>
 }

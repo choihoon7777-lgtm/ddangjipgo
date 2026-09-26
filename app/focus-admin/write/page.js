@@ -1,7 +1,7 @@
 "use client";
 import{useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
-import{DFAdminHeader,DFAdminBottomNav}from"../../../components/df-shell";
+import{DFAdminHeader,DFAdminBottomNav,DFToast}from"../../../components/df-shell";
 const regions=["전국","서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 export default function Write(){
  const[t,setT]=useState(""),[body,setBody]=useState(""),[category,setCategory]=useState("개발사업"),[region,setRegion]=useState("전국"),[sourceTitle,setSourceTitle]=useState(""),[sourceUrl,setSourceUrl]=useState(""),[sourceText,setSourceText]=useState(""),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");
@@ -43,6 +43,6 @@ export default function Write(){
   <label>본문<textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="기사 초안"/></label>
   <div className="dfSourceEditor"><b>공식 출처</b><label>자료명<input value={sourceTitle} onChange={e=>setSourceTitle(e.target.value)} placeholder="예: 국토교통부 보도자료"/></label><label>원문 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://..."/></label><label>근거 원문<textarea value={sourceText} onChange={e=>setSourceText(e.target.value)} placeholder="기사 작성에 사용한 1차 공식자료 원문 또는 핵심 구간"/></label></div>
   <div className="editorGate"><b>발행 안전장치</b><span>직접 작성 기사는 YELLOW로 저장됩니다. 공식 원문 URL과 근거 원문이 모두 필요하며 사실·숫자·날짜·출처·중복·법적위험을 각각 확인한 뒤에만 발행할 수 있습니다.</span></div>
-  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()||!sourceText.trim()||!sourceUrl.trim()} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<p className="adminDataNote">{msg}</p>}
- </section><DFAdminBottomNav active="editor"/></main>
+  <button className="adminPrimary" disabled={busy||!t.trim()||!body.trim()||!sourceText.trim()||!sourceUrl.trim()} onClick={submit}>{busy?"저장 중…":"검증 대기열로 보내기"}</button>{msg&&<a className="dfNextAction" href="/focus-admin/publish">검토·발행으로 이동 →</a>}
+ </section><DFToast message={msg} onClose={()=>setMsg("")}/><DFAdminBottomNav active="editor"/></main>
 }

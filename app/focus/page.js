@@ -5,12 +5,12 @@ import{DFBrandHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../..
 const featuredRegions=["서울","경기","대전","세종","부산"];
 const dateLabel=x=>{if(!x)return"";const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{month:"2-digit",day:"2-digit"}).format(d)};
 export default function FocusHome(){
- const[news,setNews]=useState([]);
- useEffect(()=>{(async()=>{const{data}=await dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(9);setNews(data||[])})()},[]);
+ const[news,setNews]=useState([]),[loading,setLoading]=useState(true);
+ useEffect(()=>{let live=true;(async()=>{setLoading(true);const{data}=await dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at").in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(9);if(live){setNews(data||[]);setLoading(false)}})();return()=>{live=false}},[]);
  const lead=news[0],seconds=news.slice(1,3),latest=news.slice(3,8);
  return <main className="focusShell dfHigh"><DFBrandHeader/>
   <DFLiveNotice placement="home"/>
-  {lead?<section className="focusBlock dfHomeLead">
+  {loading?<section className="focusBlock dfHomeLead"><div className="dfHomeSkeleton"><span></span><span></span><span></span><span></span></div></section>:lead?<section className="focusBlock dfHomeLead">
    <DFSectionTitle eyebrow="TODAY" title="오늘의 주요 뉴스" href="/focus/live"/>
    <>
     <a className="dfHomeLeadCard" href={"/focus/article?id="+lead.id}>

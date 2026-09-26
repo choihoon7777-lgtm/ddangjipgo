@@ -1,7 +1,7 @@
 "use client";
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
-import{DFAdminHeader,DFAdminBottomNav}from"../../../components/df-shell";
+import{DFAdminHeader,DFAdminBottomNav,DFToast}from"../../../components/df-shell";
 
 const SAMPLE=`[공식자료] 국토교통부 보도자료
 제목: 청년·고령자·양육가구 등 수요자 맞춤형 특화주택 공모
@@ -87,8 +87,8 @@ export default function AITest(){
   <button className="adminSecondary" onClick={()=>setS(SAMPLE)}>국토부 샘플자료 불러오기</button>
   <label>공식자료 원문<textarea value={s} onChange={e=>setS(e.target.value)} placeholder="정부·지자체·공공기관·공시 등 1차 공식자료 원문을 넣으세요."/></label>
   <button className="adminPrimary" disabled={loading||s.trim().length<80} onClick={run}>{loading?"FACT → 기자 → 데스크 → 검증 진행 중…":"AI 기사 생성"}</button>
-  {saved&&!r&&<p className="adminDataNote">{saved}</p>}
+  {saved&&!r&&<a className="dfNextAction" href="/focus-admin/publish">검토·발행으로 이동 →</a>}
  </section>
- {r&&<section className="adminPanel">{r.error?<div className="editorGate"><b>확인 필요</b><span>{r.error}</span></div>:<><h2>최종 기사</h2><pre className="dfAiOutput">{r.article}</pre><button className="adminPrimary" disabled={saving} onClick={saveQueue}>{saving?"저장 중…":"승인대기함에 저장"}</button>{saved&&<p className="adminDataNote">{saved}</p>}<h3>검증 결과</h3><pre className="dfAiOutput compact">{r.verification}</pre><details><summary>FACT 추출 결과</summary><pre className="dfAiOutput compact">{r.fact}</pre></details></>}</section>}
- <DFAdminBottomNav active="editor"/></main>
+ {r&&<section className="adminPanel">{r.error?<div className="editorGate"><b>확인 필요</b><span>{r.error}</span></div>:<><h2>최종 기사</h2><pre className="dfAiOutput">{r.article}</pre><button className="adminPrimary" disabled={saving} onClick={saveQueue}>{saving?"저장 중…":"승인대기함에 저장"}</button>{saved&&<a className="dfNextAction" href="/focus-admin/publish">검토·발행으로 이동 →</a>}<h3>검증 결과</h3><pre className="dfAiOutput compact">{r.verification}</pre><details><summary>FACT 추출 결과</summary><pre className="dfAiOutput compact">{r.fact}</pre></details></>}</section>}
+ <DFToast message={saved} onClose={()=>setSaved("")}/><DFAdminBottomNav active="editor"/></main>
 }
