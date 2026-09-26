@@ -3,6 +3,8 @@ import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav,DFToast,DFConfirmModal}from"../../../components/df-shell";
 
+const articleStatus={draft:"초안",review:"검토중",approved:"승인",published:"발행완료",held:"보류",rejected:"반려",corrected:"정정완료"};
+const legalStatus={pending:"검토대기",manual_required:"수동검토",passed:"통과",blocked:"차단"};
 const checks=[
  ["fact_check_passed","사실"],
  ["numeric_check_passed","숫자"],
@@ -89,11 +91,11 @@ export default function Publish(){
  
  {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:items.map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
  return <article className="adminPanel dfReviewCard" key={x.id}>
-  <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {a.status||"review"}</small>
+  <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {articleStatus[a.status]||a.status||"검토중"}</small>
   <h3>{a.title}</h3>
   <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
   <div className="dfCheckGrid">{checks.map(([field,label])=><button key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
-  <div className="editorGate"><span>법적검토 · {x.legal_check_status}</span></div>
+  <div className="editorGate"><span>법적검토 · {legalStatus[x.legal_check_status]||x.legal_check_status}</span></div>
   {(x.source_text||x.ai_fact)&&<details className="dfReviewEvidence"><summary>근거자료 확인</summary>{x.source_text&&<><b>공식자료</b><pre>{x.source_text}</pre></>}{x.ai_fact&&<><b>FACT</b><pre>{x.ai_fact}</pre></>}</details>}
   <div className="dfReviewActions"><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
    {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}

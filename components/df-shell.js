@@ -1,5 +1,5 @@
 "use client";
-import{useEffect,useState}from"react";
+import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
 const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시","분양","금융","건설사 동향"];
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
@@ -90,11 +90,13 @@ export function DFToast({message,onClose,tone="default"}){
  return <div className={"dfToast "+tone} role="status"><span>{message}</span><button type="button" aria-label="닫기" onClick={()=>onClose?.()}>×</button></div>
 }
 export function DFConfirmModal({open,title,body,confirmLabel="확인",cancelLabel="취소",danger=false,onConfirm,onCancel}){
+ const confirmRef=useRef(null);
+ useEffect(()=>{if(!open)return;const prev=document.activeElement;const oldOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const t=setTimeout(()=>confirmRef.current?.focus(),0);const key=e=>{if(e.key==="Escape")onCancel?.();if(e.key==="Enter"&&e.target?.tagName!=="TEXTAREA")onConfirm?.()};window.addEventListener("keydown",key);return()=>{clearTimeout(t);window.removeEventListener("keydown",key);document.body.style.overflow=oldOverflow;prev?.focus?.()}},[open,onCancel,onConfirm]);
  if(!open)return null;
  return <div className="dfModalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onCancel?.()}}>
-  <section className="dfConfirmModal" role="dialog" aria-modal="true" aria-labelledby="df-confirm-title">
-   <small>CONFIRM</small><h2 id="df-confirm-title">{title}</h2>{body&&<p>{body}</p>}
-   <div><button type="button" className="dfModalCancel" onClick={()=>onCancel?.()}>{cancelLabel}</button><button type="button" className={danger?"dfModalDanger":"dfModalConfirm"} onClick={()=>onConfirm?.()}>{confirmLabel}</button></div>
+  <section className="dfConfirmModal" role="dialog" aria-modal="true" aria-labelledby="df-confirm-title" aria-describedby={body?"df-confirm-body":undefined}>
+   <small>CONFIRM</small><h2 id="df-confirm-title">{title}</h2>{body&&<p id="df-confirm-body">{body}</p>}
+   <div><button type="button" className="dfModalCancel" onClick={()=>onCancel?.()}>{cancelLabel}</button><button ref={confirmRef} type="button" className={danger?"dfModalDanger":"dfModalConfirm"} onClick={()=>onConfirm?.()}>{confirmLabel}</button></div>
   </section>
  </div>
 }

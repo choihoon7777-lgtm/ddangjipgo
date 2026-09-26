@@ -2,6 +2,7 @@
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav,DFToast,DFConfirmModal}from"../../../components/df-shell";
+const noticeStatus={draft:"초안",scheduled:"예약",published:"게시중",ended:"종료"};
 const initial={title:"",body:"",notice_type:"general",placement:"home",region_code:"",starts_at:"",ends_at:"",is_pinned:false,status:"draft"};
 export default function Notices(){
  const[items,setItems]=useState([]),[form,setForm]=useState(initial),[show,setShow]=useState(false),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[confirmItem,setConfirmItem]=useState(null);
@@ -32,6 +33,6 @@ export default function Notices(){
    <div className="dfReviewActions"><button className="adminSecondary" disabled={busy||!form.title.trim()||!form.body.trim()} onClick={()=>create("draft")}>초안 저장</button><button className="adminPrimary" disabled={busy||!form.title.trim()||!form.body.trim()} onClick={()=>create("published")}>저장·게시</button></div>
  </div>}
  
- {!items.length?<div className="adminEmpty"><b>등록된 공지 없음</b><span>새 공지를 만들면 홈·기사·땅짚고에 실제로 노출할 수 있습니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.notice_type} · {x.placement}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.title}</b><span>{x.body}</span><em>{x.status} · {new Date(x.starts_at).toLocaleString("ko-KR")}</em></div><div className="dfListActions">{x.status!=="published"&&<button onClick={()=>changeStatus(x,"published")}>게시</button>}{x.status!=="ended"&&<button onClick={()=>setConfirmItem(x)}>종료</button>}<button onClick={()=>changeStatus(x,"draft")}>초안</button></div></article>)}</div>}
+ {!items.length?<div className="adminEmpty"><b>등록된 공지 없음</b><span>새 공지를 만들면 홈·기사·땅짚고에 실제로 노출할 수 있습니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.notice_type} · {x.placement}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.title}</b><span>{x.body}</span><em>{noticeStatus[x.status]||x.status} · {new Date(x.starts_at).toLocaleString("ko-KR")}</em></div><div className="dfListActions">{x.status!=="published"&&<button onClick={()=>changeStatus(x,"published")}>게시</button>}{x.status!=="ended"&&<button onClick={()=>setConfirmItem(x)}>종료</button>}<button onClick={()=>changeStatus(x,"draft")}>초안</button></div></article>)}</div>}
  </section><DFToast message={msg} onClose={()=>setMsg("")}/><DFConfirmModal open={!!confirmItem} title="공지 노출 종료" body={confirmItem?.title} confirmLabel="종료" danger onCancel={()=>setConfirmItem(null)} onConfirm={()=>{const x=confirmItem;setConfirmItem(null);if(x)changeStatus(x,"ended")}}/><DFAdminBottomNav active="home"/></main>
 }

@@ -3,6 +3,8 @@ import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav,DFToast,DFConfirmModal}from"../../../components/df-shell";
 
+const adStatus={pending:"심사대기",approved:"승인",active:"게시중",paused:"일시정지",ended:"종료",rejected:"반려"};
+const paymentLabel={unpaid:"미결제",paid:"결제완료",refunded:"환불"};
 const init={advertiser_name:"",contact_name:"",contact_phone:"",contact_email:"",slot_id:"",region_code:"",start_at:"",end_at:"",creative_url:"",target_url:"",amount:"",payment_status:"unpaid"};
 export default function Ads(){
  const[slots,setSlots]=useState([]),[items,setItems]=useState([]),[form,setForm]=useState(init),[show,setShow]=useState(false),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[confirmItem,setConfirmItem]=useState(null);
@@ -43,7 +45,7 @@ export default function Ads(){
   <button className="adminPrimary" disabled={busy||!form.advertiser_name.trim()||!form.slot_id||!form.start_at||!form.end_at} onClick={create}>광고 캠페인 등록</button>
  </div>}
  
- {!items.length?<div className="adminEmpty"><b>진행 광고 없음</b><span>광고를 등록하면 심사·결제·활성·종료 상태를 실제 데이터로 관리합니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.df_ad_slots?.name||"슬롯 미지정"}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.advertiser_name}</b><span>{new Date(x.start_at).toLocaleDateString("ko-KR")} ~ {new Date(x.end_at).toLocaleDateString("ko-KR")}</span><em>{x.status} · {x.payment_status}{x.amount?" · "+Number(x.amount).toLocaleString()+"원":""}</em></div><div className="dfListActions">
+ {!items.length?<div className="adminEmpty"><b>진행 광고 없음</b><span>광고를 등록하면 심사·결제·활성·종료 상태를 실제 데이터로 관리합니다.</span></div>:<div className="dfAdminList">{items.map(x=><article key={x.id}><div><small>{x.df_ad_slots?.name||"슬롯 미지정"}{x.region_code?" · "+x.region_code:" · 전국"}</small><b>{x.advertiser_name}</b><span>{new Date(x.start_at).toLocaleDateString("ko-KR")} ~ {new Date(x.end_at).toLocaleDateString("ko-KR")}</span><em>{adStatus[x.status]||x.status} · {paymentLabel[x.payment_status]||x.payment_status}{x.amount?" · "+Number(x.amount).toLocaleString()+"원":""}</em></div><div className="dfListActions">
  {x.status==="pending"&&<button onClick={()=>patch(x.id,{status:"approved",approved_at:new Date().toISOString()})}>승인</button>}
  {x.payment_status!=="paid"&&<button onClick={()=>patch(x.id,{payment_status:"paid"})}>결제확인</button>}
  {["approved","paused"].includes(x.status)&&x.payment_status==="paid"&&<button onClick={()=>patch(x.id,{status:"active"})}>게시</button>}
