@@ -1,7 +1,7 @@
 "use client";
 import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
-const categories=["최신뉴스","지역 FOCUS","개발사업","정책·고시","분양","금융","건설사 동향"];
+const categories=["최신뉴스","개발사업","정책·고시","분양","금융"];
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":"/focus/live?category="+encodeURIComponent(x);
 
