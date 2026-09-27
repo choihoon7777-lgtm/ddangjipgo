@@ -37,7 +37,7 @@ export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
 }
 export function DFBottomNav({active=""}){
  const items=[["home","⌂","홈","/focus"],["news","▤","뉴스","/focus/live"],["region","◎","지역","/focus/region"],["land","◇","땅짚고","/search"],["my","☰","MY","/my"]];
- return <nav className="focusBottom">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} href={href} key={id}><span>{icon}</span><b>{label}</b></a>)}</nav>
+ return <nav className="focusBottom" aria-label="주요 메뉴">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><span aria-hidden="true">{icon}</span><b>{label}</b></a>)}</nav>
 }
 export function DFSectionTitle({eyebrow,title,href,label="전체보기 →"}){
  return <div className="focusTitle"><div>{eyebrow&&<small className="focusEyebrow">{eyebrow}</small>}<h2>{title}</h2></div>{href&&<a href={href}>{label}</a>}</div>
@@ -80,7 +80,7 @@ export function DFAdminHeader({title="개발포커스 운영센터",kicker="OPER
 }
 export function DFAdminBottomNav({active="home"}){
  const items=[["home","⌂","운영","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
- return <nav className="adminBottom dfAdminBottom">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} href={href} key={id}><span>{icon}</span><b>{label}</b></a>)}</nav>
+ return <nav className="adminBottom dfAdminBottom" aria-label="운영센터 메뉴">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><span aria-hidden="true">{icon}</span><b>{label}</b></a>)}</nav>
 }
 
 
@@ -90,11 +90,11 @@ export function DFToast({message,onClose,tone="default"}){
  return <div className={"dfToast "+tone} role="status"><span>{message}</span><button type="button" aria-label="닫기" onClick={()=>onClose?.()}>×</button></div>
 }
 export function DFConfirmModal({open,title,body,confirmLabel="확인",cancelLabel="취소",danger=false,onConfirm,onCancel}){
- const confirmRef=useRef(null);
- useEffect(()=>{if(!open)return;const prev=document.activeElement;const oldOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const t=setTimeout(()=>confirmRef.current?.focus(),0);const key=e=>{if(e.key==="Escape")onCancel?.();if(e.key==="Enter"&&e.target?.tagName!=="TEXTAREA")onConfirm?.()};window.addEventListener("keydown",key);return()=>{clearTimeout(t);window.removeEventListener("keydown",key);document.body.style.overflow=oldOverflow;prev?.focus?.()}},[open,onCancel,onConfirm]);
+ const confirmRef=useRef(null),dialogRef=useRef(null);
+ useEffect(()=>{if(!open)return;const prev=document.activeElement;const oldOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const t=setTimeout(()=>confirmRef.current?.focus(),0);const key=e=>{if(e.key==="Escape"){e.preventDefault();onCancel?.();return}if(e.key==="Tab"){const nodes=[...(dialogRef.current?.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')||[])].filter(x=>!x.disabled);if(!nodes.length)return;const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}return}if(e.key==="Enter"&&e.target?.tagName!=="TEXTAREA")onConfirm?.()};window.addEventListener("keydown",key);return()=>{clearTimeout(t);window.removeEventListener("keydown",key);document.body.style.overflow=oldOverflow;prev?.focus?.()}},[open,onCancel,onConfirm]);
  if(!open)return null;
  return <div className="dfModalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onCancel?.()}}>
-  <section className="dfConfirmModal" role="dialog" aria-modal="true" aria-labelledby="df-confirm-title" aria-describedby={body?"df-confirm-body":undefined}>
+  <section ref={dialogRef} className="dfConfirmModal" role="dialog" aria-modal="true" aria-labelledby="df-confirm-title" aria-describedby={body?"df-confirm-body":undefined}>
    <small>CONFIRM</small><h2 id="df-confirm-title">{title}</h2>{body&&<p id="df-confirm-body">{body}</p>}
    <div><button type="button" className="dfModalCancel" onClick={()=>onCancel?.()}>{cancelLabel}</button><button ref={confirmRef} type="button" className={danger?"dfModalDanger":"dfModalConfirm"} onClick={()=>onConfirm?.()}>{confirmLabel}</button></div>
   </section>
