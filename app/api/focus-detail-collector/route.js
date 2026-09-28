@@ -20,7 +20,7 @@ async function fetchPage(url){
 async function run(req){
  const sb=await client(req);if(!sb)return NextResponse.json({error:"DETAIL_COLLECTOR_AUTH_REQUIRED"},{status:401});
  const{data:docs,error}=await sb.from("df_source_documents")
-  .select("id,title,detail_url,source_url,published_at,content_text,content_hash,body_hash,detail_status,detail_retry_count")
+  .select("id,title,detail_url,source_url,published_at,content_text,content_hash,body_hash,detail_status,detail_retry_count,raw_payload")
   .in("detail_status",["queued","partial","failed"])
   .lt("detail_retry_count",6)
   .order("published_at",{ascending:false,nullsFirst:false})
@@ -30,7 +30,7 @@ async function run(req){
  const detail=[];
  for(const d of docs||[]){
   const target=d.detail_url||d.source_url;
-  if(!target){failed++;await sb.from("df_source_documents").update({detail_status:"failed",detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString()}).eq("id",d.id);continue}
+  if(!target){failed++;await sb.from("df_source_documents").update({detail_status:"failed",detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),raw_payload:{...(d.raw_payload||{}),detail_ok:false,needs_detail_fetch:true,last_detail_error:e.message}}).eq("id",d.id);continue}
   try{
    await sb.from("df_source_documents").update({detail_status:"fetching",last_detail_attempt_at:new Date().toISOString()}).eq("id",d.id);
    const page=await fetchPage(target);
@@ -46,11 +46,11 @@ async function run(req){
    if(parsed.complete){
     if(d.body_hash&&d.body_hash!==parsed.bodyHash)await sb.from("df_source_document_versions").upsert({document_id:d.id,content_hash:d.content_hash||d.body_hash,title:d.title,content_text:d.content_text||"",source_url:page.url,source_published_at:d.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
     const contentHash=md5(parsed.text);
-    await sb.from("df_source_documents").update({content_text:parsed.text,content_hash:contentHash,body_hash:parsed.bodyHash,attachment_hash:attHash,detail_url:page.url,detail_status:"complete",detail_retry_count:0,last_detail_attempt_at:new Date().toISOString(),detail_completed_at:new Date().toISOString(),raw_payload:{detail_ok:true,detail_parser_host:parsed.host}}).eq("id",d.id);
+    await sb.from("df_source_documents").update({content_text:parsed.text,content_hash:contentHash,body_hash:parsed.bodyHash,attachment_hash:attHash,detail_url:page.url,detail_status:"complete",detail_retry_count:0,last_detail_attempt_at:new Date().toISOString(),detail_completed_at:new Date().toISOString(),raw_payload:{...(d.raw_payload||{}),detail_ok:true,detail_parser_host:parsed.host,needs_detail_fetch:false}}).eq("id",d.id);
     await sb.from("df_source_document_versions").upsert({document_id:d.id,content_hash:contentHash,title:d.title,content_text:parsed.text,source_url:page.url,source_published_at:d.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
     complete++;detail.push({id:d.id,status:"complete",chars:parsed.text.length,attachments:parsed.attachments.length});
    }else{
-    await sb.from("df_source_documents").update({detail_status:"partial",detail_url:page.url,detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),attachment_hash:attHash}).eq("id",d.id);
+    await sb.from("df_source_documents").update({detail_status:"partial",detail_url:page.url,detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),attachment_hash:attHash,raw_payload:{...(d.raw_payload||{}),detail_ok:false,detail_parser_host:parsed.host,needs_detail_fetch:true}}).eq("id",d.id);
     partial++;detail.push({id:d.id,status:"partial",chars:parsed.text.length,attachments:parsed.attachments.length});
    }
   }catch(e){
