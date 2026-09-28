@@ -1,7 +1,7 @@
 import{NextResponse}from"next/server";
 import{createClient}from"@supabase/supabase-js";
 import{createHash}from"crypto";
-import{parseOfficialDetail}from"../../../lib/focus-policy-parsers";
+import{parseOfficialDetail,resolveOfficialDetailUrl,looksLikeListPage}from"../../../lib/focus-policy-parsers";
 
 const URL="https://svafsvyjjufbqvxzoqee.supabase.co";
 const KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||"";
@@ -29,17 +29,28 @@ async function run(req){
  let complete=0,partial=0,failed=0;
  const detail=[];
  for(const d of docs||[]){
-  const target=d.detail_url||d.source_url;
+  let target=d.detail_url||d.source_url;
   if(!target){failed++;await sb.from("df_source_documents").update({detail_status:"failed",detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),raw_payload:{...(d.raw_payload||{}),detail_ok:false,needs_detail_fetch:true,last_detail_error:e.message}}).eq("id",d.id);continue}
   try{
    await sb.from("df_source_documents").update({detail_status:"fetching",last_detail_attempt_at:new Date().toISOString()}).eq("id",d.id);
-   const page=await fetchPage(target);
+   let page=await fetchPage(target);
+   if(page.type.includes("html")&&looksLikeListPage(page.url)){
+    const resolved=resolveOfficialDetailUrl(page.url,page.text,d.title,d.raw_payload||{});
+    if(!resolved){
+     await sb.from("df_source_documents").update({detail_status:"partial",detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),raw_payload:{...(d.raw_payload||{}),detail_ok:false,needs_detail_fetch:true,last_detail_error:"DETAIL_URL_NOT_RESOLVED"}}).eq("id",d.id);
+     partial++;detail.push({id:d.id,status:"partial",reason:"detail_url_not_resolved"});continue;
+    }
+    target=resolved;
+    await sb.from("df_source_documents").update({detail_url:resolved}).eq("id",d.id);
+    page=await fetchPage(resolved);
+   }
    if(page.type.includes("pdf")){
     const arr=[{document_id:d.id,file_name:"공식 PDF",file_url:page.url,file_type:"pdf",extraction_status:"pending"}];
     await sb.from("df_source_document_attachments").upsert(arr,{onConflict:"document_id,file_url"});
     await sb.from("df_source_documents").update({detail_status:"partial",detail_url:page.url,detail_retry_count:(d.detail_retry_count||0)+1,last_detail_attempt_at:new Date().toISOString(),attachment_hash:md5(page.url)}).eq("id",d.id);
     partial++;detail.push({id:d.id,status:"partial",reason:"pdf_only"});continue;
    }
+   if(looksLikeListPage(page.url))throw new Error("LIST_PAGE_NOT_DETAIL");
    const parsed=parseOfficialDetail(page.url,page.text);
    if(parsed.attachments.length)await sb.from("df_source_document_attachments").upsert(parsed.attachments.map(a=>({document_id:d.id,file_name:a.name,file_url:a.url,file_type:(a.url.split(".").pop()||"").split(/[?#]/)[0].toLowerCase(),extraction_status:"pending"})),{onConflict:"document_id,file_url"});
    const attHash=parsed.attachments.length?md5(parsed.attachments.map(a=>a.url).sort().join("|")):null;

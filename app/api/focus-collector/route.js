@@ -110,6 +110,45 @@ function discoverChannelLinks(base,html){
  }
  return out;
 }
+function officialBoardItems(base,html,{policyOnly=false}={}){
+ const out=[],seen=new Set();
+ for(const m of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){
+  const row=m[0],text=stripHtml(row).replace(/\s+/g," ").trim();
+  if(!text||!/(20\d{2})[-.\/]\d{1,2}[-.\/]\d{1,2}/.test(text))continue;
+  const links=[...row.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+  let title="",link="";
+  for(const a of links){
+   const label=stripHtml(a[2]).trim(),href=abs(base,decodeText(a[1]).trim());
+   if(label.length>=8&&label.length<=180&&!/^(목록|이전|다음|더보기|첨부|파일)/.test(label)){title=label;link=href||base;break}
+  }
+  if(!title){
+   const cells=[...row.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(x=>stripHtml(x[1]).trim()).filter(Boolean);
+   title=cells.find(x=>x.length>=8&&x.length<=180&&!/^20\d{2}[-.]\d/.test(x))||"";
+  }
+  if(!title||(policyOnly&&!relevantPolicy(title)))continue;
+  const dm=text.match(/(20\d{2})[-.\/]\s*(\d{1,2})[-.\/]\s*(\d{1,2})/);
+  const pubDate=dm?`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`:"";
+  const nm=text.match(/\b(20\d{2})\s*[-–—]\s*(\d+)\b/);
+  const officialNumber=nm?`${nm[1]}-${nm[2]}`:"";
+  let resolved=link;
+  if(/announce\.incheon\.go\.kr/.test(base)){
+   const sno=(row.match(/[?&]sno=(\d{4,})/i)||row.match(/\bsno\D{0,12}(\d{4,})/i)||[])[1];
+   const nums=[...row.matchAll(/(?:['"(,=:\s])(\d{5,})(?=['"),&\s<])/g)].map(z=>z[1]);
+   const sid=sno||nums[0];
+   if(sid){
+    const gbn=/공고|공고열람|열람공고/.test(title)||(/20\d{2}-\d{4}/.test(officialNumber))?"A":"N";
+    const u=new URL("/citynet/jsp/sap/SAPGosiBizProcess.do",base);
+    u.searchParams.set("command","searchDetail");u.searchParams.set("flag","gosiGL");u.searchParams.set("gosiGbn",gbn);u.searchParams.set("sido","ic");u.searchParams.set("sno",sid);u.searchParams.set("svp","Y");
+    resolved=u.toString();
+   }
+  }
+  if(!resolved)resolved=base;
+  const k=title+"|"+officialNumber;if(seen.has(k))continue;seen.add(k);
+  out.push({title,link:resolved,description:text,officialNumber,pubDate});
+  if(out.length>=30)break;
+ }
+ return out;
+}
 function genericHtmlItems(base,html,{policyOnly=false}={}){
  const out=[],seen=new Set();
  const re=/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
@@ -139,7 +178,7 @@ function officialNumber(text=""){
 function canonicalKey(source,row,published){
  const day=published?new Date(published).toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"}):"unknown";
  const region=normKeyText(source.region_code||source.name||"national");
- const num=officialNumber((row.title||"")+" "+(row.description||""));
+ const num=row.officialNumber||officialNumber((row.title||"")+" "+(row.description||""));
  return hash([region,num,normKeyText(row.title),day].join("|"));
 }
 async function fetchText(url,timeout=12000){
@@ -176,7 +215,9 @@ async function runCollector(req){
        rows=rssItems(feed.text).slice(0,20).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
        if(!rows.length){
         mode="html_generic";
-        rows=genericHtmlItems(feed.url,feed.text,{policyOnly:source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto"}).slice(0,source.collector_kind==="local_law_rich"?20:12);
+        const policyOnly=source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto";
+        rows=officialBoardItems(feed.url,feed.text,{policyOnly}).slice(0,source.collector_kind==="local_law_rich"?20:18);
+        if(!rows.length)rows=genericHtmlItems(feed.url,feed.text,{policyOnly}).slice(0,source.collector_kind==="local_law_rich"?20:12);
         if(!rows.length&&source.collector_kind==="local_auto"){
          const channels=discoverChannelLinks(feed.url,feed.text);
          for(const ch of channels){
