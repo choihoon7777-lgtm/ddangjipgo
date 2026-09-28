@@ -10,7 +10,7 @@ export default function Sources(){
  async function load(){
   let q=dfSupabase.from("df_source_documents").select("id,title,source_url,published_at,fetched_at,verification_status,content_text,df_sources(name,trust_grade)").order("published_at",{ascending:false,nullsFirst:false}).order("fetched_at",{ascending:false}).limit(100);
   if(filter!=="all")q=q.eq("verification_status",filter);
-  const[d,s]=await Promise.all([q,dfSupabase.from("df_sources").select("id,name,base_url,trust_grade,collector_enabled,last_collected_at").eq("is_active",true).order("name")]);
+  const[d,s]=await Promise.all([q,dfSupabase.from("df_sources").select("id,name,base_url,trust_grade,collector_enabled,last_collected_at,region_code,collector_kind").eq("is_active",true).order("name")]);
   if(d.error||s.error)setMsg(d.error?.message||s.error?.message);else{setItems(d.data||[]);setSources(s.data||[])}
  }
  useEffect(()=>{load()},[filter]);
@@ -27,7 +27,7 @@ export default function Sources(){
    const access=await token();
    const r=await fetch("/api/focus-collector",{method:"POST",headers:{Authorization:"Bearer "+access}});
    const p=await r.json();if(!r.ok)throw new Error(p.error||"수집 실패");
-   setMsg("RSS 수집 완료 · 신규 "+p.created+"건 · 변경 "+p.changed+"건 · 기존 "+p.unchanged+"건"+(p.failed?" · 실패 "+p.failed+"개":""));
+   setMsg("공식자료 수집 완료 · 신규 "+p.created+"건 · 변경 "+p.changed+"건 · 기존 "+p.unchanged+"건"+(p.failed?" · 실패 "+p.failed+"개":""));
    await load();
   }catch(e){setMsg(e.message)}finally{setBusy(false)}
  }
@@ -55,10 +55,10 @@ export default function Sources(){
  async function verify(id,status){setBusy(true);const{error}=await dfSupabase.from("df_source_documents").update({verification_status:status}).eq("id",id);if(error)setMsg(error.message);await load();setBusy(false)}
 
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="공식자료 수집" kicker="SOURCE DESK"/>
- <section className="adminPanel"><div className="adminSectionTitle"><div><small>OFFICIAL SOURCES</small><h2>수집 실행</h2></div><button className="miniBtn" disabled={busy} onClick={collect}>{busy?"수집 중…":"RSS 지금 수집"}</button></div>
+ <section className="adminPanel"><div className="adminSectionTitle"><div><small>OFFICIAL SOURCES</small><h2>수집 실행</h2></div><button className="miniBtn" disabled={busy} onClick={collect}>{busy?"수집 중…":"전국 자료 지금 수집"}</button></div>
  <p className="adminDataNote">RSS가 없는 자료는 아래 공식 URL 직접 수집을 사용합니다. 정부·공공기관 도메인만 서버에서 허용합니다.</p>
  <div className="dfSourceImport"><label>공식자료 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://...go.kr / ...or.kr"/></label><button className="adminPrimary" disabled={importing||!sourceUrl.trim()} onClick={importUrl}>{importing?"원문 확인 중…":"공식 URL 수집"}</button></div>
- <div className="dfSourceStatus">{sources.map(s=><div key={s.id}><b>{s.name}</b><span>{s.collector_enabled?"RSS 연결":"URL 수집"}{s.last_collected_at?" · 최근 "+new Date(s.last_collected_at).toLocaleString("ko-KR"):""}</span></div>)}</div>
+ <div className="dfSourceStatus">{sources.map(s=><div key={s.id}><b>{s.name}</b><span>{s.collector_enabled?(s.collector_kind==="local_auto"?"지자체 자동발견":s.collector_kind==="local_law"?"전국 입법예고":"자동수집"):"URL 수집"}{s.region_code?" · "+s.region_code:""}{s.last_collected_at?" · 최근 "+new Date(s.last_collected_at).toLocaleString("ko-KR"):""}</span></div>)}</div>
  </section>
 
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>COLLECTED</small><h2>수집 자료</h2></div><span>{items.length}건</span></div>

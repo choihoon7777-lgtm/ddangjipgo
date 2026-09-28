@@ -64,6 +64,24 @@ function htmlListItems(sourceName,base,html){
  }
  return out;
 }
+function channelFromTitle(title=""){
+ const t=decode(title);
+ if(t.includes("입법예고")||t.includes("조례")||t.includes("규칙"))return "입법예고";
+ if(t.includes("고시")||t.includes("공고")||t.includes("지형도면")||t.includes("결정"))return "고시공고";
+ return "보도자료";
+}
+function discoverChannelLinks(base,html){
+ const out=[],seen=new Set(),re=/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+ for(const m of html.matchAll(re)){
+  const label=decode(m[2]); if(!/(보도자료|보도·해명|보도해명|고시.?공고|입법예고|공보)/.test(label))continue;
+  const link=abs(base,decode(m[1])); if(!link||seen.has(link))continue;
+  let u,b;try{u=new URL(link);b=new URL(base)}catch{continue}
+  if(u.hostname.replace(/^www\./,"")!==b.hostname.replace(/^www\./,""))continue;
+  seen.add(link);out.push({label,link});
+  if(out.length>=6)break;
+ }
+ return out;
+}
 function genericHtmlItems(base,html,{policyOnly=false}={}){
  const out=[],seen=new Set();
  const re=/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
@@ -114,7 +132,19 @@ async function runCollector(req){
        rows=rssItems(feed.text).slice(0,20).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
        if(!rows.length){
         mode="html_generic";
-        rows=genericHtmlItems(feed.url,feed.text,{policyOnly:source.collector_kind==="local_government"||source.collector_kind==="local_law"}).slice(0,12);
+        rows=genericHtmlItems(feed.url,feed.text,{policyOnly:source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto"}).slice(0,12);
+        if(!rows.length&&source.collector_kind==="local_auto"){
+         const channels=discoverChannelLinks(feed.url,feed.text);
+         for(const ch of channels){
+          try{
+           const page=await fetchText(ch.link,10000);
+           const found=genericHtmlItems(page.url,page.text,{policyOnly:true}).map(x=>({...x,channel_hint:ch.label}));
+           rows.push(...found);
+          }catch{}
+          if(rows.length>=18)break;
+         }
+         const uniq=new Map(rows.map(x=>[x.link,x]));rows=[...uniq.values()].slice(0,18);
+        }
        }
        if(!rows.length)throw new Error("수집 항목 0건");
       }catch(e){feedError=e.message;rows=[]}
@@ -137,12 +167,13 @@ async function runCollector(req){
 
       const seed=(row.description||row.title).trim();
       const body=mode==="rss"&&row.description?.trim().length>=80?seed:await fullText(row.link,seed);
-      const h=hash(body);
+      const h=hash(body); const channel=row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title);
+      const categoryHint=channel==="보도자료"?"개발사업":"정책·고시";
 
       if(!old){
-       const{error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law")?"정책·고시":null},verification_status:"pending"});if(e)throw e;created++;sCreated++;
+       const{error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel},verification_status:"pending"});if(e)throw e;created++;sCreated++;
       }else if(old.content_hash!==h||old.title!==row.title){
-       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law")?"정책·고시":null}}).eq("id",old.id);if(e)throw e;
+       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel}}).eq("id",old.id);if(e)throw e;
        await sb.from("df_project_updates").insert({source_document_id:old.id,update_type:"source_changed",before_data:{title:old.title,content_hash:old.content_hash,content_text:old.content_text},after_data:{title:row.title,content_hash:h,content_text:body},diff_data:{title_changed:old.title!==row.title,content_changed:old.content_hash!==h}});
        changed++;sChanged++;
       }else{sSame++;}
