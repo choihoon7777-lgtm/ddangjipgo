@@ -440,3 +440,10 @@ body{background:#eef1f4;color:var(--df-ink);-webkit-font-smoothing:antialiased;t
 .dfErrorPage a{margin-top:8px;border:1px solid var(--df-line);background:#fff}
 @media(max-width:360px){:root{--df-page-x:14px}.focusBottom{width:calc(100% - 14px)!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Development policy filters */
+.dfPolicyFilters{padding:13px 16px 5px;border-bottom:1px solid var(--df-line);background:#fff}
+.dfPolicyFilters>div{margin-bottom:12px}.dfPolicyFilters small{display:block;margin-bottom:7px;font-size:8px;font-weight:850;letter-spacing:.7px;color:#7d8996}
+.dfPolicyFilters>div>div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.dfPolicyFilters>div>div::-webkit-scrollbar{display:none}
+.dfPolicyFilters a{flex:0 0 auto;padding:8px 10px;border-radius:999px;background:#f4f6f8;border:1px solid #e8ecf0;font-size:9px;font-weight:750;color:#596a7a}
+.dfPolicyFilters a.on{background:#102f53;border-color:#102f53;color:#fff}
