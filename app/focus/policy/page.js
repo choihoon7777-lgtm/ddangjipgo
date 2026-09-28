@@ -20,8 +20,8 @@ export default function Policy(){
    <div className="dfPolicyMeta"><span>{detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경 이력 있음</b>}</div>
    <h1>{detail.title}</h1>
    <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
-   <div className="dfPolicyOriginal"><small>OFFICIAL ORIGINAL</small><pre>{detail.content_text||"원문 내용이 없습니다."}</pre></div>
-   <footer className="dfPolicySource"><small>출처</small><b>{detail.source_name||"공식기관"}</b>{detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 원문 보기 ↗</a>}</footer>
+   <div className="dfPolicyOriginal"><small>OFFICIAL CONTENT</small><h2>공식 내용</h2><pre>{detail.content_text||"공식 내용을 불러오지 못했습니다."}</pre></div>
+   <footer className="dfPolicySource"><small>출처</small><b>{detail.source_name||"공식기관"}</b><span>위 내용은 공식기관 원문을 기준으로 표시합니다.</span>{detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 원문 전체보기 ↗</a>}</footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
   <section className="dfPolicyHero"><small>DEVELOPMENT POLICY MONITOR</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 보도자료·고시공고·입법예고·조례를 원문 그대로 확인합니다.</p><div><b>2026.09.28부터</b><span>신규·변경분만 누적</span></div></section>
