@@ -507,3 +507,11 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyRowMeta b.waiting{background:#eef3f7;color:#68798a}
 .dfPolicyRow.isWaiting h3{color:#26384d}
 .dfPolicyRow.isWaiting:after{content:"공식 원문 보기";display:inline-block;margin-top:8px;font-size:8px;font-weight:800;color:#f47721}
+
+.dfPolicyAttachments{margin-top:26px;padding-top:18px;border-top:1px solid #e3e9ee}
+.dfPolicyAttachments>small{font-size:7px;letter-spacing:1px;font-weight:850;color:#f47721}
+.dfPolicyAttachments h2{font-size:16px;letter-spacing:-.4px;margin:5px 0 11px}
+.dfPolicyAttachments>div{display:flex;flex-direction:column;gap:8px}
+.dfPolicyAttachments a{display:flex;flex-direction:column;gap:5px;padding:13px 14px;border:1px solid #e2e8ed;border-radius:12px;background:#f8fafb}
+.dfPolicyAttachments a b{font-size:11px;line-height:1.4;color:#18314f}
+.dfPolicyAttachments a span{font-size:8px;color:#778695}

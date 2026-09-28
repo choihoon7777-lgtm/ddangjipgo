@@ -21,6 +21,7 @@ export default function Policy(){
    <h1>{detail.title}</h1>
    <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
    <div className="dfPolicyOriginal"><small>OFFICIAL CONTENT</small><h2>공식 내용</h2><pre>{detail.content_text||"공식 내용을 불러오지 못했습니다."}</pre></div>
+   {!!detail.attachments?.length&&<section className="dfPolicyAttachments"><small>ATTACHMENTS</small><h2>첨부파일</h2><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 공식 첨부 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource"><small>출처</small><b>{detail.source_name||"공식기관"}</b><span>위 내용은 공식기관 원문을 기준으로 표시합니다.</span>{detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 원문 전체보기 ↗</a>}</footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
