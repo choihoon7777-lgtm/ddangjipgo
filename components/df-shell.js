@@ -3,7 +3,7 @@ import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
 const categories=["최신뉴스","개발사업","개발정책","분양","금융"];
 const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
-const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":x==="개발정책"?"/focus/live?category="+encodeURIComponent("정책·고시"):"/focus/live?category="+encodeURIComponent(x);
+const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":x==="개발정책"?"/focus/policy":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
  const[regionOpen,setRegionOpen]=useState(false),[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false);
@@ -16,7 +16,7 @@ export function DFBrandHeader(){
   if(x==="최신뉴스")return currentPath==="/focus/live"&&!currentCategory;
   if(x==="지역 FOCUS")return currentPath==="/focus/region";
   if(x==="개발사업")return currentPath==="/focus/projects"||(currentPath==="/focus/live"&&currentCategory==="개발사업");
-  if(x==="개발정책")return currentPath==="/focus/live"&&currentCategory==="정책·고시";
+  if(x==="개발정책")return currentPath==="/focus/policy";
   return currentPath==="/focus/live"&&currentCategory===x;
  };
  return <div className="focusHeaderWrap">

@@ -15,7 +15,7 @@ export default function Live(){
  const isPolicy=category==="정책·고시";
  return <main className="focusShell dfHigh"><DFBrandHeader/>
  <section className="dfLiveHero"><small>DEVELOPMENT FOCUS</small><h1>{isPolicy?"개발정책":"검증된 개발뉴스만"}</h1><p>{isPolicy?"전국 지자체와 정부의 보도자료·고시공고·입법예고·조례를 한곳에서 확인합니다.":"공식자료를 기준으로 사실·숫자·날짜를 확인한 기사만 공개합니다."}</p></section>
- <div className="dfNewsFilters">{cats.map(x=><a key={x} className={x===category?"on":""} href={x==="전체"?"/focus/live":"/focus/live?category="+encodeURIComponent(x)}>{x==="정책·고시"?"개발정책":x}</a>)}</div>
+ <div className="dfNewsFilters">{cats.map(x=><a key={x} className={x===category?"on":""} href={x==="전체"?"/focus/live":x==="정책·고시"?"/focus/policy":"/focus/live?category="+encodeURIComponent(x)}>{x==="정책·고시"?"개발정책":x}</a>)}</div>
  {isPolicy&&<section className="dfPolicyFilters">
   <div><small>자료유형</small><div>{channelFilters.map(x=><a key={x} className={channel===x?"on":""} href={hrefForFilter(x,topic)}>{x}</a>)}</div></div>
   <div><small>주제</small><div>{topicFilters.map(x=><a key={x} className={topic===x?"on":""} href={hrefForFilter(channel,x)}>{x}</a>)}</div></div>
