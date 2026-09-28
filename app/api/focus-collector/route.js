@@ -141,10 +141,10 @@ async function detailContent(link,fallback){
   if(r.type.includes("pdf"))return{text:fallback,detail_url:r.url,attachments:[{name:"공식 PDF",url:r.url}],content_type:r.type,detail_ok:false};
   if(!r.type.includes("html")){
    const t=decodeText(r.text).trim();
-   return{text:t.length>=80?t.slice(0,120000):fallback,detail_url:r.url,attachments:[],content_type:r.type,detail_ok:t.length>=80};
+   return{text:t.length>=250?t.slice(0,120000):fallback,detail_url:r.url,attachments:[],content_type:r.type,detail_ok:t.length>=250};
   }
   const region=mainHtml(r.text),t=stripHtml(region),attachments=attachmentLinks(r.url,r.text);
-  return{text:t.length>=80?t.slice(0,120000):fallback,detail_url:r.url,attachments,content_type:r.type,detail_ok:t.length>=80};
+  return{text:t.length>=250?t.slice(0,120000):fallback,detail_url:r.url,attachments,content_type:r.type,detail_ok:t.length>=250};
  }catch{return{text:fallback,detail_url:link,attachments:[],content_type:null,detail_ok:false}}
 }
 
@@ -164,7 +164,7 @@ async function runCollector(req){
        rows=rssItems(feed.text).slice(0,20).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
        if(!rows.length){
         mode="html_generic";
-        rows=genericHtmlItems(feed.url,feed.text,{policyOnly:source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto"}).slice(0,12);
+        rows=genericHtmlItems(feed.url,feed.text,{policyOnly:source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto"}).slice(0,source.collector_kind==="local_law_rich"?20:12);
         if(!rows.length&&source.collector_kind==="local_auto"){
          const channels=discoverChannelLinks(feed.url,feed.text);
          for(const ch of channels){
@@ -200,16 +200,16 @@ async function runCollector(req){
       const seed=(row.description||row.title).trim();
       const detailPage=await detailContent(row.link,seed);
       const body=detailPage.text;
-      const h=hash(body); const channel=row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title);
+      const h=hash(body); const channel=source.collector_kind==="local_law_rich"?"입법예고":(row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title));
       const categoryHint=channel==="보도자료"?"개발사업":"정책·고시";
 
       if(!old){
-       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
+       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
        if(newDoc?.id)await sb.from("df_source_document_versions").insert({document_id:newDoc.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published});
        created++;sCreated++;
       }else if(old.content_hash!==h||old.title!==row.title){
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:old.content_hash,title:old.title,content_text:old.content_text,source_url:old.source_url,source_published_at:old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
-       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments}}).eq("id",old.id);if(e)throw e;
+       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments}}).eq("id",old.id);if(e)throw e;
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published||old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
        await sb.from("df_project_updates").insert({source_document_id:old.id,update_type:"source_changed",before_data:{title:old.title,content_hash:old.content_hash,content_text:old.content_text},after_data:{title:row.title,content_hash:h,content_text:body},diff_data:{title_changed:old.title!==row.title,content_changed:old.content_hash!==h}});
        changed++;sChanged++;
