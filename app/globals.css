@@ -456,3 +456,43 @@ body{background:#eef1f4;color:var(--df-ink);-webkit-font-smoothing:antialiased;t
 .dfPolicyDetail{padding:18px 17px 100px}.dfPolicyBack{display:inline-flex;min-height:44px;align-items:center;font-size:10px;color:#68798a}.dfPolicyMeta{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.dfPolicyMeta span,.dfPolicyMeta em,.dfPolicyMeta b{font-size:7px;border-radius:6px;padding:5px 7px;font-style:normal}.dfPolicyMeta span{background:#102f53;color:#fff}.dfPolicyMeta em{background:#f2f4f6;color:#657586}.dfPolicyMeta b{background:#fff1e8;color:#c7510c}.dfPolicyDetail h1{font-size:25px;line-height:1.35;letter-spacing:-1px;margin:12px 0 8px}.dfPolicyDate{font-size:9px;color:#8995a0;margin:0 0 24px}
 .dfPolicyOriginal{border-top:2px solid #102f53;padding-top:16px}.dfPolicyOriginal>small{font-size:7px;color:#f47721;font-weight:850;letter-spacing:1px}.dfPolicyOriginal pre{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-family:inherit;font-size:14px;line-height:1.9;color:#15283f;margin:14px 0 0}
 .dfPolicySource{position:static;margin:28px 0 0;padding:16px;border:1px solid #e2e8ed;border-radius:14px;background:#f7f9fa;display:flex;flex-direction:column;align-items:flex-start;gap:5px}.dfPolicySource small{font-size:7px;color:#7a8794}.dfPolicySource b{font-size:11px}.dfPolicySource a{font-size:9px;color:#f47721;font-weight:800;min-height:36px;display:flex;align-items:center}
+
+/* Fix Development Policy detail layout isolation */
+article.dfPolicyDetail{
+ display:block!important;
+ align-items:initial!important;
+ gap:0!important;
+ margin:0!important;
+ padding:18px 17px 100px!important;
+ border-radius:0!important;
+ background:#fff!important;
+ width:100%!important;
+}
+article.dfPolicyDetail>*{max-width:100%}
+article.dfPolicyDetail .dfPolicyBack{display:inline-flex!important}
+article.dfPolicyDetail .dfPolicyMeta{display:flex!important}
+article.dfPolicyDetail h1{
+ display:block!important;
+ width:100%!important;
+ max-width:none!important;
+ word-break:keep-all!important;
+ overflow-wrap:anywhere!important;
+}
+article.dfPolicyDetail .dfPolicyOriginal{
+ display:block!important;
+ width:100%!important;
+ max-width:none!important;
+}
+article.dfPolicyDetail .dfPolicyOriginal pre{
+ display:block!important;
+ width:100%!important;
+ max-width:none!important;
+ white-space:pre-wrap!important;
+ word-break:keep-all!important;
+ overflow-wrap:anywhere!important;
+}
+article.dfPolicyDetail .dfPolicySource{
+ display:flex!important;
+ width:100%!important;
+ max-width:none!important;
+}
