@@ -13,9 +13,16 @@ async function client(req){
  return createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 }
 async function fetchPage(url){
- const r=await fetch(url,{cache:"no-store",redirect:"follow",headers:{"User-Agent":"DevelopmentFocus/1.0 (+official-detail-collector)"},signal:AbortSignal.timeout(12000)});
+ const r=await fetch(url,{cache:"no-store",redirect:"follow",headers:{"User-Agent":"DevelopmentFocus/1.0 (+official-detail-collector)"},signal:AbortSignal.timeout(15000)});
  if(!r.ok)throw new Error("HTTP "+r.status);
- return{url:r.url||url,type:(r.headers.get("content-type")||"").toLowerCase(),text:await r.text()};
+ const type=(r.headers.get("content-type")||"").toLowerCase();
+ const buf=await r.arrayBuffer();
+ const charset=/charset\s*=\s*["']?([^;"'\s]+)/i.exec(type)?.[1]?.toLowerCase()||"";
+ let enc="utf-8";
+ if(/euc-kr|ks_c_5601|ksc5601|cp949/.test(charset))enc="euc-kr";
+ let text;
+ try{text=new TextDecoder(enc).decode(buf)}catch{text=new TextDecoder("utf-8").decode(buf)}
+ return{url:r.url||url,type,text};
 }
 async function run(req){
  const sb=await client(req);if(!sb)return NextResponse.json({error:"DETAIL_COLLECTOR_AUTH_REQUIRED"},{status:401});

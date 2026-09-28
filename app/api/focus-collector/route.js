@@ -184,7 +184,14 @@ function canonicalKey(source,row,published){
 async function fetchText(url,timeout=12000){
  const res=await fetch(url,{cache:"no-store",redirect:"follow",headers:{"User-Agent":"DevelopmentFocus/1.0 (+official-source-collector)"},signal:AbortSignal.timeout(timeout)});
  if(!res.ok)throw new Error("HTTP "+res.status);
- return{url:res.url||url,type:(res.headers.get("content-type")||"").toLowerCase(),text:await res.text()};
+ const type=(res.headers.get("content-type")||"").toLowerCase();
+ const buf=await res.arrayBuffer();
+ const charset=/charset\s*=\s*["']?([^;"'\s]+)/i.exec(type)?.[1]?.toLowerCase()||"";
+ let enc="utf-8";
+ if(/euc-kr|ks_c_5601|ksc5601|cp949/.test(charset))enc="euc-kr";
+ let text;
+ try{text=new TextDecoder(enc).decode(buf)}catch{text=new TextDecoder("utf-8").decode(buf)}
+ return{url:res.url||url,type,text};
 }
 async function detailContent(link,fallback){
  try{
