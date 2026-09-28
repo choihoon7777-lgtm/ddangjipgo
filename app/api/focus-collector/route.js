@@ -42,10 +42,38 @@ function tag(block,name){
 function rssItems(xml){
  return [...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].map(x=>x[1]).map(b=>({title:tag(b,"title"),link:tag(b,"link")||tag(b,"guid"),description:tag(b,"description"),pubDate:tag(b,"pubDate")||tag(b,"dc:date")})).filter(x=>x.title&&x.link);
 }
+function decodeText(s=""){
+ return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1")
+  .replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">")
+  .replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
+}
 function stripHtml(html){
- let x=html.replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<noscript[\s\S]*?<\/noscript>/gi," ");
- x=x.replace(/<(br|\/p|\/div|\/li|\/tr|\/h[1-6])\b[^>]*>/gi,"\n").replace(/<[^>]+>/g," ");
- return decode(x).replace(/\n{3,}/g,"\n\n").trim();
+ let x=(html||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<noscript[\s\S]*?<\/noscript>/gi," ");
+ x=x.replace(/<br\s*\/?\s*>/gi,"\n").replace(/<\/(p|div|li|tr|h[1-6]|section|article|table|ul|ol)>/gi,"\n").replace(/<[^>]+>/g," ");
+ x=decodeText(x).replace(/\r/g,"").replace(/[ \t]+/g," ").replace(/ *\n */g,"\n").replace(/\n{3,}/g,"\n\n");
+ return x.trim();
+}
+function mainHtml(html){
+ const candidates=[];
+ const patterns=[
+  /<article\b[^>]*>([\s\S]*?)<\/article>/gi,
+  /<main\b[^>]*>([\s\S]*?)<\/main>/gi,
+  /<(?:div|section)\b[^>]*(?:id|class)=["'][^"']*(?:board[_-]?view|view[_-]?(?:content|cont|body)|article[_-]?(?:content|body)|bbs[_-]?view|board[_-]?(?:content|cont)|detail[_-]?(?:content|cont)|content[_-]?view|txt[_-]?view)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section)>/gi
+ ];
+ for(const re of patterns)for(const m of html.matchAll(re)){const t=stripHtml(m[1]);if(t.length>=80)candidates.push({html:m[1],text:t})}
+ candidates.sort((a,b)=>b.text.length-a.text.length);
+ return candidates[0]?.html||html;
+}
+function attachmentLinks(base,html){
+ const out=[],seen=new Set(),re=/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+ for(const m of html.matchAll(re)){
+  const href=abs(base,decodeText(m[1]).trim()),label=stripHtml(m[2]);
+  if(!href||seen.has(href))continue;
+  if(!(/\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|ppt|pptx|zip)(?:$|[?#])/i.test(href)||/(첨부|다운로드|파일)/.test(label)))continue;
+  seen.add(href);out.push({name:label||href.split("/").pop()||"첨부파일",url:href});
+  if(out.length>=20)break;
+ }
+ return out;
 }
 function abs(base,href){try{return new URL(href,base).toString()}catch{return null}}
 function htmlListItems(sourceName,base,html){
@@ -107,13 +135,17 @@ async function fetchText(url,timeout=12000){
  if(!res.ok)throw new Error("HTTP "+res.status);
  return{url:res.url||url,type:(res.headers.get("content-type")||"").toLowerCase(),text:await res.text()};
 }
-async function fullText(link,fallback){
+async function detailContent(link,fallback){
  try{
-  const r=await fetchText(link,10000);
-  if(r.type.includes("pdf"))return fallback;
-  const t=r.type.includes("html")?stripHtml(r.text):decode(r.text);
-  return t.length>=80?t.slice(0,120000):fallback;
- }catch{return fallback}
+  const r=await fetchText(link,12000);
+  if(r.type.includes("pdf"))return{text:fallback,detail_url:r.url,attachments:[{name:"공식 PDF",url:r.url}],content_type:r.type,detail_ok:false};
+  if(!r.type.includes("html")){
+   const t=decodeText(r.text).trim();
+   return{text:t.length>=80?t.slice(0,120000):fallback,detail_url:r.url,attachments:[],content_type:r.type,detail_ok:t.length>=80};
+  }
+  const region=mainHtml(r.text),t=stripHtml(region),attachments=attachmentLinks(r.url,r.text);
+  return{text:t.length>=80?t.slice(0,120000):fallback,detail_url:r.url,attachments,content_type:r.type,detail_ok:t.length>=80};
+ }catch{return{text:fallback,detail_url:link,attachments:[],content_type:null,detail_ok:false}}
 }
 
 async function runCollector(req){
@@ -166,17 +198,18 @@ async function runCollector(req){
       if(old&&old.title===row.title&&mode==="html_fallback"){sSame++;continue}
 
       const seed=(row.description||row.title).trim();
-      const body=mode==="rss"&&row.description?.trim().length>=80?seed:await fullText(row.link,seed);
+      const detailPage=await detailContent(row.link,seed);
+      const body=detailPage.text;
       const h=hash(body); const channel=row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title);
       const categoryHint=channel==="보도자료"?"개발사업":"정책·고시";
 
       if(!old){
-       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel},verification_status:"pending"}).select("id").single();if(e)throw e;
+       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
        if(newDoc?.id)await sb.from("df_source_document_versions").insert({document_id:newDoc.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published});
        created++;sCreated++;
       }else if(old.content_hash!==h||old.title!==row.title){
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:old.content_hash,title:old.title,content_text:old.content_text,source_url:old.source_url,source_published_at:old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
-       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel}}).eq("id",old.id);if(e)throw e;
+       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments}}).eq("id",old.id);if(e)throw e;
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published||old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
        await sb.from("df_project_updates").insert({source_document_id:old.id,update_type:"source_changed",before_data:{title:old.title,content_hash:old.content_hash,content_text:old.content_text},after_data:{title:row.title,content_hash:h,content_text:body},diff_data:{title_changed:old.title!==row.title,content_changed:old.content_hash!==h}});
        changed++;sChanged++;
