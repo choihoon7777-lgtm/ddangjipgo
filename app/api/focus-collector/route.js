@@ -130,6 +130,18 @@ function genericHtmlItems(base,html,{policyOnly=false}={}){
  return out;
 }
 function hash(x){return createHash("md5").update(x||"").digest("hex")}
+function normKeyText(x=""){return decodeText(x).toLowerCase().replace(/\s+/g,"").replace(/[^0-9a-z가-힣·ㆍ-]/g,"")}
+function officialNumber(text=""){
+ const t=decodeText(text);
+ const m=t.match(/(?:제\s*)?(20\d{2})\s*[-–—]\s*(\d+)\s*호?/);
+ return m?m[1]+"-"+m[2]:"";
+}
+function canonicalKey(source,row,published){
+ const day=published?new Date(published).toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"}):"unknown";
+ const region=normKeyText(source.region_code||source.name||"national");
+ const num=officialNumber((row.title||"")+" "+(row.description||""));
+ return hash([region,num,normKeyText(row.title),day].join("|"));
+}
 async function fetchText(url,timeout=12000){
  const res=await fetch(url,{cache:"no-store",redirect:"follow",headers:{"User-Agent":"DevelopmentFocus/1.0 (+official-source-collector)"},signal:AbortSignal.timeout(timeout)});
  if(!res.ok)throw new Error("HTTP "+res.status);
@@ -193,23 +205,30 @@ async function runCollector(req){
     let sCreated=0,sChanged=0,sSame=0;
     for(const row of rows){
       const published=row.pubDate&&!Number.isNaN(new Date(row.pubDate).getTime())?new Date(row.pubDate).toISOString():null;
-      const{data:old}=await sb.from("df_source_documents").select("id,title,content_text,content_hash,source_url,published_at").eq("source_id",source.id).eq("external_id",row.link).maybeSingle();
+      const ckey=canonicalKey(source,row,published);
+      const{data:old}=await sb.from("df_source_documents").select("id,title,content_text,content_hash,source_url,published_at,detail_status,body_hash,attachment_hash,canonical_key").eq("canonical_key",ckey).maybeSingle();
 
-      if(old&&old.title===row.title&&mode==="html_fallback"){sSame++;continue}
+      if(old&&old.title===row.title&&mode==="html_fallback"&&old.detail_status==="complete"){await sb.from("df_source_documents").update({last_checked_at:new Date().toISOString()}).eq("id",old.id);sSame++;continue}
 
       const seed=(row.description||row.title).trim();
       const detailPage=await detailContent(row.link,seed);
       const body=detailPage.text;
-      const h=hash(body); const channel=source.collector_kind==="local_law_rich"?"입법예고":(row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title));
+      const h=hash(body); const bodyHash=detailPage.detail_ok?hash(body):null; const channel=source.collector_kind==="local_law_rich"?"입법예고":(row.channel_hint?channelFromTitle(row.channel_hint):channelFromTitle(row.title));
       const categoryHint=channel==="보도자료"?"개발사업":"정책·고시";
 
       if(!old){
-       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,title:row.title,source_url:row.link,published_at:published,content_text:body,content_hash:h,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
-       if(newDoc?.id)await sb.from("df_source_document_versions").insert({document_id:newDoc.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published});
+       const detailStatus=detailPage.detail_ok?"complete":"queued";
+       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,canonical_key:ckey,title:row.title,source_url:row.link,detail_url:detailPage.detail_url||row.link,published_at:published,content_text:body,content_hash:h,body_hash:bodyHash,detail_status:detailStatus,detail_retry_count:detailPage.detail_ok?0:1,last_detail_attempt_at:new Date().toISOString(),detail_completed_at:detailPage.detail_ok?new Date().toISOString():null,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,official_number:officialNumber((row.title||"")+" "+(row.description||"")),detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
+       if(newDoc?.id){
+        await sb.from("df_source_document_versions").insert({document_id:newDoc.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published});
+        if(detailPage.attachments?.length)await sb.from("df_source_document_attachments").upsert(detailPage.attachments.map(a=>({document_id:newDoc.id,file_name:a.name||"첨부파일",file_url:a.url,file_type:(a.url.split(".").pop()||"").split(/[?#]/)[0].toLowerCase(),extraction_status:"pending"})),{onConflict:"document_id,file_url"});
+       }
        created++;sCreated++;
       }else if(old.content_hash!==h||old.title!==row.title){
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:old.content_hash,title:old.title,content_text:old.content_text,source_url:old.source_url,source_published_at:old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
-       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,published_at:published||old.published_at,content_text:body,content_hash:h,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments}}).eq("id",old.id);if(e)throw e;
+       const detailStatus=detailPage.detail_ok?"complete":(old.detail_status==="complete"?"complete":"queued");
+       const{error:e}=await sb.from("df_source_documents").update({title:row.title,source_url:row.link,detail_url:detailPage.detail_url||old.source_url||row.link,published_at:published||old.published_at,content_text:detailPage.detail_ok?body:old.content_text,content_hash:detailPage.detail_ok?h:old.content_hash,body_hash:detailPage.detail_ok?bodyHash:old.body_hash,detail_status:detailStatus,detail_retry_count:detailPage.detail_ok?0:((old.detail_retry_count||0)+1),last_detail_attempt_at:new Date().toISOString(),detail_completed_at:detailPage.detail_ok?new Date().toISOString():old.detail_completed_at,fetched_at:new Date().toISOString(),last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,official_number:officialNumber((row.title||"")+" "+(row.description||"")),detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments}}).eq("id",old.id);if(e)throw e;
+       if(detailPage.attachments?.length)await sb.from("df_source_document_attachments").upsert(detailPage.attachments.map(a=>({document_id:old.id,file_name:a.name||"첨부파일",file_url:a.url,file_type:(a.url.split(".").pop()||"").split(/[?#]/)[0].toLowerCase(),extraction_status:"pending"})),{onConflict:"document_id,file_url"});
        await sb.from("df_source_document_versions").upsert({document_id:old.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published||old.published_at},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
        await sb.from("df_project_updates").insert({source_document_id:old.id,update_type:"source_changed",before_data:{title:old.title,content_hash:old.content_hash,content_text:old.content_text},after_data:{title:row.title,content_hash:h,content_text:body},diff_data:{title_changed:old.title!==row.title,content_changed:old.content_hash!==h}});
        changed++;sChanged++;
