@@ -21,10 +21,6 @@ const FALLBACK_LISTS={
 };
 
 async function authorizedClient(req){
- const u=new URL(req.url);
- if(process.env.VERCEL_ENV==="preview"&&SERVICE_KEY&&u.searchParams.get("qa_key")==="dfqa-20260928-detail-once"){
-  return createClient(SUPABASE_URL,SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
- }
  const auth=req.headers.get("authorization")||"";
  const token=auth.startsWith("Bearer ")?auth.slice(7):"";
  if(process.env.CRON_SECRET&&SERVICE_KEY&&token===process.env.CRON_SECRET){
@@ -155,10 +151,7 @@ async function detailContent(link,fallback){
 async function runCollector(req){
  try{
   const sb=await authorizedClient(req);if(!sb)return NextResponse.json({error:"NEWSROOM_AUTH_REQUIRED"},{status:401});
-  let q=sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind").eq("is_active",true).eq("collector_enabled",true);
-  const qaSource=new URL(req.url).searchParams.get("source_id");
-  if(process.env.VERCEL_ENV==="preview"&&qaSource)q=q.eq("id",qaSource);
-  const{data:sources,error}=await q;
+  const{data:sources,error}=await sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind").eq("is_active",true).eq("collector_enabled",true);
   if(error)throw error;
   let discovered=0,created=0,changed=0,unchanged=0,failed=0;
   const detail=[];
