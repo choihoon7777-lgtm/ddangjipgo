@@ -515,3 +515,11 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyAttachments a{display:flex;flex-direction:column;gap:5px;padding:13px 14px;border:1px solid #e2e8ed;border-radius:12px;background:#f8fafb}
 .dfPolicyAttachments a b{font-size:11px;line-height:1.4;color:#18314f}
 .dfPolicyAttachments a span{font-size:8px;color:#778695}
+
+.dfPolicyKeyPreview{margin:8px 0 6px;font-size:10px;line-height:1.65;color:#526274;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.dfPolicyFacts{margin-top:24px;padding-top:18px;border-top:1px solid #e3e9ee}
+.dfPolicyFacts>small{font-size:7px;letter-spacing:1px;font-weight:850;color:#f47721}
+.dfPolicyFacts h2{font-size:16px;letter-spacing:-.4px;margin:5px 0 11px}
+.dfPolicyFacts>div{display:flex;flex-direction:column;border-top:1px solid #edf1f4}
+.dfPolicyFacts p{display:grid;grid-template-columns:92px 1fr;gap:10px;margin:0;padding:10px 0;border-bottom:1px solid #edf1f4;font-size:10px;line-height:1.5}
+.dfPolicyFacts p b{color:#6b7b89}.dfPolicyFacts p span{color:#21364d}
