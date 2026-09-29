@@ -17,20 +17,28 @@ export default function Policy(){
  if(detail)return <main className="focusShell dfHigh"><DFBrandHeader/>
   <article className="dfPolicyDetail">
    <a className="dfPolicyBack" href="/focus/policy">← 개발정책</a>
-   <div className="dfPolicyMeta"><span>{detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경 이력 있음</b>}</div>
-   <h1>{detail.title}</h1>
-   <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
-   <div className="dfPolicyOriginal"><small>KEY CONTENT</small><h2>핵심 내용</h2><pre>{detail.key_content||detail.content_text||"핵심 내용을 불러오지 못했습니다."}</pre></div>
-   {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts"><small>OFFICIAL FACTS</small><h2>문서에서 확인된 정보</h2><div>{Object.entries(detail.key_facts).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
-   {!!detail.attachments?.length&&<section className="dfPolicyAttachments"><small>ATTACHMENTS</small><h2>첨부파일</h2><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 공식 첨부 열기 ↗</span></a>)}</div></section>}
-   <footer className="dfPolicySource"><small>출처</small><b>{detail.source_name||"공식기관"}</b><span>위 내용은 공식기관 원문을 기준으로 표시합니다.</span>{detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 원문 자세히 보기 ↗</a>}</footer>
+   <section className="dfPolicySummaryCard">
+    <div className="dfPolicyMeta"><span>{detail.channel==="고시공고"?"고시·공고":detail.channel==="조례규칙"?"조례·규칙":detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경</b>}</div>
+    <h1>{detail.title}</h1>
+    <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
+    <div className="dfPolicyKeyBox">
+     <small>핵심 내용</small>
+     <pre>{detail.key_content||detail.content_text||"공식자료의 핵심 내용을 확인 중입니다."}</pre>
+    </div>
+   </section>
+   {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
+   {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
+   <footer className="dfPolicySource">
+    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>핵심 내용은 공식자료에서 확인되는 내용만 정리해 표시합니다.</span></div>
+    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
+   </footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>DEVELOPMENT POLICY MONITOR</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 보도자료·고시공고·입법예고·조례를 원문 그대로 확인합니다.</p><div><b>2026.09.28부터</b><span>신규·변경분만 누적</span></div></section>
+  <section className="dfPolicyHero"><small>DEVELOPMENT POLICY READER</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 공식자료를 핵심 내용부터 빠르게 확인합니다.</p><div><b>핵심만 먼저</b><span>더 자세한 내용은 공식 사이트에서 확인</span></div></section>
   <section className="dfPolicyFilters">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"TODAY / LATEST":"ARCHIVE"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className={"dfPolicyRow"+(!x.detail_ready?" isWaiting":"")} href={x.detail_ready?"/focus/policy?id="+x.id:x.source_url||"#"} target={!x.detail_ready&&x.source_url?"_blank":undefined} rel={!x.detail_ready&&x.source_url?"noreferrer":undefined} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_content&&<div className="dfPolicyKeyPreview">{x.key_content}</div>}<p>{x.topic_code||"기타"} · {timeKey(x.published_at||x.fetched_at)}</p><strong>{x.detail_ready?"›":""}</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
+  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"TODAY / LATEST":"ARCHIVE"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용을 정리 중입니다.</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {timeKey(x.published_at||x.fetched_at)}</p><span>내용 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
   <DFBottomNav active="news"/></main>
 }

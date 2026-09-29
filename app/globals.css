@@ -523,3 +523,38 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyFacts>div{display:flex;flex-direction:column;border-top:1px solid #edf1f4}
 .dfPolicyFacts p{display:grid;grid-template-columns:92px 1fr;gap:10px;margin:0;padding:10px 0;border-bottom:1px solid #edf1f4;font-size:10px;line-height:1.5}
 .dfPolicyFacts p b{color:#6b7b89}.dfPolicyFacts p span{color:#21364d}
+
+/* Development Policy reader form */
+.dfPolicySummaryCard{padding:0 0 22px}
+.dfPolicySummaryCard h1{margin-top:12px!important}
+.dfPolicyKeyBox{margin-top:22px;padding:18px 16px;border:1px solid #dfe7ee;border-radius:16px;background:linear-gradient(180deg,#fbfcfd,#f6f9fb)}
+.dfPolicyKeyBox>small{display:block;font-size:8px;font-weight:900;letter-spacing:.4px;color:#f47721;margin-bottom:9px}
+.dfPolicyKeyBox pre{margin:0!important;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-family:inherit;font-size:14px;line-height:1.85;color:#15283f}
+.dfPolicyBlock{margin-top:14px;padding:16px;border:1px solid #e3e9ee;border-radius:16px;background:#fff}
+.dfPolicySectionHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dfPolicySectionHead small{font-size:10px;font-weight:900;color:#10233c}
+.dfPolicySectionHead span{font-size:8px;color:#8a96a2}
+.dfPolicyFacts{padding-top:16px!important;border-top:0!important}
+.dfPolicyFacts h2,.dfPolicyAttachments h2,.dfPolicyFacts>small,.dfPolicyAttachments>small{display:none!important}
+.dfPolicyFacts>div{border-top:0!important}
+.dfPolicyFacts p{grid-template-columns:88px 1fr;padding:11px 0}
+.dfPolicyAttachments{padding-top:16px!important;border-top:0!important}
+.dfPolicySource{margin-top:16px!important;padding:16px!important;gap:14px!important;background:#102f53!important;border-color:#102f53!important}
+.dfPolicySource>div{display:flex;flex-direction:column;gap:4px}
+.dfPolicySource small{color:#aebdcb!important}
+.dfPolicySource b{color:#fff!important;font-size:12px!important}
+.dfPolicySource span{color:#cfdae4!important}
+.dfPolicySource a{width:100%;min-height:46px!important;justify-content:center;background:#fff!important;color:#102f53!important;border-radius:11px!important;margin-top:0!important;font-size:10px!important}
+.dfPolicyRow{padding:15px 28px 15px 0!important}
+.dfPolicyKeyPreview{margin-top:7px!important;-webkit-line-clamp:3!important}
+.dfPolicyKeyPreview.muted{color:#9aa5af;font-style:normal}
+.dfPolicyRowFoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.dfPolicyRowFoot p{margin:0!important}
+.dfPolicyRowFoot span{font-size:8px;font-weight:800;color:#f47721}
+.dfPolicyRow>strong{right:2px!important}
+.dfPolicyRow.isWaiting:after{display:none!important}
+@media(max-width:390px){
+ .dfPolicyKeyBox{padding:16px 14px}
+ .dfPolicyKeyBox pre{font-size:13px;line-height:1.8}
+ .dfPolicyFacts p{grid-template-columns:78px 1fr}
+}
