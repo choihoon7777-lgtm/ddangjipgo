@@ -558,3 +558,23 @@ article.dfPolicyDetail .dfPolicySource{
  .dfPolicyKeyBox pre{font-size:13px;line-height:1.8}
  .dfPolicyFacts p{grid-template-columns:78px 1fr}
 }
+
+/* Development Policy polished reader card */
+.dfPolicySummaryCard{margin:0 -2px}
+.dfPolicyKeyBox{position:relative;overflow:hidden;background:#f8fafc!important;border:1px solid #dfe7ee!important;border-radius:18px!important;padding:17px 16px 18px!important;box-shadow:0 8px 24px rgba(16,47,83,.04)}
+.dfPolicyKeyBox:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#f47721}
+.dfPolicyKeyHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.dfPolicyKeyHead span{font-size:10px;font-weight:900;color:#102f53;letter-spacing:-.1px}
+.dfPolicyKeyHead b{font-size:7px;font-weight:850;padding:4px 6px;border-radius:999px;background:#fff3e9;color:#cf5d17}
+.dfPolicyKeyBox pre{font-size:13.5px!important;line-height:1.85!important;color:#21364d!important}
+.dfPolicyBlock{box-shadow:0 6px 18px rgba(17,42,70,.025)}
+.dfPolicySectionHead{padding-bottom:8px;border-bottom:1px solid #edf1f4}
+.dfPolicyFacts p:last-child{border-bottom:0}
+.dfPolicyAttachments a{transition:transform .12s ease,background .12s ease}
+.dfPolicyAttachments a:active{transform:scale(.995)}
+.dfPolicySource{box-shadow:0 10px 24px rgba(16,47,83,.08)}
+.dfPolicySource a{font-weight:900!important}
+.dfPolicyRow{background:#fff}
+.dfPolicyRow h3{color:#10233c}
+.dfPolicyKeyPreview{font-size:10.5px!important;line-height:1.7!important;color:#55697b!important}
+.dfPolicyRowFoot span{background:#fff3e9;border-radius:999px;padding:4px 7px}

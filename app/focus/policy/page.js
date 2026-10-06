@@ -22,15 +22,15 @@ export default function Policy(){
     <h1>{detail.title}</h1>
     <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
-     <small>핵심 내용</small>
-     <pre>{detail.key_content||detail.content_text||"공식자료의 핵심 내용을 확인 중입니다."}</pre>
+     <div className="dfPolicyKeyHead"><span>공식자료 핵심요약</span><b>원문 기준</b></div>
+     <pre>{detail.key_content||"공식자료의 핵심 내용을 정리 중입니다."}</pre>
     </div>
    </section>
    {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
    {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource">
-    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>핵심 내용은 공식자료에서 확인되는 내용만 정리해 표시합니다.</span></div>
-    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
+    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>개발포커스에서는 핵심 내용만 먼저 보여드립니다. 전체 고시·보도자료·첨부 원문은 공식 사이트에서 확인할 수 있습니다.</span></div>
+    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 원문 자세히 보기 ↗</a>}
    </footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
@@ -39,6 +39,6 @@ export default function Policy(){
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"TODAY / LATEST":"ARCHIVE"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용을 정리 중입니다.</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {timeKey(x.published_at||x.fetched_at)}</p><span>내용 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
+  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"TODAY / LATEST":"ARCHIVE"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">공식자료 핵심내용 확인 중</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {timeKey(x.published_at||x.fetched_at)}</p><span>내용 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
   <DFBottomNav active="news"/></main>
 }
