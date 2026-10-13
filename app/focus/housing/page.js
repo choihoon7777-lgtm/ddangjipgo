@@ -7,11 +7,28 @@ import "./housing.css";
 const REGIONS=["전국","서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충북","충남","전북","전남","경북","경남","제주"];
 const KINDS=[["","전체"],["APT","일반분양"],["REMAIN","무순위·잔여세대"],["OPTIONAL","임의공급"]];
 const dateText=v=>v?v.replaceAll("-","."):"미확인";
+const modelPrice=m=>{
+ const v=m?.LTTOT_TOP_AMOUNT;
+ if(v==null||String(v).trim()==="")return null;
+ const n=Number(String(v).replaceAll(",",""));
+ return Number.isFinite(n)&&n>0?n:null;
+};
+const featuredTypes=rows=>{
+ const result=[],seen=new Set();
+ for(const m of rows||[]){
+  const area=parseFloat(String(m.HOUSE_TY||"").replace(/[^0-9.]/g,""));
+  if(!Number.isFinite(area))continue;
+  const label=Math.floor(area)+"㎡";
+  if(seen.has(label)||modelPrice(m)===null)continue;
+  result.push({label,price:modelPrice(m)});seen.add(label);
+ }
+ return result.sort((a,b)=>parseInt(a.label)-parseInt(b.label)).slice(0,4);
+};
 const today=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));return p.year+"-"+p.month+"-"+p.day};
 function DateField({title,value}){return <div className="dfHousingDate"><span>{title}</span><b>{dateText(value)}</b></div>}
 function Models({rows=[]}){
  if(!rows.length)return <p className="dfHousingNoModels">주택형별 분양가 자료가 아직 수집되지 않았습니다. 아래 청약홈 공식 공고문에서 확인해 주세요.</p>;
- return <div className="dfHousingTableScroll"><table className="dfHousingTable"><thead><tr><th>주택형(전용)</th><th>공급세대</th><th>최고 분양가</th></tr></thead><tbody>{rows.map((m,i)=><tr key={i}><td>{m.HOUSE_TY||"미확인"}</td><td>{m.SUPLY_HSHLDCO??m.GNRL_SUPLY_HSHLDCO??"미확인"}</td><td>{housingPriceLabel(m.LTTOT_TOP_AMOUNT===undefined?null:Number(String(m.LTTOT_TOP_AMOUNT).replace(/,/g,"")))}</td></tr>)}</tbody></table></div>;
+ return <div className="dfHousingTableScroll"><table className="dfHousingTable"><thead><tr><th>주택형(전용)</th><th>공급세대</th><th>최고 분양가</th></tr></thead><tbody>{rows.map((m,i)=><tr key={i}><td>{m.HOUSE_TY||"미확인"}</td><td>{m.SUPLY_HSHLDCO??m.GNRL_SUPLY_HSHLDCO??"미확인"}</td><td>{housingPriceLabel(modelPrice(m))}</td></tr>)}</tbody></table></div>;
 }
 function Detail({item}){
  const schedule=[
@@ -70,6 +87,7 @@ export default function HousingPage(){
    {filtered.length?<div className="dfHousingCards">{filtered.map(r=><a className="dfHousingCard" key={r.offer_key} href={"/focus/housing?id="+encodeURIComponent(r.offer_key)}>
     <div className="dfHousingCardTop"><span>{HOUSING_KINDS[r.supply_kind]?.[2]||"아파트"}</span><b>{housingStage(r,today())}</b></div>
     <h3>{r.house_name}</h3><p>{r.address||r.region_name||"공급위치 미확인"}</p>
+    {featuredTypes(r.models_json).length>0&&<div className="dfHousingTypeHighlights">{featuredTypes(r.models_json).map(m=><span key={m.label}><b>{m.label}</b><strong>{housingPriceLabel(m.price)}</strong></span>)}</div>}
     <div className="dfHousingCardMetrics"><div><small>주택형별 최고 분양가 중 최고</small><strong>{housingPriceLabel(r.top_price_manwon)}</strong></div><div><small>공급규모</small><strong>{r.total_households===null?"미확인":r.total_households.toLocaleString("ko-KR")+"세대"}</strong></div></div>
     <div className="dfHousingCardBottom"><span>모집공고 {dateText(r.published_date)}</span><b>일정·분양가 보기 →</b></div>
    </a>)}</div>:<section className="dfHousingOffline"><h2>{rows.length?"조건에 맞는 공고가 없습니다.":"공식 청약정보 수집 준비 중"}</h2><p>{rows.length?"검색 조건을 변경해 보세요.":"현재 공식 분양공고 데이터가 아직 동기화되지 않았습니다. 실제 공고와 분양가는 청약홈에서 확인할 수 있으며, 검증되지 않은 정보는 표시하지 않습니다."}</p><a href="https://www.applyhome.co.kr/" target="_blank" rel="noreferrer">청약홈에서 직접 확인 ↗</a></section>}
