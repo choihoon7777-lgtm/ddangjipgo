@@ -81,6 +81,22 @@ function discover(base:string,raw:string):Item[]{
   if(out.length>=8)break;
  }
  if(out.length)return out;
+ // Incheon's government press releases are published as dated article cards.
+ // Never infer entries from its header/navigation links.
+ if(new URL(base).hostname==="www.incheon.go.kr"&&new URL(base).pathname==="/mayor_9/MA05010000"){
+  for(const a of raw.matchAll(/<a\b[^>]*href=["']([^"']*\/mayor_9\/MA05010000\/view\?[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)){
+   const b=a[2];
+   const head=b.match(/<strong\b[^>]*class=["'][^"']*\bsubject\b[^"']*["'][^>]*>([\s\S]*?)<\/strong>/i);
+   const date=b.match(/<dt>\s*제공일자\s*<\/dt>\s*<dd>\s*(20\d{2}[-./]\d{1,2}[-./]\d{1,2})\s*<\/dd>/i);
+   if(!head||!date)continue;
+   const title=text(head[1]),link=officialLink(base,a[1]),published=parseDate(date[1]);
+   if(!relevant(title)||!link||seen.has(link)||title.length<9)continue;
+   const short=b.match(/<div\b[^>]*class=["'][^"']*\btxt\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+   seen.add(link);out.push({title,link,published,snippet:short?text(short[1]).slice(0,500):""});
+   if(out.length>=8)break;
+  }
+ }
+ if(out.length)return out;
  // Only parse rows with an explicit publication date and an official detail href.
  for(const row of raw.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi)){
   const block=row[0],plain=text(block);
