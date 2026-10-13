@@ -38,19 +38,19 @@ export default function Admin(){
   dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("is_active",true)
  ]);if(live)setStats({queue:q.count??null,published:p.count??null,claims:c.count??null,ads:a.count??null,watchlists:w.count??null})})();return()=>{live=false}},[]);
  return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
-  <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 실제 공개자료와 관리자 기능을 체험할 수 있습니다. 운영 데이터 변경은 차단됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
-  {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>비로그인 체험 모드</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
-   <p className="adminDataNote">실제 공개자료 {publicCount===null?"조회 중":publicCount+"건"}을 바탕으로 메뉴와 신규자료 검수 과정을 확인할 수 있습니다. 시뮬레이션 결과는 DB에 저장하지 않습니다.</p>
-   <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">신규자료 업데이트 체험 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
+  <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 공식기관 신규자료를 실제 수집하고 공개자료를 확인할 수 있습니다. 임의 자료 수정은 제한됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
+  {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>로그인 없는 실제 업데이트</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
+   <p className="adminDataNote">공식기관 신규자료 수집과 원문 검증은 실제 서버·DB에서 실행됩니다. 자료 삭제·수동 승인 등 변경 작업은 관리자 인증이 필요합니다.</p>
+   <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
   </section>}
 
   {!guest&&<section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>}
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
    <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
-   <a href={guest?"/focus-admin/updates":"/focus-admin/ai-test"}><b>AI 기사작성</b><span>{guest?"검수 체험에서 기능 확인":"공식자료 → 기사"}</span></a>
+   <a href={guest?"/focus-admin/updates":"/focus-admin/ai-test"}><b>AI 기사작성</b><span>{guest?"관리자 로그인 후 기사 작성":"공식자료 → 기사"}</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/write"}><b>직접 기사 작성</b><span>{guest?"관리자 로그인 후 실제 작성":"초안 작성"}</span></a>
-   <a href={guest?"/focus-admin/updates":"/focus-admin/publish"}><b>검토·발행</b><span>{guest?"자료 검수 화면 체험":(stats.queue??"—")+"건 대기"}</span></a>
+   <a href={guest?"/focus-admin/updates":"/focus-admin/publish"}><b>검토·발행</b><span>{guest?"관리자 로그인 후 기사 발행":(stats.queue??"—")+"건 대기"}</span></a>
   </div></section>
   {!guest&&<details className="dfAdminAllMenu"><summary><span><small>ALL OPERATIONS</small><b>전체 운영 메뉴</b></span><strong>펼치기</strong></summary><div className="dfAdminGroups">{groups.map(g=><section className="dfAdminGroup" key={g.title}><div className="dfAdminGroupHead"><small>{g.kicker}</small><h2>{g.title}</h2></div><div className="adminMenu">{g.items.map(([a,b,h])=><a href={h} key={a}><div><b>{a}</b><span>{b}</span></div><strong>›</strong></a>)}</div></section>)}</div></details>}
   <DFAdminBottomNav active="home"/>
