@@ -584,3 +584,23 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyKeyHead b{letter-spacing:-.1px}
 .dfPolicySource>div span{max-width:520px}
 .dfPolicyRow .dfPolicyKeyPreview.muted{opacity:.72}
+
+/* Policy reader: readable type and touch targets on narrow screens. */
+.dfPolicyRow h3{font-size:18px!important;line-height:1.55!important;overflow-wrap:anywhere}
+.dfPolicyKeyPreview{font-size:15px!important;line-height:1.75!important;-webkit-line-clamp:4!important}
+.dfPolicyRowMeta span,.dfPolicyRowMeta em,.dfPolicyRowMeta b,.dfPolicyRowFoot p,.dfPolicyRowFoot span{font-size:12px!important}
+.dfPolicyFilters a{font-size:13px!important;min-height:44px;display:inline-flex;align-items:center}
+.dfPolicyDetail h1{font-size:26px!important;line-height:1.4!important}
+.dfPolicyDate,.dfPolicyMeta span,.dfPolicyMeta em{font-size:13px!important}
+.dfPolicyKeyHead span,.dfPolicySectionHead small{font-size:16px!important}
+.dfPolicyKeyHead b,.dfPolicySectionHead span{font-size:11px!important}
+.dfPolicyKeyBox pre,.dfPolicyBody pre{font-family:inherit;font-size:16px!important;line-height:1.85!important;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;margin:0}
+.dfPolicyFacts p{font-size:14px!important;grid-template-columns:minmax(76px,100px) minmax(0,1fr)}
+.dfPolicyFacts p span,.dfPolicyAttachments a b{overflow-wrap:anywhere}
+.dfPolicyAttachments a b{font-size:14px!important}.dfPolicyAttachments a span{font-size:12px!important}
+.dfPolicySource span,.dfPolicySource small{font-size:12px!important}.dfPolicySource a{font-size:14px!important;min-height:48px!important}
+.dfPolicyBack,.dfPolicyRetry{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
+.dfPolicyRetry{border:1px solid #dfe7ee;border-radius:10px;padding:0 16px;background:white;color:#102f53;cursor:pointer}
+.dfPolicyRow:focus-visible,.dfPolicyFilters a:focus-visible,.dfPolicyRetry:focus-visible{outline:3px solid #f47721;outline-offset:3px}
+
+.dfPolicyBodyText{font-size:15px;line-height:1.85;overflow-wrap:anywhere;white-space:pre-wrap}.dfPolicyBodyText p{margin:0 0 16px}.dfPolicyBodyText summary{cursor:pointer;min-height:44px;color:#102f53;font-weight:700;padding:10px 0;white-space:normal}.dfPolicyBodyText details{border-top:1px solid #e3e9ee}

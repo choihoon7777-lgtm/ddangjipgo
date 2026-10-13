@@ -6,39 +6,62 @@ import{DFBrandHeader,DFBottomNav}from"../../../components/df-shell";
 const channels=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topics=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자","기타"];
 const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조례규칙":x;
-const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
-const timeKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{hour:"2-digit",minute:"2-digit"}).format(d)};
+const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
+function OfficialBody({text}){
+ const blocks=text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ const render=(parts,offset=0)=>parts.map((block,i)=><p key={offset+i}>{block}</p>);
+ return <div className="dfPolicyBodyText">{render(blocks.slice(0,9))}{blocks.length>9&&<details><summary>수집 본문 더 읽기</summary>{render(blocks.slice(9),9)}</details>}</div>;
+}
 export default function Policy(){
- const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true);
- useEffect(()=>{const p=new URLSearchParams(location.search);const id=p.get("id");const c=p.get("channel")||"전체",t=p.get("topic")||"전체";setChannel(channels.includes(c)?c:"전체");setTopic(topics.includes(t)?t:"전체");if(id){(async()=>{setLoading(true);const{data,error}=await dfSupabase.rpc("df_public_development_policy_detail",{p_document_id:id});setDetail(!error&&data?.[0]?data[0]:null);setLoading(false)})()}},[]);
- useEffect(()=>{if(detail)return;(async()=>{setLoading(true);const{data}=await dfSupabase.rpc("df_public_development_policy",{p_channel:channel==="전체"?null:channelDb(channel),p_topic:topic==="전체"?null:topic,p_limit:80,p_offset:0});setItems(data||[]);setLoading(false)})()},[channel,topic,detail]);
+ const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0);
+ useEffect(()=>{
+  let active=true;
+  const params=new URLSearchParams(location.search),id=params.get("id");
+  const c=channels.includes(params.get("channel"))?params.get("channel"):"전체";
+  const t=topics.includes(params.get("topic"))?params.get("topic"):"전체";
+  setChannel(c);setTopic(t);setLoading(true);setError("");
+  (async()=>{
+   try{
+    if(id&&!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id))throw new Error("올바른 자료 주소가 아닙니다.");
+    const result=id?await dfSupabase.rpc("df_public_development_policy_detail",{p_document_id:id}):await dfSupabase.rpc("df_public_development_policy",{p_channel:c==="전체"?null:channelDb(c),p_topic:t==="전체"?null:t,p_limit:80,p_offset:0});
+    if(result.error)throw new Error("자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    if(!active)return;
+    if(id){if(!result.data?.[0])throw new Error("자료를 찾을 수 없거나 공개되지 않은 자료입니다.");setDetail(result.data[0]);}
+    else setItems(result.data||[]);
+   }catch(e){if(active)setError(e.message);}
+   finally{if(active)setLoading(false);}
+  })();
+  return()=>{active=false;};
+ },[retry]);
  const grouped=useMemo(()=>{const m=new Map();for(const x of items){const k=dateKey(x.published_at||x.fetched_at);if(!m.has(k))m.set(k,[]);m.get(k).push(x)}return[...m.entries()]},[items]);
  function href(c=channel,t=topic){const p=new URLSearchParams();if(c!=="전체")p.set("channel",c);if(t!=="전체")p.set("topic",t);return"/focus/policy"+(p.toString()?"?"+p.toString():"")}
+ if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="news"/></main>;
  if(detail)return <main className="focusShell dfHigh"><DFBrandHeader/>
   <article className="dfPolicyDetail">
    <a className="dfPolicyBack" href="/focus/policy">← 개발정책</a>
    <section className="dfPolicySummaryCard">
     <div className="dfPolicyMeta"><span>{detail.channel==="고시공고"?"고시·공고":detail.channel==="조례규칙"?"조례·규칙":detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경</b>}</div>
     <h1>{detail.title}</h1>
-    <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)} {timeKey(detail.published_at||detail.fetched_at)}</p>
+    <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
      <div className="dfPolicyKeyHead"><span>핵심 내용</span><b>공식자료 발췌</b></div>
-     <pre>{detail.key_content||"공식자료에서 핵심 내용을 확인 중입니다."}</pre>
+     <pre>{detail.key_extract_status==="ready"&&detail.key_content?detail.key_content:"공식자료에서 핵심 내용을 확인 중입니다."}</pre>
     </div>
    </section>
-   {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
+   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 변경사항·사업내용</small><span>공식 본문</span></div><OfficialBody text={detail.content_text}/></section>}
+   {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).filter(([k,v])=>k!=="첨부"&&v!==null&&String(v).trim()).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
    {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource">
-    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>위 핵심 내용과 주요 정보는 공식자료에서 확인한 내용입니다. 전체 문서와 세부 사항은 공식 사이트에서 확인할 수 있습니다.</span></div>
+    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>수집된 공식자료를 발췌해 제공합니다. 첨부 도면과 전체 문서는 공식 사이트에서 확인할 수 있습니다.</span></div>
     {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
    </footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>DEVELOPMENT POLICY READER</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 공식자료를 핵심 내용부터 빠르게 확인합니다.</p><div><b>핵심만 먼저</b><span>더 자세한 내용은 공식 사이트에서 확인</span></div></section>
+  <section className="dfPolicyHero"><small>전국 공식자료</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 공식자료를 핵심 내용부터 빠르게 확인합니다.</p><div><b>핵심만 먼저</b><span>더 자세한 내용은 공식 사이트에서 확인</span></div></section>
   <section className="dfPolicyFilters">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"TODAY / LATEST":"ARCHIVE"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용 확인 중</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {timeKey(x.published_at||x.fetched_at)}</p><span>내용 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
+  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용 확인 중</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>상세보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
   <DFBottomNav active="news"/></main>
 }
