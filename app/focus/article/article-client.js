@@ -58,14 +58,14 @@ function ArticleInner(){
  const modified=!isBlog&&a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
  return <main className="focusShell dfHigh">
   <DFBrandHeader/>
-  <div className="dfArticleCrumb"><a href={isBlog?"/focus/live?category=인사이트":"/focus/live"}>← {isBlog?"인사이트":"최신뉴스"}</a><span>{isBlog?"INVESTGO ORIGINAL":"VERIFIED ARTICLE"}</span></div>
+  <div className="dfArticleCrumb"><a href={isBlog?"/focus/live?category=인사이트":"/focus/live"}>← {isBlog?"인사이트":"최신뉴스"}</a><span>{isBlog?"FOCUS INSIGHT":"VERIFIED ARTICLE"}</span></div>
   <DFLiveNotice placement="article" region={a.region_code}/>
   <article className="dfNewsArticle">
-   <div className="dfArticleMeta"><span>{isBlog?"투자GO 인사이트":a.category||"최신뉴스"}</span>{a.region_code&&<em>{a.region_code}</em>}{a.status==="corrected"&&<em>정정</em>}</div>
+   <div className="dfArticleMeta"><span>{isBlog?"인사이트":a.category||"최신뉴스"}</span>{a.region_code&&<em>{a.region_code}</em>}{a.status==="corrected"&&<em>정정</em>}</div>
    <h1>{a.title}</h1>
    {a.subtitle&&<p className="dfNewsLead">{a.subtitle}</p>}
-   <p className="dfTime">{isBlog?"원문 최초 작성":"입력"} {new Date(a.original_source_published_at||a.published_at).toLocaleString("ko-KR")}{modified&&<> · <b>수정 {new Date(a.updated_at).toLocaleString("ko-KR")}</b></>}</p>
-   {isBlog&&<div className="dfInvestgoDisclosure"><b>투자GO 기존 콘텐츠</b><p>네이버 투자GO에 게시된 글을 원문 보존 방식으로 이식했습니다. 기사에 포함된 날짜·수치·청약 일정 등은 최초 작성 당시 기준이며, 최신 확정 사실로 재검증한 자료가 아닙니다.</p><a href={a.original_source_url} target="_blank" rel="noopener noreferrer">네이버 원문 확인 ↗</a></div>}
+   <p className="dfTime">{isBlog?"작성":"입력"} {new Date(a.original_source_published_at||a.published_at).toLocaleString("ko-KR")}{modified&&<> · <b>수정 {new Date(a.updated_at).toLocaleString("ko-KR")}</b></>}</p>
+   {isBlog&&<p className="dfInsightDateNotice">본문의 통계·일정·시세는 작성 당시 기준입니다.</p>}
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
    {summaries.length>0&&<section className="dfKeySummary"><small>KEY POINTS</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
@@ -73,8 +73,7 @@ function ArticleInner(){
    <div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
-   <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"투자GO의 기존 분석 콘텐츠입니다. 최초 작성일과 출처를 명시하며 당시 시점의 견해를 보존합니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
-   {isBlog&&<section className="dfPublicSources"><small>ORIGINAL SOURCE</small><h2>원문 출처</h2><a href={a.original_source_url} target="_blank" rel="noopener noreferrer"><div><b>{a.original_source_label||"네이버 투자GO"}</b><span>원문 링크 · 최초 게시 글</span></div><strong>↗</strong></a></section>}
+   <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"도시개발·부동산 시장을 해석하는 전문 인사이트입니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
    {sources.length>0&&<section className="dfPublicSources"><small>OFFICIAL SOURCES</small><h2>공식 출처</h2>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}</section>}
   </article><DFBottomNav active="news"/>
  </main>
