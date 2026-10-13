@@ -9,8 +9,10 @@ const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조
 const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
 function OfficialBody({text}){
  const blocks=text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
- const render=(parts,offset=0)=>parts.map((block,i)=><p key={offset+i}>{block}</p>);
- return <div className="dfPolicyBodyText">{render(blocks.slice(0,9))}{blocks.length>9&&<details><summary>수집 본문 더 읽기</summary>{render(blocks.slice(9),9)}</details>}</div>;
+ return <details className="dfPolicyBodyDisclosure">
+  <summary>공식 본문 전체 펼쳐보기 <span>원문 발췌 · {text.length.toLocaleString("ko-KR")}자</span></summary>
+  <div className="dfPolicyBodyText">{blocks.map((block,i)=><p key={i}>{block}</p>)}</div>
+ </details>;
 }
 export default function Policy(){
  const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0);
@@ -44,12 +46,12 @@ export default function Policy(){
     <h1>{detail.title}</h1>
     <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
-     <div className="dfPolicyKeyHead"><span>핵심 내용</span><b>공식자료 발췌</b></div>
-     <pre>{detail.key_extract_status==="ready"&&detail.key_content?detail.key_content:"공식자료에서 핵심 내용을 확인 중입니다."}</pre>
+     <div className="dfPolicyKeyHead"><span>핵심 내용 · 주요 변경사항</span><b>{detail.key_extract_status==="ready"?"공식 문서 발췌":"원문 확인 필요"}</b></div>
+     <pre>{detail.key_extract_status==="ready"&&detail.key_content?detail.key_content:"개별 공식 본문이 아직 확보되지 않았습니다. 목록 정보만으로 변경 내용을 판단하지 않습니다."}</pre>
     </div>
    </section>
-   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 변경사항·사업내용</small><span>공식 본문</span></div><OfficialBody text={detail.content_text}/></section>}
    {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).filter(([k,v])=>k!=="첨부"&&v!==null&&String(v).trim()).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
+   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>공식 본문 전체</small><span>펼쳐서 확인</span></div><OfficialBody text={detail.content_text}/></section>}
    {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource">
     <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>수집된 공식자료를 발췌해 제공합니다. 첨부 도면과 전체 문서는 공식 사이트에서 확인할 수 있습니다.</span></div>
@@ -62,6 +64,6 @@ export default function Policy(){
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용 확인 중</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>상세보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
+  <section className="dfPolicyFeed">{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">공식 상세 본문 미확보 · 원문 확인 필요</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>상세보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
   <DFBottomNav active="news"/></main>
 }
