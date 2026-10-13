@@ -20,15 +20,18 @@ async function fetchWithDeadline(url,options={},ms=14000){
  finally{clearTimeout(timer)}
 }
 export async function GET(){
- const [health,publicDocs]=await Promise.allSettled([
+ const [health,publicDocs,factory]=await Promise.allSettled([
   fetchWithDeadline(upstream,{headers:{Accept:"application/json"}}).then(readJson),
   fetchWithDeadline(BASE+"/rest/v1/rpc/df_public_development_policy",{
    method:"POST",
    headers:{"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+KEY},
    body:JSON.stringify({p_channel:null,p_topic:null,p_limit:100,p_offset:0})
-  }).then(readJson)
+  }).then(readJson),
+  fetchWithDeadline(BASE+"/rest/v1/df_official_factory_health?select=*",{
+   headers:{"apikey":KEY,"Authorization":"Bearer "+KEY}
+  },10000).then(readJson)
  ]);
- const status=health.status==="fulfilled"?health.value:null;
+ const status=health.status==="fulfilled"?{...health.value,factory:factory.status==="fulfilled"&&Array.isArray(factory.value)?factory.value[0]||null:null}:null;
  const records=publicDocs.status==="fulfilled"&&Array.isArray(publicDocs.value)?publicDocs.value:[];
  return json({ok:Boolean(status||publicDocs.status==="fulfilled"),status,records,
   warnings:[
