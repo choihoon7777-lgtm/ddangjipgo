@@ -55,7 +55,7 @@ export default function Sources(){
  async function verify(id,status){setBusy(true);const{error}=await dfSupabase.from("df_source_documents").update({verification_status:status}).eq("id",id);if(error)setMsg(error.message);await load();setBusy(false)}
 
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="공식자료 수집" kicker="SOURCE DESK"/>
- <section className="adminPanel"><div className="adminSectionTitle"><div><small>OFFICIAL SOURCES</small><h2>수집 실행</h2></div><button className="miniBtn" disabled={busy} onClick={collect}>{busy?"수집 중…":"전국 자료 지금 수집"}</button></div>
+ <section className="adminPanel"><a className="dfNextAction" href="/focus-admin/updates">전국 수집·변경감지·원문 추출 통합관제 열기 →</a><div className="adminSectionTitle"><div><small>OFFICIAL SOURCES</small><h2>수집 실행</h2></div><button className="miniBtn" disabled={busy} onClick={collect}>{busy?"수집 중…":"전국 자료 지금 수집"}</button></div>
  <p className="adminDataNote">RSS가 없는 자료는 아래 공식 URL 직접 수집을 사용합니다. 정부·공공기관 도메인만 서버에서 허용합니다.</p>
  <div className="dfSourceImport"><label>공식자료 URL<input value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="https://...go.kr / ...or.kr"/></label><button className="adminPrimary" disabled={importing||!sourceUrl.trim()} onClick={importUrl}>{importing?"원문 확인 중…":"공식 URL 수집"}</button></div>
  <div className="dfSourceStatus">{sources.map(s=><div key={s.id}><b>{s.name}</b><span>{s.collector_enabled?(s.collector_kind==="local_auto"?"지자체 자동발견":s.collector_kind==="local_law"?"전국 입법예고":"자동수집"):"URL 수집"}{s.region_code?" · "+s.region_code:""}{s.last_collected_at?" · 최근 "+new Date(s.last_collected_at).toLocaleString("ko-KR"):""}</span></div>)}</div>
