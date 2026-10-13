@@ -87,3 +87,20 @@ test('document changes require two distinct source-version snapshots',()=>{
  assert.equal(comparison.changed,true);
  assert.equal(comparison.hasHistory,true);
 });
+
+import {REGION_NAMES,OFFICIAL_CHANNELS,officialRegion,officialChannel,filteredOfficial} from '../lib/df-region-official.js';
+
+test('official policy documents are grouped by metadata and trusted government publisher',()=>{
+ const seoul={id:'a',region_code:'서울',source_name:'서울특별시 고시·공고',channel:'고시공고',title:'지구단위계획 결정 고시',published_at:'2026-10-13'};
+ const daejeon={id:'b',region_code:'대전',source_name:'대전광역시 자동수집',channel:'보도자료',published_at:'2026-10-12'};
+ const incheon={id:'c',region_code:null,source_name:'인천광역시 고시·공고',channel:'입법예고',published_at:'2026-10-11'};
+ const national={id:'d',region_code:null,source_name:'국토교통부',title:'서울 도로 발표',channel:'보도자료',published_at:'2026-10-10'};
+ assert.equal(officialRegion(seoul),'서울');
+ assert.equal(officialRegion(incheon),'인천');
+ assert.equal(officialRegion(national),null);
+ assert.equal(officialChannel(seoul),'고시·공고');
+ assert.deepEqual(filteredOfficial([seoul,daejeon,incheon,national],'서울').map(x=>x.id),['a']);
+ assert.deepEqual(filteredOfficial([seoul,daejeon,incheon,national],'전국','입법예고').map(x=>x.id),['c']);
+ assert.equal(REGION_NAMES.length,18);
+ assert.ok(OFFICIAL_CHANNELS.includes('보도자료'));
+});
