@@ -105,16 +105,21 @@ function bodyFrom(raw:string,title:string){
  if(!pageMatch||noise>1||selected.length<140||selected.length>16000)return "";
  return selected;
 }
-function summary(body:string){
- const lines=body.split(/\n+/).map(x=>x.trim()).filter(x=>x.length>=30&&!/저작권|홈페이지|개인정보처리방침|미리보기|다운로드|첨부파일/.test(x));
- const chosen:string[]=[];
+function summary(body:string,title=""){
+ const normalize=(s:string)=>s.replace(/[^0-9a-z가-힣]/gi,"").toLowerCase();
+ const normalizedTitle=normalize(title);
+ const lines=body.replace(/\r/g,"").split(/\n+/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+ const selected:string[]=[],seen=new Set<string>();
  for(const line of lines){
-  if(!/고시|공고|변경|계획|면적|사업|인가|지정|결정|지역|주택|개발|기간|준공|건설|공급|하천|공원/.test(line))continue;
-  if(chosen.includes(line))continue;
-  chosen.push(line.slice(0,280));
-  if(chosen.length>=5||chosen.join("\n").length>950)break;
+  if(line.length<20||line.length>650||/저작권|개인정보처리방침|미리보기|다운로드|^첨부파일|^서울특별시장$|^공고 제\d/i.test(line))continue;
+  const flat=normalize(line);
+  // Headline repetition is not a substantive summary.
+  if(!flat||seen.has(flat)||normalizedTitle&&flat===normalizedTitle)continue;
+  if(!/(고시|공고|변경|계획|면적|사업|인가|지정|결정|지역|주택|개발|기간|준공|공급|하천|공원|일시|장소|의견|토지|조례|규제|보상|건축|철도|도시|용도|기준|분양|공청회)/.test(line)&&!/\b20\d{2}[.\/-]\s*\d{1,2}/.test(line))continue;
+  selected.push(line.slice(0,300));seen.add(flat);
+  if(selected.length>=5||selected.join("\n").length>=1100)break;
  }
- return chosen.join("\n");
+ return selected.join("\n");
 }
 async function collectRow(source:any,item:Item){
  const now=new Date().toISOString();
@@ -139,7 +144,7 @@ async function collectRow(source:any,item:Item){
    const fetched=await download(item.link,10500);
    body=bodyFrom(fetched.raw,item.title);
   }
-  keyContent=summary(body);
+  keyContent=summary(body,item.title);
   verified=body.length>=140&&keyContent.length>=45&&!!item.published;
   if(!verified)error="OFFICIAL_BODY_OR_DATE_NOT_VERIFIED";
  }catch(e){error=String(e instanceof Error?e.message:e).slice(0,150)}
@@ -163,9 +168,12 @@ async function collectRow(source:any,item:Item){
  }
  const same=old.content_text===body;
  if(same){
-  const r=await db.from("df_source_documents").update({last_checked_at:now}).eq("id",old.id);
+  const keyChanged=keyContent.length>=45&&old.key_content!==keyContent;
+  const patch:any={last_checked_at:now};
+  if(keyChanged){patch.key_content=keyContent;patch.key_extract_status="ready";patch.key_extracted_at=now;}
+  const r=await db.from("df_source_documents").update(patch).eq("id",old.id);
   if(r.error)throw r.error;
-  return"unchanged";
+  return keyChanged?"summary_refreshed":"unchanged";
  }
  // Preserve curated manual data. Do not overwrite an already verified detail without review.
  if(old.detail_status==="complete"||old.raw_payload?.collector==="manual_official_source_verification"){
