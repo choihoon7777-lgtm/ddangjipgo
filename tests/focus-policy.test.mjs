@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {zipSync,strToU8} from 'fflate';
-import {parseOfficialDetail,extractAttachments,extractOfficialFacts,extractOfficialKeyContent} from '../lib/focus-policy-parsers.js';
+import {parseOfficialDetail,extractAttachments,extractOfficialFacts,extractOfficialKeyContent,looksLikeListPage,resolveOfficialDetailUrl} from '../lib/focus-policy-parsers.js';
 import {officialUrl,extractHwpx} from '../lib/focus-official-fetch.js';
 test('navigation-only pages cannot become official body',()=>{
  assert.equal(parseOfficialDetail('https://example.go.kr','<body>로그인 사이트맵 '+ '도시개발 사업 공고 '.repeat(40)+'</body>').complete,false);
@@ -23,4 +23,10 @@ test('HWPX reads visible text, excluding field instructions and controls',()=>{
 test('official fetch rejects non-official targets and credentials',()=>{
  for(const url of ['https://example.com','http://127.0.0.1','https://foo.go.kr.evil.com','https://name:pass@foo.go.kr'])assert.throws(()=>officialUrl(url));
  assert.equal(officialUrl('https://www.korea.kr/common/download.do').hostname,'www.korea.kr');
+});
+
+test('ELIS locality popup is a list page, not a verified notice detail',()=>{
+ const url='https://www.elis.go.kr/alrpop/locgovAlrPopup?ctpvCd=41&sggCd=610';
+ assert.equal(looksLikeListPage(url),true);
+ assert.equal(resolveOfficialDetailUrl(url,'<html><body>목록</body></html>','광주시 공공시설등 설치기금 관리 및 운용 조례 제·개정'),null);
 });
