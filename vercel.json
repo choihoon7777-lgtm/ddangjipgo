@@ -5,12 +5,108 @@
   },
   "crons": [
     {
-      "path": "/api/focus-collector",
-      "schedule": "10 20 * * *"
+      "path": "/api/focus-collector/0",
+      "schedule": "5 18 * * *"
     },
     {
-      "path": "/api/focus-detail-collector",
-      "schedule": "40 20 * * *"
+      "path": "/api/focus-collector/1",
+      "schedule": "35 18 * * *"
+    },
+    {
+      "path": "/api/focus-collector/2",
+      "schedule": "5 19 * * *"
+    },
+    {
+      "path": "/api/focus-collector/3",
+      "schedule": "35 19 * * *"
+    },
+    {
+      "path": "/api/focus-collector/4",
+      "schedule": "5 20 * * *"
+    },
+    {
+      "path": "/api/focus-collector/5",
+      "schedule": "35 20 * * *"
+    },
+    {
+      "path": "/api/focus-collector/6",
+      "schedule": "5 21 * * *"
+    },
+    {
+      "path": "/api/focus-collector/7",
+      "schedule": "35 21 * * *"
+    },
+    {
+      "path": "/api/focus-collector/8",
+      "schedule": "5 22 * * *"
+    },
+    {
+      "path": "/api/focus-collector/9",
+      "schedule": "35 22 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/0",
+      "schedule": "10 0 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/1",
+      "schedule": "40 0 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/2",
+      "schedule": "10 1 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/3",
+      "schedule": "40 1 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/4",
+      "schedule": "10 2 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/5",
+      "schedule": "40 2 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/6",
+      "schedule": "10 3 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/7",
+      "schedule": "40 3 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/8",
+      "schedule": "10 4 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/9",
+      "schedule": "40 4 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/a",
+      "schedule": "10 5 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/b",
+      "schedule": "40 5 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/c",
+      "schedule": "10 6 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/d",
+      "schedule": "40 6 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/e",
+      "schedule": "10 7 * * *"
+    },
+    {
+      "path": "/api/focus-detail-collector/f",
+      "schedule": "40 7 * * *"
     }
   ]
 }
