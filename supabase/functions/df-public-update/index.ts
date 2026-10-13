@@ -321,7 +321,12 @@ async function runBatch(batch:number){
     items=items.slice(0,8);
    }
    // Valid official RSS with no matching development content is NOT a failed connection.
-   if(!items.length&&((/<rss[\s>]/i.test(current.raw)&&/<item[\s>]/i.test(current.raw))||(source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고")))){
+   const validButFiltered=
+    (/<rss[\s>]/i.test(current.raw)&&/<item[\s>]/i.test(current.raw))||
+    (source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고"))||
+    (source.name==="대구광역시 고시·공고"&&current.raw.includes("fn_goLinkView(")&&current.raw.includes("00940170"))||
+    (source.name==="인천광역시 고시·공고"&&current.raw.includes("/IC010307/view")&&current.raw.includes("2026-"));
+   if(!items.length&&validButFiltered){
     stats.filteredOnly=true;
     const r=await db.from("df_sources").update({last_attempt_at:new Date().toISOString(),last_collected_at:new Date().toISOString(),last_result:"success",last_error:null,last_found:0,last_created:0,last_changed:0}).eq("id",source.id);
     if(r.error)throw r.error;
