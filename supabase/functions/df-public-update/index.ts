@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 const SUPABASE_ENDPOINT = Deno.env.get("SUPABASE_URL") || "";
 const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return""}})();
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
-const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","첨단산업","혁신도시","국가산단","입법예고","조례","규칙"];
+const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
 const fallback={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
@@ -45,15 +45,15 @@ const parseDate=(s:string):string|null=>{
   const date=new Date(m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0")+"T00:00:00+09:00");
   return Number.isNaN(date.getTime())?null:date.toISOString();
  }
- const time=Date.parse(s);return Number.isNaN(time)?null:new Date(time).toISOString();
+ const time=Date.parse(s.replace(/\sKST$/i," +0900"));return Number.isNaN(time)?null:new Date(time).toISOString();
 };
 function discover(base:string,raw:string):Item[]{
  const out:Item[]=[],seen=new Set<string>();
  for(const m of raw.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)){
-  const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description");
+  const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description").slice(0,1200);
   if(!relevant(title)||!link||seen.has(link))continue;
   const rawBody=b.match(/<(?:cn|content:encoded)(?:\s[^>]*)?>([\s\S]*?)<\/(?:cn|content:encoded)>/i)?.[1]||"";
-  const cleaned=text(rawBody.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner));
+  const cleaned=text(rawBody.replace(/&lt;!--\[data-hwpjson\][\s\S]*/i,"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner).slice(0,40000)).slice(0,16000);
   const attached=/<fileUrl>|<fileCnt>[1-9]/i.test(b);
   seen.add(link);out.push({title,link,published:parseDate(published),snippet,officialBody:cleaned.length>=140?cleaned:(snippet.length>=300?snippet:""),hasAttachments:attached});
   if(out.length>=8)break;
@@ -242,6 +242,14 @@ async function runBatch(batch:number){
      if(items.length>=8)break;
     }
     items=items.slice(0,8);
+   }
+   // Valid official RSS with no matching development content is NOT a failed connection.
+   if(!items.length&&/<rss[\\s>]/i.test(current.raw)&&/<item[\\s>]/i.test(current.raw)){
+    stats.filteredOnly=true;
+    const r=await db.from("df_sources").update({last_attempt_at:new Date().toISOString(),last_collected_at:new Date().toISOString(),last_result:"success",last_error:null,last_found:0,last_created:0,last_changed:0}).eq("id",source.id);
+    if(r.error)throw r.error;
+    results.push(stats);
+    continue;
    }
    if(!items.length)throw new Error("목록에서 유효한 상세 링크를 찾지 못했습니다.");
    stats.found=items.length;
