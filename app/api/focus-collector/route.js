@@ -209,7 +209,7 @@ async function detailContent(link,fallback){
 async function runCollector(req){
  try{
   const sb=await authorizedClient(req);if(!sb)return NextResponse.json({error:"NEWSROOM_AUTH_REQUIRED"},{status:401});
-  const{data:sources,error}=await sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind").eq("is_active",true).eq("collector_enabled",true);
+  const{data:sources,error}=await sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind,last_collected_at").eq("is_active",true).eq("collector_enabled",true).order("last_collected_at",{ascending:true,nullsFirst:true}).limit(3);
   if(error)throw error;
   let discovered=0,created=0,changed=0,unchanged=0,failed=0;
   const detail=[];
@@ -256,7 +256,7 @@ async function runCollector(req){
       const ckey=canonicalKey(source,row,published);
       const{data:old}=await sb.from("df_source_documents").select("id,title,content_text,content_hash,source_url,published_at,detail_status,body_hash,attachment_hash,canonical_key,detail_retry_count,detail_completed_at,last_detail_attempt_at").eq("canonical_key",ckey).maybeSingle();
 
-      if(old&&old.title===row.title&&mode==="html_fallback"&&old.detail_status==="complete"){await sb.from("df_source_documents").update({last_checked_at:new Date().toISOString()}).eq("id",old.id);sSame++;continue}
+      if(old&&old.title===row.title&&old.detail_status==="complete"){await sb.from("df_source_documents").update({last_checked_at:new Date().toISOString()}).eq("id",old.id);sSame++;continue}
 
       const seed=(row.description||row.title).trim();
       const deferDetail=source.source_type==="official";
