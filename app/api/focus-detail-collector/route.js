@@ -13,7 +13,7 @@ async function run(req){
  if(!key||!secret||req.headers.get('authorization')!==`Bearer ${secret}`)return NextResponse.json({error:'DETAIL_COLLECTOR_AUTH_REQUIRED'},{status:401});
  const sb=createClient(URL,key,{auth:{persistSession:false,autoRefreshToken:false}});
  const stale=new Date(Date.now()-10*60*1000).toISOString();
- const docs=await checked(sb.from('df_source_documents').select('*').or(`detail_status.in.(queued,partial,failed),and(detail_status.eq.fetching,last_detail_attempt_at.lt.${stale})`).lt('detail_retry_count',6).order('published_at',{ascending:false,nullsFirst:false}).limit(2));
+ const docs=await checked(sb.from('df_source_documents').select('*').or(`detail_status.in.(discovered,queued,partial,failed),and(detail_status.eq.fetching,last_detail_attempt_at.lt.${stale})`).lt('detail_retry_count',6).order('published_at',{ascending:false,nullsFirst:false}).limit(2));
  const detail=await Promise.all(docs.map(async d=>{
   const now=new Date().toISOString();
   const update=values=>checked(sb.from('df_source_documents').update(values).eq('id',d.id));
