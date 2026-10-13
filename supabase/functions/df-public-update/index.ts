@@ -65,6 +65,18 @@ function discover(base:string,raw:string):Item[]{
  }
  return out;
 }
+function channelUrls(base:string,html:string){
+ const links:string[]=[],seen=new Set<string>();
+ for(const match of html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)){
+  const caption=text(match[2]).replace(/\s+/g," ");
+  if(!/(고시.{0,3}공고|고시공고|보도자료|입법예고|공보|공지사항)/.test(caption))continue;
+  const link=officialLink(base,match[1]);
+  if(!link||link===base||seen.has(link))continue;
+  seen.add(link);links.push(link);
+  if(links.length>=4)break;
+ }
+ return links;
+}
 function bodyFrom(raw:string,title:string){
  const candidates:string[]=[];
  const patterns=[
@@ -179,6 +191,18 @@ async function runBatch(batch:number){
    if(!items.length&&fallback[source.name as keyof typeof fallback]){
     const other=await download(fallback[source.name as keyof typeof fallback],11000);
     items=discover(other.url,other.raw);
+   }
+   if(!items.length&&source.collector_kind==="local_auto"){
+    const candidates=channelUrls(current.url,current.raw);
+    for(const candidate of candidates){
+     try{
+      const page=await download(candidate,9000);
+      const links=discover(page.url,page.raw);
+      for(const item of links)if(!items.find(x=>x.link===item.link))items.push(item);
+     }catch{}
+     if(items.length>=8)break;
+    }
+    items=items.slice(0,8);
    }
    if(!items.length)throw new Error("목록에서 유효한 상세 링크를 찾지 못했습니다.");
    stats.found=items.length;
