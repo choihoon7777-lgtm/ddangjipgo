@@ -619,3 +619,83 @@ article.dfPolicyDetail .dfPolicySource{
 
 /* Official collection freshness notice */
 .dfPolicyFreshness{margin:0 0 18px;padding:13px 14px;border:1px solid #efdfcf;border-left:3px solid #f47721;border-radius:11px;background:#fffaf4;color:#6f5136;font-size:13px;line-height:1.65;font-weight:650;overflow-wrap:anywhere}
+
+
+/* Development Focus · real official updates: responsive, scannable mobile control room */
+.dfAdminUnified.dfUpdateView{overflow-x:hidden;padding-bottom:104px;background:#f4f6f8}
+.dfUpdateView *, .dfUpdateView *::before,.dfUpdateView *::after{box-sizing:border-box}
+.dfUpdateView .dfAdminUnifiedHead small{font-size:9px;letter-spacing:.5px}
+.dfUpdateView .dfAdminUnifiedHead b{font-size:16px}
+.dfAdminUnified.dfUpdateView .adminPanel{margin:10px 10px 0;padding:16px 15px;border:1px solid #e7ebef;border-radius:16px;min-width:0;box-shadow:none}
+.dfUpdateHeading,.dfUpdateSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.dfUpdateHeading>div,.dfUpdateSectionHead>div{min-width:0}
+.dfUpdateView .dfUpdateHeading small,.dfUpdateView .dfUpdateSectionHead small{font-size:10px;font-weight:800;letter-spacing:.2px;color:#bd6625}
+.dfUpdateView .dfUpdateHeading h1{font-size:20px;font-weight:850;color:#152d4c;line-height:1.3;letter-spacing:-.65px;margin:4px 0}
+.dfUpdateView .dfUpdateSectionHead h2{font-size:18px;font-weight:830;color:#152d4c;line-height:1.35;letter-spacing:-.4px;margin:4px 0}
+.dfUpdateTextLink{display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;gap:5px;color:#344f70;font-size:12px;font-weight:700;text-decoration:none}
+.dfAdminUnified.dfUpdateView .dfUpdateIntro{font-size:12px;line-height:1.65;color:#596b7e;margin:10px 0 17px;word-break:keep-all}
+.dfUpdateStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.dfUpdateStats>div{background:#f7f9fb;border:1px solid #edf0f3;border-radius:12px;text-align:center;padding:14px 4px 12px;min-width:0}
+.dfUpdateStats strong{display:block;font-size:23px;line-height:1.15;font-weight:850;color:#183459;font-variant-numeric:tabular-nums}
+.dfUpdateStats span{display:block;color:#647489;font-size:10px;line-height:1.45;margin-top:6px;white-space:normal;word-break:keep-all}
+.dfUpdateMainButton{display:flex;width:100%;min-height:48px;gap:12px;align-items:center;justify-content:center;border:0;border-radius:12px;padding:12px 15px;background:#19385f;color:#fff;font-size:13px;font-weight:820;line-height:1.4;word-break:keep-all;cursor:pointer}
+.dfUpdateMainButton span{margin-left:auto;font-size:18px;flex:none}
+.dfUpdateMainButton:disabled,.dfUpdateToolbar button:disabled{opacity:.48;cursor:wait}
+.dfUpdateToolbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:9px}
+.dfUpdateToolbar button{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:43px;border:1px solid #dde5ed;border-radius:10px;background:#fff;color:#2b496e;font-size:12px;font-weight:760;line-height:1.3;word-break:keep-all;padding:8px 7px}
+.dfAdminUnified.dfUpdateView .dfUpdateProgress,.dfAdminUnified.dfUpdateView .dfUpdateMessage{margin:12px 0 0;padding:10px 12px;border-radius:9px;background:#f1f5f9;color:#294968;font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.dfAdminUnified.dfUpdateView .dfUpdateMessage{background:#fff8f1;color:#88561e}
+.dfUpdateSectionCount{flex:none;color:#68778b;font-size:12px;white-space:nowrap}
+.dfUpdateHealth{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 5px;color:#536980;font-size:12px}
+.dfUpdateHealth span{display:inline-flex;align-items:center;gap:5px}
+.dfUpdateDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#a6b2c1}
+.dfUpdateDotGood{background:#3b9275}
+.dfUpdateDotBad{background:#c37b50}
+.dfUpdateDisclosure{margin-top:12px;border-top:1px solid #e9edf1}
+.dfUpdateDisclosure>summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;color:#344b67;font-size:12px;font-weight:760;list-style:none}
+.dfUpdateDisclosure>summary::-webkit-details-marker{display:none}
+.dfUpdateDisclosure>summary::after{content:"⌄";font-size:17px;color:#76899c}
+.dfUpdateDisclosure[open]>summary::after{transform:rotate(180deg)}
+.dfUpdateSourceRows,.dfUpdateRunList{display:grid;gap:7px;padding:7px 0 4px;max-height:420px;overflow:auto}
+.dfUpdateSourceRows>div,.dfUpdateRunList>div{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px 9px;padding:11px 10px;border:1px solid #e7edf2;border-radius:10px;background:#fbfcfd}
+.dfUpdateSourceRows>div>div{min-width:0;flex:1}
+.dfUpdateSourceRows strong,.dfUpdateRunList strong{display:block;color:#1d3758;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.dfUpdateSourceRows span,.dfUpdateRunList span{display:block;color:#758296;font-size:10px;line-height:1.4;margin-top:4px}
+.dfUpdateSourceRows em{font-size:10px;font-style:normal;color:#6b7788;background:#edf1f5;padding:4px 7px;border-radius:6px;white-space:nowrap}
+.dfUpdateSourceRows em.good{color:#217255;background:#ecf6f0}
+.dfUpdateSourceRows em.bad{color:#aa653f;background:#fcf0e8}
+.dfAdminUnified.dfUpdateView .dfUpdateSourceRows p,.dfAdminUnified.dfUpdateView .dfUpdateRunList p{width:100%;margin:3px 0 0;font-size:11px;line-height:1.5;color:#99603d;overflow-wrap:anywhere}
+.dfUpdateFilters{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0 10px}
+.dfUpdateFilters button{border:1px solid #dce4ec;background:#fff;border-radius:20px;color:#647489;min-height:35px;padding:6px 13px;font-size:12px;font-weight:740;line-height:1.2}
+.dfUpdateFilters button.active{background:#19385f;border-color:#19385f;color:#fff}
+.dfUpdateCards{display:grid;gap:9px;width:100%;min-width:0}
+.dfUpdateDocCard{display:block!important;width:100%;min-width:0;height:auto!important;min-height:0!important;padding:15px 14px!important;margin:0!important;border:1px solid #e4e9ee;border-radius:13px;background:#fff}
+.dfUpdateDocMeta{display:flex;gap:7px;align-items:baseline;flex-wrap:wrap;font-size:10.5px;font-weight:650;color:#738094;line-height:1.5}
+.dfUpdateMetaDivider{color:#b7c0c9}
+.dfUpdateView .dfUpdateDocCard h3{margin:8px 0 7px;font-size:15px;font-weight:810;line-height:1.44;letter-spacing:-.28px;color:#1b3555;word-break:keep-all;overflow-wrap:anywhere}
+.dfAdminUnified.dfUpdateView .dfUpdateDocCard .dfUpdateExcerpt{font-size:12px;line-height:1.65;color:#607185;margin:0 0 13px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;overflow-wrap:anywhere;word-break:keep-all;white-space:normal}
+.dfUpdateDocFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid #edf0f3;padding-top:10px}
+.dfUpdateDocStatus{display:inline-flex;flex-shrink:0;border-radius:5px;background:#eff3f8;color:#546b86;padding:5px 7px;font-size:10px;line-height:1.3;font-weight:700;white-space:nowrap}
+.dfUpdateDocLinks{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap;min-width:0;margin-left:auto}
+.dfUpdateDocLinks a{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:780;line-height:1.6;color:#203f64;white-space:normal;word-break:keep-all;text-decoration:none}
+.dfUpdateDocLinks a.dfUpdateSourceLink{color:#687d91;font-weight:650}
+.dfUpdateMore{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:45px;border:1px solid #dce3eb;border-radius:10px;background:#f8fafb;color:#2b4b6b;font-size:12px;font-weight:760;margin-top:12px;padding:10px}
+.dfUpdateMore span{color:#8190a0;font-size:10.5px}
+.dfAdminUnified.dfUpdateView .dfUpdateLoading{padding:18px 0;font-size:12px;color:#76879b}
+.dfAdminUnified.dfUpdateView .dfUpdateSecurityNote{margin:16px 20px 10px;font-size:11px;line-height:1.65;color:#718295;word-break:keep-all}
+.dfUpdateSecurityNote a{color:#2b4d70;text-decoration:underline}
+@media(max-width:370px){
+ .dfUpdateView .dfUpdateHeading h1{font-size:18px}
+ .dfUpdateView .dfUpdateDocCard h3{font-size:14px}
+ .dfUpdateDocFoot{align-items:flex-start}
+ .dfUpdateDocLinks{width:100%;justify-content:space-between;margin-left:0}
+ .dfUpdateStats span{font-size:9px}
+ .dfUpdateToolbar button{font-size:11px}
+}
+/* The authenticated admin review list also must never compress its action buttons into columns. */
+.dfAdminUnified .dfSourceList article{display:block;min-width:0;width:100%;height:auto}
+.dfAdminUnified .dfSourceList article>div:first-child{width:100%;min-width:0;overflow-wrap:anywhere}
+.dfAdminUnified .dfSourceList article>.dfReviewActions{display:flex;width:100%;min-width:0;flex-direction:row;align-items:stretch;flex-wrap:wrap;gap:8px}
+.dfAdminUnified .dfSourceList article>.dfReviewActions a,.dfAdminUnified .dfSourceList article>.dfReviewActions button{flex:1 1 135px;min-width:0;max-width:100%;width:auto;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-align:center;padding:11px 12px;font-size:12px;line-height:1.45}
+.dfAdminUnified .dfSourceList article>div:first-child>b{font-size:14px;line-height:1.45;word-break:keep-all}
+.dfAdminUnified .dfSourceList article>div:first-child>p{font-size:11px;line-height:1.6}
