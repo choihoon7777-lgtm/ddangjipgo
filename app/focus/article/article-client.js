@@ -2,6 +2,7 @@
 import{Suspense,useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
+import OfficialArticleText from "../../../components/df-official-article-text";
 
 function normalizeBody(body){
  if(Array.isArray(body))return body.map(x=>typeof x==="string"?x:(x?.text||"")).filter(Boolean).join("\n\n");
@@ -70,11 +71,11 @@ function ArticleInner(){
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
    {summaries.length>0&&<section className="dfKeySummary"><small>KEY POINTS</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
    {isBlog&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(a.hero_image_url||"")&&<figure className="dfInvestgoArticleFigure"><img className="dfInvestgoArticleImage" src={a.hero_image_url} alt={a.title+" 관련 이미지"} decoding="async" loading="eager" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>기사 관련 이미지</figcaption></figure>}
-   <div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>
+   {!isBlog&&body?<section className="dfOfficialNewsFullText"><h2>기사 본문</h2><OfficialArticleText content={body}/></section>:<div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>}
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
    <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"도시개발·부동산 시장을 해석하는 전문 인사이트입니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
-   {sources.length>0&&<section className="dfPublicSources"><small>OFFICIAL SOURCES</small><h2>공식 출처</h2>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}</section>}
+   {sources.length>0&&<section className="dfPublicSources"><small>ORIGINAL DOCUMENT</small><h2>공식 원문 보기</h2>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}</section>}
   </article><DFBottomNav active="news"/>
  </main>
 }
