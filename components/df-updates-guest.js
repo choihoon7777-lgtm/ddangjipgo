@@ -10,22 +10,27 @@ export default function GuestUpdates(){
  const [status,setStatus]=useState(null),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6);
  async function load(){
   setLoading(true);
-  const [a,b]=await Promise.allSettled([
-   fetch(ENDPOINT,{method:"GET",cache:"no-store"}).then(async r=>{const v=await r.json();if(!r.ok)throw Error(v.error||"기관 현황 조회 실패");return v}),
-   dfSupabase.rpc("df_public_development_policy",{p_channel:null,p_topic:null,p_limit:100,p_offset:0})
-  ]);
-  if(a.status==="fulfilled")setStatus(a.value);else setMessage("수집 현황을 불러오지 못했습니다: "+a.reason.message);
-  if(b.status==="fulfilled"&&!b.value.error)setRecords(b.value.data||[]);
-  else setMessage("공개자료 조회 오류: "+(b.status==="rejected"?b.reason.message:b.value.error.message));
-  setLoading(false);
+  try{
+   const response=await fetch("/api/focus-public-updates",{method:"GET",cache:"no-store"});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||"공개자료 조회 오류");
+   setStatus(data.status&&typeof data.status==="object"?data.status:{sources:[],total:null,ready:null,pending:null});
+   setRecords(Array.isArray(data.records)?data.records.filter(x=>x&&typeof x==="object"):[]);
+   if(Array.isArray(data.warnings)&&data.warnings.length)setMessage(data.warnings.join(" "));
+  }catch(err){
+   setStatus(old=>old||{sources:[],total:null,ready:null,pending:null});
+   setRecords(old=>Array.isArray(old)?old:[]);
+   setMessage("데이터 연결이 일시적으로 지연되고 있습니다. 새로고침으로 다시 시도해 주세요.");
+  }finally{setLoading(false)}
  }
  useEffect(()=>{load()},[]);
  async function callBatch(i){
-  const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({batch:i})});
-  const data=await r.json().catch(()=>({error:"서버 응답 오류"}));
-  if(!r.ok&&r.status!==429)throw Error(data.error||"실제 수집 실행 실패");
+  const response=await fetch("/api/focus-public-updates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({batch:i}),cache:"no-store"});
+  const data=await response.json().catch(()=>({error:"서버 응답 오류"}));
+  if(!response.ok&&response.status!==429)throw Error(data.error||"실제 수집 실행 실패");
   return data;
  }
+
  async function run(all){
   if(busy)return;
   setBusy(true);setMessage("");setProgress("");setResults([]);
@@ -49,8 +54,8 @@ export default function GuestUpdates(){
   }catch(e){setMessage("수집 중 오류: "+e.message)}
   finally{setBusy(false);await load()}
  }
- const agencies=status?.sources||[];
- const sorted=useMemo(()=>records.filter(d=>view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete")),[records,view]);
+ const agencies=Array.isArray(status?.sources)?status.sources:[];
+ const sorted=useMemo(()=>(Array.isArray(records)?records:[]).filter(d=>d&&typeof d==="object"&&(view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete"))),[records,view]);
  const shown=sorted.slice(0,shownCount);
  const completed=agencies.filter(x=>x.last_result==="success").length;
  const errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
@@ -84,7 +89,7 @@ export default function GuestUpdates(){
    </div>
    <details className="dfUpdateDisclosure dfUpdateSourceDisclosure">
     <summary>기관별 수집 현황과 오류 원인 보기</summary>
-    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={src.name}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?"정상":src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
+    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={String(src.name||"미확인 기관")}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?"정상":src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
    </details>
   </section>
   <section className="adminPanel dfUpdateFeedPanel">
@@ -94,9 +99,9 @@ export default function GuestUpdates(){
    </div>
    {loading&&<p className="dfUpdateLoading">공개자료를 불러오는 중입니다.</p>}
    <div className="dfUpdateCards">{shown.map(item=><article className="dfUpdateDocCard" key={item.id}>
-    <div className="dfUpdateDocMeta"><span>{item.source_name||"공식기관"}</span><span className="dfUpdateMetaDivider">·</span><span>{date(item.published_at||item.fetched_at)}</span></div>
-    <h3>{item.title}</h3>
-    {item.key_content&&<p className="dfUpdateExcerpt">{item.key_content.replace(/\s+/g," ").trim()}</p>}
+    <div className="dfUpdateDocMeta"><span>{String(item.source_name||"공식기관")}</span><span className="dfUpdateMetaDivider">·</span><span>{date(item.published_at||item.fetched_at)}</span></div>
+    <h3>{String(item.title||"제목 확인 중")}</h3>
+    {item.key_content&&<p className="dfUpdateExcerpt">{String(item.key_content).replace(/\s+/g," ").trim()}</p>}
     <div className="dfUpdateDocFoot"><span className="dfUpdateDocStatus">{item.detail_status==="complete"?"원문 확보":"핵심 요약"}</span><div className="dfUpdateDocLinks"><a href={"/focus/policy?id="+item.id}>핵심 내용 보기 <span aria-hidden="true">→</span></a>{item.source_url&&<a className="dfUpdateSourceLink" href={item.source_url} target="_blank" rel="noreferrer">공식 출처 ↗</a>}</div></div>
    </article>)}</div>
    {!loading&&!sorted.length&&<p className="dfUpdateLoading">현재 해당 조건의 공개자료가 없습니다.</p>}
