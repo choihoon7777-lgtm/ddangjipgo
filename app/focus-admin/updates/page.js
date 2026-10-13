@@ -2,11 +2,12 @@
 import {useEffect,useMemo,useState} from "react";
 import {dfSupabase} from "../../../lib/df-browser";
 import {DFAdminHeader,DFAdminBottomNav,DFToast} from "../../../components/df-shell";
+import GuestUpdates from "../../../components/df-updates-guest";
 
 const t=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미실행";
 const label=x=>({complete:"원문 확인",partial:"요약 확인",queued:"원문 대기",discovered:"발견",failed:"추출 실패",fetching:"추출 중"})[x]||x||"미확인";
 export default function PolicyUpdates(){
- const [sources,setSources]=useState([]),[docs,setDocs]=useState([]),[counts,setCounts]=useState({}),[mode,setMode]=useState("all"),[busy,setBusy]=useState(""),[progress,setProgress]=useState(""),[msg,setMsg]=useState(""),[runs,setRuns]=useState([]);
+ const [sources,setSources]=useState([]),[docs,setDocs]=useState([]),[counts,setCounts]=useState({}),[mode,setMode]=useState("all"),[busy,setBusy]=useState(""),[progress,setProgress]=useState(""),[msg,setMsg]=useState(""),[runs,setRuns]=useState([]),[accessMode,setAccessMode]=useState("checking");
  async function refresh(){
   const [s,d,total,ready,pending,failed,changes]=await Promise.all([
    dfSupabase.from("df_sources").select("id,name,region_code,collector_enabled,last_attempt_at,last_collected_at,last_result,last_error,last_found,last_created,last_changed").eq("is_active",true).order("name"),
@@ -22,7 +23,19 @@ export default function PolicyUpdates(){
   setSources(s.data||[]);setDocs(d.data||[]);
   setCounts({total:total.count||0,ready:ready.count||0,pending:pending.count||0,failed:failed.count||0,changes:changes.count||0});
  }
- useEffect(()=>{refresh()},[]);
+ useEffect(()=>{
+  let active=true;
+  (async()=>{
+   const {data:{user}}=await dfSupabase.auth.getUser();
+   if(!active)return;
+   if(!user){setAccessMode("guest");return}
+   const {data:admin}=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
+   if(!active)return;
+   if(!admin){setAccessMode("guest");return}
+   setAccessMode("admin");await refresh();
+  })();
+  return()=>{active=false};
+ },[]);
  async function access(){
   const {data:{session}}=await dfSupabase.auth.getSession();
   if(!session?.access_token)throw new Error("관리자 로그인 후 이용하세요.");
@@ -86,6 +99,8 @@ export default function PolicyUpdates(){
   return true;
  }),[docs,mode]);
  const delayed=sources.filter(s=>!s.last_attempt_at||Date.now()-new Date(s.last_attempt_at).getTime()>36*3600000).length;
+ if(accessMode==="guest")return <GuestUpdates/>;
+ if(accessMode==="checking")return <main className="adminShell dfAdminUnified"><div className="adminPanel"><b>관리자 접근 모드를 확인하는 중입니다.</b></div></main>;
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="신규자료 업데이트" kicker="OFFICIAL COLLECTION CONTROL"/>
  <section className="adminPanel">
   <div className="adminSectionTitle"><div><small>COLLECTION HEALTH</small><h2>전국 공식자료 수집 관제</h2></div><button className="miniBtn" onClick={refresh} disabled={!!busy}>현황 새로고침</button></div>
