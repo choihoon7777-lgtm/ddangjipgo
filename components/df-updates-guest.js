@@ -5,8 +5,8 @@ import {DFAdminHeader,DFAdminBottomNav} from "./df-shell";
 const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-update";
 const time=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미점검";
 const date=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"공개일 미확인";
-export default function GuestUpdates(){
- const [status,setStatus]=useState(null),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6);
+export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
+ const [status,setStatus]=useState(initialStatus),[records,setRecords]=useState(Array.isArray(initialRecords)?initialRecords:[]),[loading,setLoading]=useState(!initialStatus&&!initialRecords?.length),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6);
  async function load(){
   setLoading(true);
   try{
