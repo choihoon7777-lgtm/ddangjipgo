@@ -86,7 +86,7 @@ function htmlListItems(sourceName,base,html){
  const re=patterns[sourceName];if(!re)return out;
  for(const m of html.matchAll(re)){
   const link=abs(base,decode(m[1]));const title=decode(m[2]);
-  if(!link||!title||title.length<4||seen.has(link))continue;
+  if(!link||!title||title.length<4||seen.has(link)||!relevantPolicy(title))continue;
   seen.add(link);out.push({title,link,description:"",pubDate:""});
   if(out.length>=12)break;
  }
@@ -125,7 +125,7 @@ function officialBoardItems(base,html,{policyOnly=false}={}){
    const cells=[...row.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(x=>stripHtml(x[1]).trim()).filter(Boolean);
    title=cells.find(x=>x.length>=8&&x.length<=180&&!/^20\d{2}[-.]\d/.test(x))||"";
   }
-  if(!title||(policyOnly&&!relevantPolicy(title)))continue;
+  if(!title||!relevantPolicy(title))continue;
   const dm=text.match(/(20\d{2})[-.\/]\s*(\d{1,2})[-.\/]\s*(\d{1,2})/);
   const pubDate=dm?`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`:"";
   const nm=text.match(/\b(20\d{2})\s*[-–—]\s*(\d+)\b/);
@@ -154,12 +154,12 @@ function genericHtmlItems(base,html,{policyOnly=false}={}){
  const re=/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
  for(const m of html.matchAll(re)){
   const link=abs(base,decode(m[1]));const title=decode(m[2]);
-  if(!link||!title||title.length<8||title.length>180||seen.has(link))continue;
+  if(!link||!title||title.length<8||title.length>180||seen.has(link)||link===base||new URL(link).pathname==="/")continue;
   let u;try{u=new URL(link)}catch{continue}
   let b;try{b=new URL(base)}catch{continue}
   if(u.hostname.replace(/^www\./,"")!==b.hostname.replace(/^www\./,""))continue;
   if(/^(홈|목록|이전|다음|더보기|전체보기|로그인|회원가입|사이트맵)$/i.test(title))continue;
-  if(policyOnly&&!relevantPolicy(title))continue;
+  if(!relevantPolicy(title))continue;
   const idx=m.index||0,ctx=decode(html.slice(Math.max(0,idx-220),Math.min(html.length,idx+m[0].length+220)));
   const dm=ctx.match(/(20\d{2})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{1,2})/);
   const pubDate=dm?`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`:"";
@@ -209,7 +209,13 @@ async function detailContent(link,fallback){
 async function runCollector(req){
  try{
   const sb=await authorizedClient(req);if(!sb)return NextResponse.json({error:"NEWSROOM_AUTH_REQUIRED"},{status:401});
-  const{data:sources,error}=await sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind,last_collected_at").eq("is_active",true).eq("collector_enabled",true).order("last_collected_at",{ascending:true,nullsFirst:true}).limit(3);
+  const match=new URL(req.url).pathname.match(/\/api\/focus-collector\/(\d+)\/?$/);
+  const shard=match?Number(match[1]):null;
+  if(shard!==null&&(!Number.isInteger(shard)||shard<0||shard>9))return NextResponse.json({error:"INVALID_BATCH"},{status:400});
+  const base=sb.from("df_sources").select("id,name,source_type,feed_url,base_url,region_code,collector_kind,last_collected_at,last_attempt_at").eq("is_active",true).eq("collector_enabled",true);
+  const query=shard===null?base.order("last_attempt_at",{ascending:true,nullsFirst:true}).order("name").limit(3)
+    :base.order("name").range(shard*3,shard*3+2);
+  const{data:sources,error}=await query;
   if(error)throw error;
   let discovered=0,created=0,changed=0,unchanged=0,failed=0;
   const detail=[];
@@ -219,7 +225,7 @@ async function runCollector(req){
     if(source.feed_url){
       try{
        const feed=await fetchText(source.feed_url,10000);
-       rows=rssItems(feed.text).slice(0,20).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
+       rows=rssItems(feed.text).filter(row=>relevantPolicy(row.title)).slice(0,12).map(row=>({...row,link:abs(source.feed_url,row.link)||row.link}));
        if(!rows.length){
         mode="html_generic";
         const policyOnly=source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto";
@@ -254,9 +260,22 @@ async function runCollector(req){
     for(const row of rows){
       const published=row.pubDate&&!Number.isNaN(new Date(row.pubDate).getTime())?new Date(row.pubDate).toISOString():null;
       const ckey=canonicalKey(source,row,published);
-      const{data:old}=await sb.from("df_source_documents").select("id,title,content_text,content_hash,source_url,published_at,detail_status,body_hash,attachment_hash,canonical_key,detail_retry_count,detail_completed_at,last_detail_attempt_at").eq("canonical_key",ckey).maybeSingle();
-
-      if(old&&old.title===row.title&&old.detail_status==="complete"){await sb.from("df_source_documents").update({last_checked_at:new Date().toISOString()}).eq("id",old.id);sSame++;continue}
+      const fields="id,title,content_text,content_hash,source_url,published_at,detail_status,body_hash,attachment_hash,canonical_key,detail_retry_count,detail_completed_at,last_detail_attempt_at,raw_payload";
+      const byUrl=await sb.from("df_source_documents").select(fields).eq("source_id",source.id).eq("external_id",row.link).maybeSingle();
+      if(byUrl.error)throw byUrl.error;
+      let old=byUrl.data;
+      if(!old){const byKey=await sb.from("df_source_documents").select(fields).eq("canonical_key",ckey).maybeSingle();if(byKey.error)throw byKey.error;old=byKey.data;}
+      if(old&&source.source_type==="official"){
+       const now=new Date().toISOString();
+       const due=old.detail_status==="complete"&&(!old.detail_completed_at||Date.now()-new Date(old.detail_completed_at).getTime()>48*3600000);
+       const changedTitle=old.title!==row.title;
+       const patch={last_checked_at:now};
+       if(due)Object.assign(patch,{detail_status:"queued",detail_retry_count:0});
+       if(changedTitle)Object.assign(patch,{title:row.title,detail_status:"queued",detail_retry_count:0,verification_status:"pending",raw_payload:{...(old.raw_payload||{}),public_hidden:true,needs_detail_fetch:true}});
+       const check=await sb.from("df_source_documents").update(patch).eq("id",old.id);
+       if(check.error)throw check.error;
+       sSame++;continue;
+      }
 
       const seed=(row.description||row.title).trim();
       const deferDetail=source.source_type==="official";
@@ -269,7 +288,7 @@ async function runCollector(req){
 
       if(!old){
        const detailStatus=detailPage.detail_ok?"complete":"queued";
-       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,canonical_key:ckey,title:row.title,source_url:row.link,detail_url:detailPage.detail_url||row.link,published_at:published,content_text:body,content_hash:h,body_hash:bodyHash,detail_status:detailStatus,detail_retry_count:0,last_detail_attempt_at:detailPage.detail_ok?new Date().toISOString():null,detail_completed_at:detailPage.detail_ok?new Date().toISOString():null,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,official_number:officialNumber((row.title||"")+" "+(row.description||"")),detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments},verification_status:"pending"}).select("id").single();if(e)throw e;
+       const{data:newDoc,error:e}=await sb.from("df_source_documents").insert({source_id:source.id,external_id:row.link,canonical_key:ckey,title:row.title,source_url:row.link,detail_url:detailPage.detail_url||row.link,published_at:published,content_text:body,content_hash:h,body_hash:bodyHash,detail_status:detailStatus,detail_retry_count:0,last_detail_attempt_at:detailPage.detail_ok?new Date().toISOString():null,detail_completed_at:detailPage.detail_ok?new Date().toISOString():null,last_checked_at:new Date().toISOString(),raw_payload:{collector:mode,feed_url:source.feed_url||null,list_url:FALLBACK_LISTS[source.name]||null,source_type:source.source_type||null,collector_kind:source.collector_kind||null,region_code:source.region_code||null,category_hint:(source.collector_kind==="local_government"||source.collector_kind==="local_law"||source.collector_kind==="local_law_rich"||source.collector_kind==="local_auto")?categoryHint:null,channel,official_number:officialNumber((row.title||"")+" "+(row.description||"")),detail_url:detailPage.detail_url,detail_ok:detailPage.detail_ok,content_type:detailPage.content_type,attachments:detailPage.attachments,public_hidden:true,needs_detail_fetch:true},verification_status:"pending"}).select("id").single();if(e)throw e;
        if(newDoc?.id){
         await sb.from("df_source_document_versions").insert({document_id:newDoc.id,content_hash:h,title:row.title,content_text:body,source_url:row.link,source_published_at:published});
         if(detailPage.attachments?.length)await sb.from("df_source_document_attachments").upsert(detailPage.attachments.map(a=>({document_id:newDoc.id,file_name:a.name||"첨부파일",file_url:a.url,file_type:(a.url.split(".").pop()||"").split(/[?#]/)[0].toLowerCase(),extraction_status:"pending"})),{onConflict:"document_id,file_url"});
@@ -285,11 +304,18 @@ async function runCollector(req){
        changed++;sChanged++;
       }else{await sb.from("df_source_documents").update({last_checked_at:new Date().toISOString()}).eq("id",old.id);sSame++;}
     }
-    unchanged+=sSame;await sb.from("df_sources").update({last_collected_at:new Date().toISOString()}).eq("id",source.id);
+    unchanged+=sSame;
+    const{error:sourceErr}=await sb.from("df_sources").update({last_attempt_at:new Date().toISOString(),last_collected_at:new Date().toISOString(),last_result:"success",last_error:null,last_found:rows.length,last_created:sCreated,last_changed:sChanged}).eq("id",source.id);
+    if(sourceErr)throw sourceErr;
     detail.push({source:source.name,mode,feedError,found:rows.length,created:sCreated,changed:sChanged,unchanged:sSame});
-   }catch(e){failed++;detail.push({source:source.name,error:e.message})}
+   }catch(e){
+    failed++;
+    const errorText=String(e?.message||e).slice(0,500);
+    await sb.from("df_sources").update({last_attempt_at:new Date().toISOString(),last_result:"failed",last_error:errorText,last_found:0,last_created:0,last_changed:0}).eq("id",source.id);
+    detail.push({source:source.name,error:errorText});
+   }
   }
-  return NextResponse.json({ok:true,discovered,created,changed,unchanged,failed,detail});
+  return NextResponse.json({ok:true,batch:shard===null?"next":shard,sourcesProcessed:(sources||[]).length,discovered,created,changed,unchanged,failed,detail});
  }catch(e){return NextResponse.json({error:e.message||"공식자료 수집 실패"},{status:500})}
 }
 
