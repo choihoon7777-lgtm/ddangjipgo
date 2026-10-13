@@ -748,3 +748,12 @@ article.dfPolicyDetail .dfPolicySource{
 .dfNaverFooter a{text-decoration:none;color:inherit}
 .dfAdminUnified.dfNaverImport .dfNaverEmpty{color:#718293;font-size:13px;text-align:center;line-height:1.6;padding:22px 0}
 @media(max-width:370px){.dfNaverHero,.dfNaverContent,.dfNaverNotice{margin-left:8px;margin-right:8px;padding:15px 12px}.dfNaverEntry h3{font-size:14px}.dfNaverTabs a{font-size:11px;padding:8px 9px}}
+
+/* First-party InvestGO columns inside actual Development Focus articles */
+.dfInvestgoDisclosure{margin:16px 0 22px;border:1px solid #e2e9f1;background:#f6f8fb;border-radius:13px;padding:15px 16px}
+.dfInvestgoDisclosure b{display:block;color:#1c4065;font-size:13px;line-height:1.4;margin-bottom:7px}
+.dfInvestgoDisclosure p{margin:0;color:#64748b;font-size:12px;line-height:1.68;word-break:keep-all}
+.dfInvestgoDisclosure a{display:inline-block;color:#204a77;font-size:12px;font-weight:800;text-decoration:none;margin-top:9px}
+.dfNewsArticle .dfStoryBody{white-space:pre-line;line-height:1.82;overflow-wrap:anywhere;word-break:keep-all}
+.dfInvestgoHomeNotice{font-size:12px;line-height:1.6;color:#63778e;margin:4px 0 13px}
+.dfInvestgoArticleImage{display:block;margin:16px auto;max-width:100%;width:auto;max-height:430px;object-fit:contain;border-radius:12px}
