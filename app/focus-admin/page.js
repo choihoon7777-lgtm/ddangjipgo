@@ -22,6 +22,7 @@ const groups=[
  {kicker:"DATA & SYSTEM",title:"데이터·시스템",items:[
   ["운영 통계","기사 조회·광고·정정·운영 데이터를 확인합니다.","/focus-admin/stats"],
   ["관심부지 개발레이더","공식 고시·공고에 기재된 필지와 변경 후보를 검수합니다.","/focus-admin/radar"],
+  ["분양·청약 수집현황","공식 모집공고 건수·분양가·자동수집 설정을 검수합니다.","/focus-admin/housing"],
   ["시스템 상태","수집기·API·DB·AI 연결 상태를 확인합니다.","/focus-admin/system"]
  ]}
 ];
