@@ -1,8 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 
-const URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_ENDPOINT = Deno.env.get("SUPABASE_URL") || "";
 const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return""}})();
-const db = createClient(URL, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
+const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
 const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","입법예고","조례","규칙","고시","고시공고"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매"];
 const fallback={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"};
@@ -200,7 +200,7 @@ Deno.serve(async(req)=>{
   const data=await req.json().catch(()=>({}));
   const batch=data?.batch;
   if(!Number.isInteger(batch)||batch<0||batch>9||Object.keys(data).some(x=>x!=="batch"))return respond(req,400,{error:"ONLY_FIXED_BATCH_ALLOWED"});
-  if(!URL||!SECRET)return respond(req,503,{error:"SERVER_CONFIG_MISSING"});
+  if(!SUPABASE_ENDPOINT||!SECRET)return respond(req,503,{error:"SERVER_CONFIG_MISSING"});
   const result=await runBatch(batch);
   return respond(req,result.busy?429:200,result);
  }catch(e){return respond(req,500,{error:String(e instanceof Error?e.message:e).slice(0,240)})}
