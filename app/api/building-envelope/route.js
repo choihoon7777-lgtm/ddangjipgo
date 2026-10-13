@@ -1,4 +1,4 @@
 import{adapt}from"../../../lib/jitgo-api-adapter";
-import{readJitgoLand}from"../../../lib/df-land-upstream";
+import{landWithFailover}from"../../../lib/df-land-upstream";
 const handler=require("../../../lib/jitgo-api/building-envelope");
-export async function GET(request){if(!process.env.VWORLD_API_KEY)return readJitgoLand(request,"building-envelope");return adapt(handler,request)}
+export async function GET(request){return landWithFailover(request,"building-envelope",handler,"VWORLD_API_KEY",adapt)}
