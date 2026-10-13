@@ -37,7 +37,7 @@ async function download(value:string,timeout=12000){
  }
  throw new Error("REDIRECT_LIMIT");
 }
-type Item={title:string;link:string;published:string|null;snippet:string;officialBody?:string;hasAttachments?:boolean};
+type Item={title:string;link:string;published:string|null;snippet:string;officialBody?:string;hasAttachments?:boolean;detailApi?:string};
 const officialLink=(base:string,path:string)=>{try{const u=new URL(entities(path),base);return allowed(u)?u.href:""}catch{return""}};
 const parseDate=(s:string):string|null=>{
  const m=s.match(/^(20\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})/);
@@ -49,6 +49,28 @@ const parseDate=(s:string):string|null=>{
 };
 function discover(base:string,raw:string):Item[]{
  const out:Item[]=[],seen=new Set<string>();
+ // Jeju's official government website supplies a JSON index and JSON detail
+ // API; the HTML listing only contains Vue templates with no actual notices.
+ if(new URL(base).hostname==="www.jeju.go.kr"&&new URL(base).pathname==="/tool/sido/api.jsp"){
+  try{
+   const payload=JSON.parse(raw);
+   if(payload?.act==="index"&&Array.isArray(payload.gosis)){
+    for(const row of payload.gosis){
+     const title=String(row.title||"").trim();
+     const number=String(row.no||""),gb=String(row.gb||"");
+     if(!relevant(title)||!/^[0-9]{3,12}$/.test(number)||!/^[ANPE]$/.test(gb))continue;
+     const published=parseDate(String(row.date||""));
+     const link=officialLink(base,"/news/news/law.htm#"+gb+"_"+number);
+     const detailApi=officialLink(base,"/tool/sido/api.jsp?act=view&gb="+gb+"&no="+number);
+     if(!link||!detailApi||seen.has(link))continue;
+     seen.add(link);out.push({title,link,published,snippet:"",detailApi});
+     if(out.length>=8)break;
+    }
+   }
+  }catch{}
+  return out;
+ }
+
  for(const m of raw.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)){
   const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description").slice(0,1200);
   if(!relevant(title)||!link||seen.has(link))continue;
@@ -189,7 +211,13 @@ async function collectRow(source:any,item:Item){
  }
  let verified=false,body="",keyContent="",error="",usedFeedBody=false;
  try{
-  if(item.officialBody&&item.officialBody.length>=140){
+  if(item.detailApi){
+   const detail=await download(item.detailApi,12000);
+   const j=JSON.parse(detail.raw);
+   if(j.error||!j.gosi||String(j.gosi.title||"").replace(/\s+/g,"")!==item.title.replace(/\s+/g,""))throw new Error("JEJU_OFFICIAL_DETAIL_MISMATCH");
+   body=text(String(j.gosi.content||"")).slice(0,26000);
+   item.hasAttachments=Number(j.gosi.fileCount||0)>0||Array.isArray(j.gosi.gosiFiles)&&j.gosi.gosiFiles.length>0;
+  }else if(item.officialBody&&item.officialBody.length>=140){
    usedFeedBody=true;
    // Seoul city publishes the authenticated notice body inside its official RSS <cn>.
    // For hash-based view links, downloading the list page would discard that body.
