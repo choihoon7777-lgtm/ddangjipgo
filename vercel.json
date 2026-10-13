@@ -6,11 +6,11 @@
   "crons": [
     {
       "path": "/api/focus-collector",
-      "schedule": "0 * * * *"
+      "schedule": "10 20 * * *"
     },
     {
       "path": "/api/focus-detail-collector",
-      "schedule": "15 * * * *"
+      "schedule": "40 20 * * *"
     }
   ]
 }
