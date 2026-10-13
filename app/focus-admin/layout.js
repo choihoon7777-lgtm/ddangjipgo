@@ -1,7 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
 import {usePathname} from "next/navigation";
-import {dfSupabase} from "../../lib/df-browser";
 
 // Only the overview and the update control room expose a public, read-only guest preview.
 // Every other operational admin page still requires a valid admin session and RLS.
@@ -14,6 +13,8 @@ export default function FocusAdminLayout({children}){
   if(guestPages.has(path)){setStatus("ready");return()=>{alive=false}};
   setStatus("checking");
   (async()=>{
+   // Anonymous live-update pages never initialize browser-auth/session storage.
+   const {dfSupabase}=await import("../../lib/df-browser");
    const{data:{user}}=await dfSupabase.auth.getUser();
    if(!alive)return;
    if(!user){location.replace("/focus-admin/login");return}
