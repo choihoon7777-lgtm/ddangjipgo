@@ -90,12 +90,12 @@ function discover(base:string,raw:string):Item[]{
  // Gyeonggi official home SSRs notices in date-labelled <li> cards, while
  // its board.do list is loaded by browser AJAX. Only accept documented boardView links.
  if(!out.length&&new URL(base).hostname==="www.gg.go.kr"){
-  for(const li of raw.matchAll(/<li\\b[^>]*>([\\s\\S]*?)<\\/li>/gi)){
+  for(const li of raw.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)){
    const block=li[1];
-   const dateMatch=block.match(/(20\\d{2})[.\\/-](\\d{1,2})[.\\/-](\\d{1,2})/);
-   const anchor=block.match(/<a\\b[^>]*href=["']([^"']*\\/bbs\\/boardView[.]do\\?[^"']+)["'][^>]*>([\\s\\S]*?)<\\/a>/i);
+   const dateMatch=block.match(/(20\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})/);
+   const anchor=block.match(/<a\b[^>]*href=["']([^"']*\/bbs\/boardView[.]do\?[^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
    if(!dateMatch||!anchor||!/(?:[?&]|&amp;)bsIdx=469(?:&|$)/.test(anchor[1]))continue;
-   const title=text(anchor[2].match(/<p\\b[^>]*>([\\s\\S]*?)<\\/p>/i)?.[1]||"");
+   const title=text(anchor[2].match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)?.[1]||"");
    const link=officialLink(base,anchor[1]);
    if(!relevant(title)||title.length<9||!link||seen.has(link))continue;
    const published=parseDate(dateMatch[0]);
@@ -260,7 +260,7 @@ async function runBatch(batch:number){
     items=items.slice(0,8);
    }
    // Valid official RSS with no matching development content is NOT a failed connection.
-   if(!items.length&&((/<rss[\\s>]/i.test(current.raw)&&/<item[\\s>]/i.test(current.raw))||(source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고")))){
+   if(!items.length&&((/<rss[\s>]/i.test(current.raw)&&/<item[\s>]/i.test(current.raw))||(source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고")))){
     stats.filteredOnly=true;
     const r=await db.from("df_sources").update({last_attempt_at:new Date().toISOString(),last_collected_at:new Date().toISOString(),last_result:"success",last_error:null,last_found:0,last_created:0,last_changed:0}).eq("id",source.id);
     if(r.error)throw r.error;
