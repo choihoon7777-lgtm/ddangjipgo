@@ -48,3 +48,8 @@
 .dfHousingOffline h1{font-size:22px}.dfHousingOffline h2{font-size:18px}.dfHousingOffline p{font-size:13px;color:#718292;line-height:1.8}
 .dfHousingOffline button{background:#173b54;color:white;border:none;border-radius:8px;padding:11px 16px;margin:8px;cursor:pointer}
 @media(max-width:620px){.dfHousingMain{padding:14px 12px 98px}.dfHousingHero,.dfHousingDetailHero{padding:25px 20px}.dfHousingFilter,.dfHousingPanel{padding:16px}.dfHousingCards{grid-template-columns:1fr}.dfHousingResultHead small{max-width:145px}.dfHousingDates{grid-template-columns:repeat(2,minmax(0,1fr))}.dfHousingSource{flex-direction:column}.dfHousingKeyGrid strong{font-size:16px}}
+
+.dfHousingTypeHighlights{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.dfHousingTypeHighlights span{display:inline-flex;align-items:center;gap:7px;border:1px solid #e0e6eb;background:#f5f8fa;border-radius:9px;padding:7px 10px;font-size:11px}
+.dfHousingTypeHighlights span b{color:#285873}.dfHousingTypeHighlights span strong{color:#142e42}
+.dfHousingFreshness{border:1px solid #ead8ba;background:#fff9f0;color:#715d3e;font-size:12px;padding:12px;border-radius:10px;margin-top:15px;line-height:1.6}
