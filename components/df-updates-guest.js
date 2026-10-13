@@ -1,6 +1,5 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {dfSupabase} from "../lib/df-browser";
 import {DFAdminHeader,DFAdminBottomNav} from "./df-shell";
 
 const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-update";
