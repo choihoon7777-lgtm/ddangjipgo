@@ -1,10 +1,16 @@
 "use client";
-import{useState}from"react";
+import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav,DFToast}from"../../../components/df-shell";
 const regions=["전국","서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 export default function Write(){
- const[t,setT]=useState(""),[body,setBody]=useState(""),[category,setCategory]=useState("개발사업"),[region,setRegion]=useState("전국"),[sourceTitle,setSourceTitle]=useState(""),[sourceUrl,setSourceUrl]=useState(""),[sourceText,setSourceText]=useState(""),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");
+ const[t,setT]=useState(""),[body,setBody]=useState(""),[category,setCategory]=useState("개발사업"),[region,setRegion]=useState("전국"),[sourceTitle,setSourceTitle]=useState(""),[sourceUrl,setSourceUrl]=useState(""),[sourceText,setSourceText]=useState(""),[busy,setBusy]=useState(false),[msg,setMsg]=useState(""),[mediaLead,setMediaLead]=useState(null);
+ useEffect(()=>{let live=true;const id=new URLSearchParams(location.search).get("mediaLead");if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
+  (async()=>{const{data,error}=await dfSupabase.from("df_media_leads").select("publisher,headline,original_url,verified_official_url,review_status").eq("id",id).single();
+   if(!live||error||data?.review_status!=="verified"||!data.verified_official_url)return;
+   setMediaLead(data);setSourceUrl(data.verified_official_url);setSourceTitle("확인된 1차 공식자료");
+  })();return()=>{live=false};},[]);
+
  async function submit(){
   setBusy(true);setMsg("");
   try{
@@ -38,6 +44,7 @@ export default function Write(){
  }
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="기사 작성" kicker="EDITOR"/>
  <section className="adminPanel formPanel">
+  {mediaLead&&<section className="dfMediaDraftContext"><b>언론 보도 참고 자료</b><p>{mediaLead.headline}</p><div><a href={mediaLead.original_url} target="_blank" rel="noopener noreferrer">보도 원문 확인 ↗</a><a href={mediaLead.verified_official_url} target="_blank" rel="noopener noreferrer">공식 근거 확인 ↗</a></div><small>언론사 표현을 옮기지 말고 공식자료에 근거해 새로운 제목과 본문을 직접 작성하세요. 출처 본문 입력 후 검증 대기열로 보냅니다.</small></section>}
   <div className="dfAiClassify"><label>카테고리<select value={category} onChange={e=>setCategory(e.target.value)}><option>개발사업</option><option>정책·고시</option><option>분양</option><option>금융</option><option>건설사 동향</option></select></label><label>지역<select value={region} onChange={e=>setRegion(e.target.value)}>{regions.map(x=><option key={x}>{x}</option>)}</select></label></div>
   <label>제목<input value={t} onChange={e=>setT(e.target.value)} placeholder="검증된 사실을 중심으로 제목 작성"/></label>
   <label>본문<textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="기사 초안"/></label>
