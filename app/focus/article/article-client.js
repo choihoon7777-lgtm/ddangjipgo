@@ -12,7 +12,7 @@ function ArticleInner(){
  const[a,setA]=useState(null),[sources,setSources]=useState([]),[history,setHistory]=useState([]),[loading,setLoading]=useState(true),[saved,setSaved]=useState(false),[user,setUser]=useState(null),[saveMsg,setSaveMsg]=useState(""),[saveBusy,setSaveBusy]=useState(false),[shareMsg,setShareMsg]=useState("");
  useEffect(()=>{const id=new URLSearchParams(location.search).get("id");if(!id){setLoading(false);return}(async()=>{
    const[{data},{data:src},{data:hist},{data:{user:u}}]=await Promise.all([
-    dfSupabase.from("df_articles").select("id,title,subtitle,summary_3line,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at").eq("id",id).in("status",["published","corrected"]).single(),
+    dfSupabase.from("df_articles").select("id,title,subtitle,summary_3line,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at,hero_image_url").eq("id",id).in("status",["published","corrected"]).single(),
     dfSupabase.rpc("df_public_article_sources",{p_article_id:id}),
     dfSupabase.rpc("df_public_article_history",{p_article_id:id}),
     dfSupabase.auth.getUser()
@@ -69,6 +69,7 @@ function ArticleInner(){
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
    {summaries.length>0&&<section className="dfKeySummary"><small>KEY POINTS</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
+   {isBlog&&/^https:\/\/[^/]*pstatic\.net\//.test(a.hero_image_url||"")&&<img className="dfInvestgoArticleImage" src={a.hero_image_url} alt={a.title+" 원문 삽화"}/>}
    <div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
