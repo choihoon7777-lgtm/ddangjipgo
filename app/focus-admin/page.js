@@ -48,6 +48,7 @@ export default function Admin(){
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
    <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
+   <a href="/focus-admin/blog-import"><b>투자GO 블로그 이식</b><span>네이버 50건 목록 · 중복 검토 · 원본 보존</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/ai-test"}><b>AI 기사작성</b><span>{guest?"관리자 로그인 후 기사 작성":"공식자료 → 기사"}</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/write"}><b>직접 기사 작성</b><span>{guest?"관리자 로그인 후 실제 작성":"초안 작성"}</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/publish"}><b>검토·발행</b><span>{guest?"관리자 로그인 후 기사 발행":(stats.queue??"—")+"건 대기"}</span></a>
