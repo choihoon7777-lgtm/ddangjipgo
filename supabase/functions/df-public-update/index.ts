@@ -37,14 +37,17 @@ async function download(value:string,timeout=12000){
  }
  throw new Error("REDIRECT_LIMIT");
 }
-type Item={title:string;link:string;published:string|null;snippet:string};
+type Item={title:string;link:string;published:string|null;snippet:string;officialBody?:string;hasAttachments?:boolean};
 const officialLink=(base:string,path:string)=>{try{const u=new URL(entities(path),base);return allowed(u)?u.href:""}catch{return""}};
 function discover(base:string,raw:string):Item[]{
  const out:Item[]=[],seen=new Set<string>();
  for(const m of raw.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)){
   const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description");
   if(!relevant(title)||!link||seen.has(link))continue;
-  seen.add(link);out.push({title,link,published:published&&!isNaN(Date.parse(published))?new Date(published).toISOString():null,snippet});
+  const rawBody=b.match(/<cn(?:\s[^>]*)?>([\s\S]*?)<\/cn>/i)?.[1]||"";
+  const cleaned=text(rawBody.replace(/^\s*<!\[CDATA\[/,"").replace(/\]\]>\s*$/,""));
+  const attached=/<fileUrl>|<fileCnt>[1-9]/i.test(b);
+  seen.add(link);out.push({title,link,published:published&&!isNaN(Date.parse(published))?new Date(published).toISOString():null,snippet,officialBody:cleaned.length>=140?cleaned:"",hasAttachments:attached});
   if(out.length>=8)break;
  }
  if(out.length)return out;
@@ -128,14 +131,20 @@ async function collectRow(source:any,item:Item){
  }
  let verified=false,body="",keyContent="",error="";
  try{
-  const fetched=await download(item.link,10500);
-  body=bodyFrom(fetched.raw,item.title);
+  if(item.officialBody&&item.officialBody.length>=140){
+   // Seoul city publishes the authenticated notice body inside its official RSS <cn>.
+   // For hash-based view links, downloading the list page would discard that body.
+   body=item.officialBody;
+  }else{
+   const fetched=await download(item.link,10500);
+   body=bodyFrom(fetched.raw,item.title);
+  }
   keyContent=summary(body);
   verified=body.length>=140&&keyContent.length>=45&&!!item.published;
   if(!verified)error="OFFICIAL_BODY_OR_DATE_NOT_VERIFIED";
  }catch(e){error=String(e instanceof Error?e.message:e).slice(0,150)}
  if(!old){
-  const hasAttachment=/\.hwpx?|\.pdf|첨부파일/i.test(body);
+  const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
   const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified,auto_hidden:!verified,needs_detail_fetch:!verified,detail_ok:verified,last_detail_error:error||null};
   const idHash=await hash(item.link);
   const cHash=await hash(body||item.snippet||item.title);
@@ -165,7 +174,7 @@ async function collectRow(source:any,item:Item){
   return "change_pending_review";
  }
  const cHash=await hash(body);
- const hasAttachment=/\.hwpx?|\.pdf|첨부파일/i.test(body);
+ const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
  const upd=await db.from("df_source_documents").update({title:item.title,content_text:body,content_hash:cHash,body_hash:cHash,detail_status:hasAttachment?"partial":"complete",detail_completed_at:now,key_content:keyContent,key_extract_status:"ready",key_extracted_at:now,verification_status:"verified",raw_payload:{...(old.raw_payload||{}),public_hidden:false,auto_hidden:false,needs_detail_fetch:false,detail_ok:true,last_detail_error:null},last_checked_at:now}).eq("id",old.id);
  if(upd.error)throw upd.error;
  await db.from("df_source_document_versions").upsert({document_id:old.id,content_hash:cHash,title:item.title,content_text:body,source_url:item.link,source_published_at:item.published},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
