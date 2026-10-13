@@ -99,7 +99,7 @@ export default function PolicyUpdates(){
   return true;
  }),[docs,mode]);
  const delayed=sources.filter(s=>!s.last_attempt_at||Date.now()-new Date(s.last_attempt_at).getTime()>36*3600000).length;
- if(accessMode==="guest")return <GuestUpdates/>;
+ if(accessMode==="guest")return <main className="adminShell dfAdminUnified"><section className="adminPanel"><p>운영자 로그인이 필요합니다.</p><a href="/focus-admin/updates">로그인 없는 자료 수집으로 이동 →</a></section></main>;
  if(accessMode==="checking")return <main className="adminShell dfAdminUnified"><div className="adminPanel"><b>관리자 접근 모드를 확인하는 중입니다.</b></div></main>;
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="신규자료 업데이트" kicker="OFFICIAL COLLECTION CONTROL"/>
  <section className="adminPanel">
