@@ -60,6 +60,8 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
  const errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
  const notRun=agencies.filter(x=>!x.last_attempt_at).length;
  const pendingCount=status?.pending??0;
+ const factory=status?.factory||null;
+ const factoryClock=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"첫 실행 대기";
  return <main className="adminShell dfAdminUnified dfUpdateView">
   <DFAdminHeader title="신규자료 업데이트" kicker="공식자료 실시간 수집"/>
   <section className="adminPanel dfUpdateIntroPanel">
@@ -78,6 +80,18 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
    {progress&&<p className="dfUpdateProgress" role="status">{progress}</p>}
    {message&&<p className="dfUpdateMessage" role="status">{message}</p>}
    {results.length>0&&<details className="dfUpdateDisclosure"><summary>방금 실행한 기관별 결과 확인 ({results.length}개 묶음)</summary><div className="dfUpdateRunList">{results.map(r=><div key={r.batch}><strong>{r.batch+1}번째 기관 묶음</strong><span>{r.error||r.message||"신규 "+(r.created||0)+"건 · 공개 "+(r.published||0)+"건 · 오류 "+(r.failed||0)+"건"}</span>{r.sources?.map(row=><p key={row.source}>{row.source}: 신규 {row.created}건{row.error?" / 오류: "+row.error:""}</p>)}</div>)}</div></details>}
+  </section>
+  <section className="adminPanel dfUpdateFactoryPanel">
+   <div className="dfUpdateSectionHead"><div><small>HOURLY ARTICLE FACTORY</small><h2>시간별 자동 기사 공장</h2></div><span className="dfUpdateSectionCount">1시간 주기</span></div>
+   <p className="dfUpdateFactoryDescription">공식 고시·공고·보도자료를 매시간 확인해 중복을 제거하고 기사 원고를 자동 생성합니다. 전문 검증 자료만 발행하고 나머지는 관리자 검토로 보냅니다.</p>
+   <div className="dfUpdateStats">
+    <div><strong>{factory?.published_articles??"—"}</strong><span>자동 발행 기사</span></div>
+    <div><strong>{factory?.review_articles??"—"}</strong><span>검토 대기 기사</span></div>
+    <div><strong>{factory?.pending_documents??"—"}</strong><span>원문 추출 대기</span></div>
+   </div>
+   <div className="dfUpdateFactoryTimeline"><span>매시 00~54분 기관별 분산 수집</span><span>매시 58분 기사 생성·발행 판단</span></div>
+   <div className="dfUpdateFactoryFooter"><span>마지막 기사 공장 실행: {factoryClock(factory?.last_factory_at)}</span><a href="/focus/live?category=정책·고시">발행 기사 확인 →</a></div>
+   <p className="dfUpdateFactoryHelp">새 자료가 없거나 원문 확인이 부족하면 발행 건수는 0건일 수 있습니다. AI 창작 기사가 아닌 공식 문서의 검증된 내용으로 작성합니다.</p>
   </section>
   <section className="adminPanel dfUpdateSourcesPanel">
    <div className="dfUpdateSectionHead"><div><small>수집 상태</small><h2>공식기관 현황</h2></div><span className="dfUpdateSectionCount">{agencies.length}개 기관</span></div>
