@@ -23,21 +23,31 @@ export async function GET(request){
   q=q.order("published_date",{ascending:false,nullsFirst:false}).limit(400);
  }
  const {data,error}=await q;
- const liveKey=process.env.DATA_GO_KR_API_KEY||process.env.DATA_GO_KR_SERVICE_KEY||process.env.PUBLIC_DATA_API_KEY;
- if((error||(!id&&!(data||[]).length))&&liveKey){
+ const cached=error?[]:(data||[]);
+ const liveKey=process.env.DATA_GO_KR_API_KEY||process.env.DATA_GO_KR_SERVICE_KEY||process.env.PUBLIC_DATA_API_KEY||"";
+ // Only query the official endpoint when no verified cached result exists.
+ if(!cached.length){
+  if(!liveKey){
+   console.error("HOUSING_API_KEY_MISSING");
+   return reply({ok:false,error:"HOUSING_API_KEY_MISSING",items:[]},503);
+  }
   try{
-   if(id)return reply({ok:true,item:await readLiveOfferById(liveKey,id),source:"official_live"});
+   console.info("HOUSING_OFFICIAL_LOOKUP_STARTED");
+   if(id){
+    const item=await readLiveOfferById(liveKey,id);
+    return reply({ok:true,item,source:"official_live"},item?200:404);
+   }
    let items=await readLiveOffers(liveKey);
    const region=(args.get("region")||"").trim(),term=(args.get("q")||"").trim().toLowerCase(),kind=args.get("kind")||"";
    items=items.filter(r=>(!region||String(r.region_name||r.address||"").startsWith(region))&&(!kind||r.supply_kind===kind)&&(!term||[r.house_name,r.address,r.region_name].filter(Boolean).join(" ").toLowerCase().includes(term)));
+   console.info("HOUSING_OFFICIAL_LOOKUP_DONE",items.length);
    return reply({ok:true,items,updatedAt:new Date().toISOString(),source:"official_live"});
-  }catch(e){console.error("HOUSING_LIVE_UNAVAILABLE",e.message)}
+  }catch(e){
+   const code=/^UPSTREAM_\d+$/.test(String(e.message))?e.message:"OFFICIAL_UPSTREAM_ERROR";
+   console.error("HOUSING_OFFICIAL_LOOKUP_FAILED",code);
+   return reply({ok:false,error:code,items:[]},503);
+  }
  }
- if(error){
-  console.error("HOUSING_READ_FAILED",error.code||"UNKNOWN");
-  return reply({ok:false,error:"HOUSING_DATA_UNAVAILABLE",items:[]},503);
- }
- if(id)return reply({ok:true,item:data?.[0]||null});
- const items=data||[];
- return reply({ok:true,items,updatedAt:items.map(x=>x.refreshed_at).filter(Boolean).sort().at(-1)||null});
+ if(id)return reply({ok:true,item:cached[0],source:"verified_cache"});
+ return reply({ok:true,items:cached,updatedAt:cached.map(x=>x.refreshed_at).filter(Boolean).sort().at(-1)||null,source:"verified_cache"});
 }
