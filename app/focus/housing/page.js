@@ -55,13 +55,13 @@ function Detail({item}){
  </div>;
 }
 export default function HousingPage(){
- const [rows,setRows]=useState([]),[item,setItem]=useState(null),[selectedId,setSelectedId]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
+ const [rows,setRows]=useState([]),[item,setItem]=useState(null),[selectedId,setSelectedId]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[freshness,setFreshness]=useState(null);
  const [search,setSearch]=useState(""),[region,setRegion]=useState("전국"),[kind,setKind]=useState(""),[status,setStatus]=useState("전체"),[retry,setRetry]=useState(0);
  useEffect(()=>{let active=true;const id=new URLSearchParams(window.location.search).get("id");setSelectedId(id||"");setLoading(true);setError("");
   fetch("/api/focus-housing"+(id?"?id="+encodeURIComponent(id):""),{cache:"no-store"})
    .then(async r=>{const p=await r.json();if(!r.ok||!p.ok)throw Error(p.error||"데이터를 불러오지 못했습니다.");return p})
-   .then(p=>{if(active){if(id)setItem(p.item);else setRows(p.items||[]);}})
-   .catch(()=>{if(active)setError("현재 청약 공식 데이터가 연결되지 않았거나 조회할 수 없습니다.");})
+   .then(p=>{if(active){if(id)setItem(p.item);else{setRows(p.items||[]);setFreshness({stale:!!p.stale,updatedAt:p.updatedAt})}}})
+   .catch(e=>{if(active)setError(e.message==="DATA_NOT_SYNCED"?"공식 청약정보의 최초 수집을 준비하고 있습니다.":e.message==="DATABASE_READ_FAILED"?"분양공고 DB 조회에 문제가 있습니다.":"공식 청약정보를 불러올 수 없습니다.");})
    .finally(()=>{if(active)setLoading(false)});
   return()=>{active=false};
  },[retry]);
@@ -83,6 +83,7 @@ export default function HousingPage(){
     <div className="dfHousingFields"><label>지역<select value={region} onChange={e=>setRegion(e.target.value)}>{REGIONS.map(x=><option key={x}>{x}</option>)}</select></label><label>진행상태<select value={status} onChange={e=>setStatus(e.target.value)}>{["전체","청약 예정","청약 진행","청약 마감","일정 확인"].map(x=><option key={x}>{x}</option>)}</select></label></div>
     <div className="dfHousingChips">{KINDS.map(([key,label])=><button type="button" key={key} onClick={()=>setKind(key)} className={key===kind?"selected":""}>{label}</button>)}</div>
    </section>
+   {freshness?.stale&&<p className="dfHousingFreshness" role="status">공식 데이터가 72시간 이상 갱신되지 않았습니다. 신청 전 청약홈 원문을 확인하세요.</p>}
    <div className="dfHousingResultHead"><h2>분양공고 <span>{filtered.length.toLocaleString("ko-KR")}건</span></h2><small>확인 가능한 최근 공식 공고 · 모집공고일 순</small></div>
    {filtered.length?<div className="dfHousingCards">{filtered.map(r=><a className="dfHousingCard" key={r.offer_key} href={"/focus/housing?id="+encodeURIComponent(r.offer_key)}>
     <div className="dfHousingCardTop"><span>{HOUSING_KINDS[r.supply_kind]?.[2]||"아파트"}</span><b>{housingStage(r,today())}</b></div>
