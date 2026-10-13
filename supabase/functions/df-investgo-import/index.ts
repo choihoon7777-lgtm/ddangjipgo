@@ -17,8 +17,9 @@ function field(block:string,key:string){
 const hexHash=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map(x=>x.toString(16).padStart(2,"0")).join("");
 function categoryFor(title:string){
  const t=title.replace(/\s+/g," ");
+ if(/정부지원사업 발표평가|사업지원금 최대|청년미래적금|건강보험료 환급금|통신비만|프리랜서|여행가는 가을|소상공인 지원금/.test(t))return "";
  if(/공매|경매|온비드|캠코|유찰/.test(t))return "경매·공매 분석";
- if(/도시개발|개발사업|사업부지|클러스터|신도시|도시계획|역세권|사옥 부지|부지|개발계획|주상복합|사옥|빌딩|주택공급/.test(t))return "토지·도시개발";
+ if(/도시개발|개발사업|사업부지|클러스터|신도시|도시계획|역세권|사옥 부지|개발계획|주상복합|사옥|빌딩|주택공급/.test(t))return "토지·도시개발";
  if(/재건축|재개발|정비사업|공사비|기본형건축비|GS건설|건설사|분담금/.test(t))return "건설·정비사업";
  if(/PF|대출|주담대|금리/.test(t)&&/부동산|아파트|주택|건설|대출|주담대/.test(t))return "부동산 금융";
  if(/부동산|주택|아파트|청약|분양|무순위|오피스텔|전셋값|전세|전셋|방배|반포|과천|강북|고양대곡/.test(t))return "부동산 정책·시장";
