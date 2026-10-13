@@ -794,3 +794,48 @@ article.dfPolicyDetail .dfPolicySource a{display:flex!important;min-height:46px;
 article.dfPolicyDetail .dfPolicySource b{font-size:13px}
 article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 @media(max-width:380px){article.dfPolicyDetail .dfPolicyFullReader{padding:17px 14px}.dfOfficialArticleText{font-size:14.5px;line-height:1.85}.dfOfficialNewsFullText .dfOfficialArticleText{font-size:14.5px}}
+
+/* Media source research — authenticated editorial leads, never syndicated article bodies. */
+.dfMediaMonitor .dfMediaIntro{background:linear-gradient(155deg,#fbfcfe,#f5f8fc)}
+.dfMediaIntro>small{font-size:10px;color:#b68448;font-weight:900;letter-spacing:1px}
+.dfMediaIntro h1{font-size:23px;line-height:1.35;color:#173555;letter-spacing:-.8px;margin:7px 0 10px}
+.dfMediaIntro p{font-size:12px;line-height:1.75;color:#60778d;word-break:keep-all}
+.dfMediaNumbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.dfMediaNumbers>div{background:#fff;border:1px solid #e7edf2;border-radius:11px;padding:12px 8px;text-align:center}
+.dfMediaNumbers b{display:block;font-size:24px;color:#1b446b}.dfMediaNumbers span{display:block;margin-top:5px;color:#76879a;font-size:10px;word-break:keep-all}
+.dfMediaIntro .dfMediaPolicy{font-size:11px;margin:0;color:#687d93}
+.dfMediaFeedGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0 0}
+.dfMediaFeedGrid>div{border:1px solid #e9eef3;border-radius:9px;background:#fafbfd;padding:10px;min-width:0}
+.dfMediaFeedGrid b{font-size:11px;line-height:1.6;display:block;color:#284967;word-break:keep-all}
+.dfMediaFeedGrid span{display:block;margin-top:4px;font-size:10px;color:#75889a}
+.dfMediaFeedGrid small{display:block;font-size:10px;color:#c65b44;overflow-wrap:anywhere}
+.dfMediaFilters{display:grid;grid-template-columns:1.3fr 1fr;gap:7px;margin:13px 0}
+.dfMediaFilters input,.dfMediaFilters select,.dfMediaOfficialLabel input{width:100%;min-width:0;min-height:42px;padding:9px 11px;border-radius:9px;border:1px solid #dfe7ef;font-size:12px;background:#fff;color:#294563}
+.dfMediaTabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:9px}
+.dfMediaTabs button{flex-shrink:0;background:#f4f7fa;border:1px solid #e2eaf1;border-radius:8px;color:#637d94;font-size:11px;padding:8px 11px}
+.dfMediaTabs button.active{background:#1f446c;border-color:#1f446c;color:white}
+.dfMediaLeads{display:grid;gap:12px}
+.dfMediaLead{background:#fff;border:1px solid #e3e9f0;border-radius:13px;padding:15px;min-width:0}
+.dfMediaLeadMeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:10px;color:#77889a}
+.dfMediaLeadMeta span:first-child{font-weight:850;color:#244d70}
+.dfMediaLeadMeta span:nth-child(2){background:#f0f5fa;color:#476a89;border-radius:6px;padding:4px 6px}
+.dfMediaLeadMeta em{font-style:normal;margin-left:auto}
+.dfMediaLead h3{font-size:16px;line-height:1.5;letter-spacing:-.35px;color:#193758;margin:11px 0;word-break:keep-all;overflow-wrap:anywhere}
+.dfMediaLeadStatus{display:flex;gap:10px;align-items:center;font-size:10px;margin-bottom:10px;color:#7d8c9d}
+.dfMediaLeadStatus b{color:#a27636}
+.dfMediaOriginal{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:40px;text-decoration:none;color:#20517e;border-radius:8px;background:#eef5fb;padding:10px 12px;font-weight:800;font-size:12px}
+.dfMediaOfficialLabel{display:block;font-size:10px;color:#687d92;font-weight:750;margin-top:12px}
+.dfMediaOfficialLabel input{display:block;margin-top:6px}
+.dfMediaActions{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.dfMediaActions button{flex:1;min-width:80px;border:1px solid #dfe6ed;border-radius:8px;background:white;color:#365473;font-size:11px;font-weight:750;min-height:38px}
+.dfMediaActions button:disabled{opacity:.4}
+.dfMediaWrite{display:block;border-top:1px solid #e8edf3;margin-top:13px;padding-top:13px;font-size:12px;color:#b37e42;font-weight:800;text-decoration:none}
+.dfMediaMessage{background:#fff6f0;color:#995323;font-size:12px;line-height:1.55;padding:12px;border-radius:9px}
+.dfMediaMore{display:block;margin:17px auto}
+.dfMediaDraftContext{border:1px solid #dce7f2;background:#f5f8fc;border-radius:11px;padding:14px;margin-bottom:16px}
+.dfMediaDraftContext b{font-size:12px;color:#1e466c}
+.dfMediaDraftContext p{font-size:14px;line-height:1.6;color:#273f59;margin:8px 0}
+.dfMediaDraftContext>div{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:8px}
+.dfMediaDraftContext a{color:#1c537e;font-size:12px;font-weight:800}
+.dfMediaDraftContext small{display:block;font-size:11px;line-height:1.6;color:#6c8398}
+@media(max-width:390px){.dfMediaMonitor .adminPanel{padding:14px 12px}.dfMediaLead{padding:13px 11px}.dfMediaLead h3{font-size:15px}.dfMediaFilters{grid-template-columns:1fr}.dfMediaActions button{min-width:75px}}
