@@ -9,10 +9,12 @@ const topics=["전체","도시계획","주택·건축","토지·정비","교통�
 const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조례규칙":x;
 const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
 export default function Policy(){
- const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0);
+ const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0),[backRegion,setBackRegion]=useState(null);
  useEffect(()=>{
   let active=true;
   const params=new URLSearchParams(location.search),id=params.get("id");
+  const fromRegion=params.get("from")==="region"&&["전국","서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"].includes(params.get("name"))?params.get("name"):null;
+  setBackRegion(fromRegion);
   const c=channels.includes(params.get("channel"))?params.get("channel"):"전체";
   const t=topics.includes(params.get("topic"))?params.get("topic"):"전체";
   setChannel(c);setTopic(t);setLoading(true);setError("");
@@ -36,7 +38,7 @@ export default function Policy(){
  if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="news"/></main>;
  if(detail)return <main className="focusShell dfHigh"><DFBrandHeader/>
   <article className="dfPolicyDetail">
-   <a className="dfPolicyBack" href="/focus/policy">← 개발정책</a>
+   <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
    <section className="dfPolicySummaryCard">
     <div className="dfPolicyMeta"><span>{detail.channel==="고시공고"?"고시·공고":detail.channel==="조례규칙"?"조례·규칙":detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경</b>}</div>
     <h1>{detail.title}</h1>
