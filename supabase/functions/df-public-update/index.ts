@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 const SUPABASE_ENDPOINT = Deno.env.get("SUPABASE_URL") || "";
 const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return""}})();
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
-const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","입법예고","조례","규칙"];
+const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
 const fallback={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
@@ -188,7 +188,8 @@ async function collectRow(source:any,item:Item){
  }catch(e){error=String(e instanceof Error?e.message:e).slice(0,150)}
  if(!old){
   const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
-  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified,auto_hidden:!verified,needs_detail_fetch:!verified||usedFeedBody,detail_ok:verified&&!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:error||null};
+  const rightsHold=source.name==="전북특별자치도 자동수집";
+  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified||rightsHold,auto_hidden:!verified||rightsHold,rights_requires_review:rightsHold,needs_detail_fetch:!verified||usedFeedBody,detail_ok:verified&&!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:error||null};
   const idHash=await hash(item.link);
   const cHash=await hash(body||item.snippet||item.title);
   const record={source_id:source.id,external_id:item.link,canonical_key:idHash,title:item.title,source_url:item.link,detail_url:item.link,published_at:item.published,content_text:verified?body:item.snippet||item.title,content_hash:cHash,body_hash:verified?cHash:null,detail_status:verified?(hasAttachment||usedFeedBody?"partial":"complete"):"queued",detail_retry_count:0,detail_completed_at:verified?now:null,last_checked_at:now,key_content:verified?keyContent:null,key_extract_status:verified?"ready":"pending",key_extracted_at:verified?now:null,raw_payload:payload,verification_status:verified?"verified":"pending"};
