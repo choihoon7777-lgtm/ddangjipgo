@@ -60,3 +60,30 @@ test('geographic claims require verified source coordinates',()=>{
  assert.equal(x.status,'within-radius');
  assert.ok(x.distanceMeters<100);
 });
+
+import {locateWatch,sourceMention,previewEvidence,compareDocumentVersions} from '../lib/df-radar-official.js';
+
+test('official evidence requires verified, official source and does not assert distance or legal impact',()=>{
+ const watch={address:'대전광역시 유성구 원촌동 112-4',pnu:'3020011100101120004'};
+ const doc={id:'doc1',title:'원촌동 112-4 개발계획 열람공고',content_text:'원촌동 112-4에 관한 의견수렴',source_url:'https://www.daejeon.go.kr/notice/1',verification_status:'verified',published_at:'2026-10-10'};
+ assert.equal(locateWatch(watch.address,watch.pnu).lot,'112-4');
+ assert.equal(sourceMention(doc,watch).level,'address-mention');
+ assert.equal(sourceMention({...doc,verification_status:'pending'},watch).score,0);
+ assert.equal(sourceMention({...doc,source_url:'https://example.org/a'},watch).score,0);
+ const result=previewEvidence([doc],watch);
+ assert.equal(result.length,1);
+ assert.equal(result[0].distanceMeters,null);
+ assert.equal(result[0].impactConfirmed,false);
+ assert.equal(result[0].changeConfirmed,false);
+ const withPnu={...doc,content_text:doc.content_text+' PNU:3020011100101120004'};
+ assert.equal(sourceMention(withPnu,watch).level,'parcel-mention');
+});
+
+test('document changes require two distinct source-version snapshots',()=>{
+ const only=[{content_hash:'a',captured_at:'2026-10-01T00:00:00Z'}];
+ assert.equal(compareDocumentVersions(only).changed,false);
+ assert.equal(compareDocumentVersions([...only,{content_hash:'a',captured_at:'2026-10-02T00:00:00Z'}]).changed,false);
+ const comparison=compareDocumentVersions([...only,{content_hash:'b',captured_at:'2026-10-02T00:00:00Z'}]);
+ assert.equal(comparison.changed,true);
+ assert.equal(comparison.hasHistory,true);
+});
