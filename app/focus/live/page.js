@@ -2,7 +2,7 @@
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFSectionTitle}from"../../../components/df-shell";
-const cats=["전체","개발사업","정책·고시","분양","금융","건설사 동향"];
+const cats=["전체","개발사업","정책·고시","분양","금융","건설사 동향","인사이트"];
 const channelFilters=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topicFilters=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자"];
 const channelMap={"고시·공고":"고시공고","조례·규칙":"조례규칙"};
@@ -21,6 +21,6 @@ export default function Live(){
   <div><small>주제</small><div>{topicFilters.map(x=><a key={x} className={topic===x?"on":""} href={hrefForFilter(channel,x)}>{x}</a>)}</div></div>
  </section>}
  <section className="focusBlock"><DFSectionTitle eyebrow="LATEST" title={category==="전체"?"전체 뉴스":isPolicy?"개발정책":category} />
- {loading?<div className="focusEmpty"><b>뉴스를 불러오는 중입니다.</b></div>:items.length?items.map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{isPolicy?(a.source_channel==="고시공고"?"고시·공고":a.source_channel==="조례규칙"?"조례·규칙":a.source_channel||"개발정책"):(a.category||"최신뉴스")}</small><h3>{a.title}</h3>{a.subtitle&&i===0&&<p className="dfNewsSubtitle">{a.subtitle}</p>}<p>{a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":""}공식자료 기반</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>현재 공개된 자료가 없습니다.</b><span>{isPolicy?"선택한 필터에 해당하는 공식자료가 없습니다.":"검증·승인된 기사만 표시됩니다."}</span></div>}
+ {loading?<div className="focusEmpty"><b>뉴스를 불러오는 중입니다.</b></div>:items.length?items.map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.source_channel==="investgo"?"투자GO 인사이트":isPolicy?(a.source_channel==="고시공고"?"고시·공고":a.source_channel==="조례규칙"?"조례·규칙":a.source_channel||"개발정책"):(a.category||"최신뉴스")}</small><h3>{a.title}</h3>{a.subtitle&&i===0&&<p className="dfNewsSubtitle">{a.subtitle}</p>}<p>{a.source_channel==="investgo"?"투자GO 원문 이식 · 최초 작성일 기준":(a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":"")+"공식자료 기반"}</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>현재 공개된 자료가 없습니다.</b><span>{isPolicy?"선택한 필터에 해당하는 공식자료가 없습니다.":"검증·승인된 기사만 표시됩니다."}</span></div>}
  </section><DFBottomNav active="news"/></main>
 }
