@@ -2,18 +2,12 @@
 import{useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav}from"../../../components/df-shell";
+import OfficialArticleText from "../../../components/df-official-article-text";
 
 const channels=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topics=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자","기타"];
 const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조례규칙":x;
 const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
-function OfficialBody({text}){
- const blocks=text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
- return <details className="dfPolicyBodyDisclosure">
-  <summary>공식 본문 전체 펼쳐보기 <span>원문 발췌 · {text.length.toLocaleString("ko-KR")}자</span></summary>
-  <div className="dfPolicyBodyText">{blocks.map((block,i)=><p key={i}>{block}</p>)}</div>
- </details>;
-}
 export default function Policy(){
  const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0);
  useEffect(()=>{
@@ -48,21 +42,21 @@ export default function Policy(){
     <h1>{detail.title}</h1>
     <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
-     <div className="dfPolicyKeyHead"><span>핵심 내용 · 주요 변경사항</span><b>{detail.key_extract_status==="ready"?(detail.detail_status==="complete"?"공식 문서 발췌":"공식자료 확인 · 핵심 정리"):"원문 확인 필요"}</b></div>
+     <div className="dfPolicyKeyHead"><span>기사 핵심 · 주요 내용</span><b>{detail.key_extract_status==="ready"?(detail.detail_status==="complete"?"공식 문서 발췌":"공식자료 확인 · 핵심 정리"):"원문 확인 필요"}</b></div>
      <pre>{detail.key_extract_status==="ready"&&detail.key_content?detail.key_content:"개별 공식 본문이 아직 확보되지 않았습니다. 목록 정보만으로 변경 내용을 판단하지 않습니다."}</pre>
     </div>
    </section>
    {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).filter(([k,v])=>k!=="첨부"&&v!==null&&String(v).trim()).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
-   {detail.detail_status!=="complete"&&detail.key_extract_status==="ready"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>자료 설명</small><span>첨부 전문 미추출</span></div><div className="dfPolicyBodyText"><p>{detail.content_text}</p></div></section>}
-   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>공식 본문 전체</small><span>펼쳐서 확인</span></div><OfficialBody text={detail.content_text}/></section>}
+   {detail.detail_status!=="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock dfPolicyFullReader"><div className="dfPolicySectionHead"><small>확인된 공식자료 내용</small><span>첨부·원문 추가 확인 필요</span></div><p className="dfPolicyReaderCaution">현재 확보된 공식 문서 내용을 생략 없이 표시합니다. 별도 첨부파일이나 상세 문서 내용은 아직 모두 검증되지 않았을 수 있습니다.</p><OfficialArticleText content={detail.content_text} partial/></section>}
+   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock dfPolicyFullReader"><div className="dfPolicySectionHead"><small>공식 문서 내용</small><span>확보된 본문 전체</span></div><OfficialArticleText content={detail.content_text}/></section>}
    {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource">
     <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>{detail.detail_status==="complete"?"공식 문서의 주요 내용을 발췌했습니다. 도면 등 상세 자료는 공식 사이트에서 확인하세요.":"공식 기관의 공개 자료를 확인해 핵심 내용을 정리했습니다. 첨부 문서 전문과 도면은 아직 추출·대조되지 않았습니다."}</span></div>
-    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">{detail.key_extract_status==="ready"?"공식 사이트에서 자세히 보기 ↗":"공식 기관에서 확인 ↗"}</a>}
+    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">"공식 원문 보기 ↗"</a>}
    </footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>전국 공식자료</small><h1>개발정책</h1><p>전국 정부·지자체의 개발 관련 공식자료를 핵심 내용부터 빠르게 확인합니다.</p><div><b>핵심만 먼저</b><span>더 자세한 내용은 공식 사이트에서 확인</span></div></section>
+  <section className="dfPolicyHero"><small>전국 공식자료</small><h1>개발정책</h1><p>전국 정부·지자체의 고시·공고·보도자료를 충분한 본문과 함께 전합니다.</p><div><b>본문을 기사처럼</b><span>더 자세한 문서는 페이지 하단의 공식 원문 링크로 확인</span></div></section>
   <section className="dfPolicyFilters">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
