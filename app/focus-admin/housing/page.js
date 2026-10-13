@@ -18,6 +18,12 @@ export default function HousingAdmin(){
   {row("분양가 확인 공고",(status.counts?.priced??0)+"건")}
   {row("최근 데이터 수집",status.lastUpdated?new Date(status.lastUpdated).toLocaleString("ko-KR"):"수집 이력 없음")}
   {row("데이터 상태",status.stale?"갱신 필요":"최근 자료")}
+  {row("최근 자동수집 작업",status.latestSync?.status||"실행 이력 없음")}
+  {status.latestSync?.started_at&&row("최근 작업 시작",new Date(status.latestSync.started_at).toLocaleString("ko-KR"))}
+  {status.latestSync?.error_code&&row("오류 코드",status.latestSync.error_code)}
+  {status.latestSync?.partial_coverage&&row("수집 범위","부분 수집 · 검수 필요")}
+  {status.latestSync?.warning_count>0&&row("자료 검수 경고",status.latestSync.warning_count+"건")}
+
   {row("공공데이터 API 키",status.officialKeyConfigured?"설정됨":"미설정")}
   {row("정기수집 서버 인증",status.pipelineConfigured?"설정됨":"CRON_SECRET / 서버 DB 키 설정 필요")}
  </>}
