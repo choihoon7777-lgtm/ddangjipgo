@@ -72,7 +72,7 @@ export default function HousingPage(){
     <h3>{r.house_name}</h3><p>{r.address||r.region_name||"공급위치 미확인"}</p>
     <div className="dfHousingCardMetrics"><div><small>주택형별 최고 분양가 중 최고</small><strong>{housingPriceLabel(r.top_price_manwon)}</strong></div><div><small>공급규모</small><strong>{r.total_households===null?"미확인":r.total_households.toLocaleString("ko-KR")+"세대"}</strong></div></div>
     <div className="dfHousingCardBottom"><span>모집공고 {dateText(r.published_date)}</span><b>일정·분양가 보기 →</b></div>
-   </a>)}</div>:<section className="dfHousingOffline"><h2>조건에 맞는 공고가 없습니다.</h2><p>검색 조건을 변경해 보세요. 자료 수집 전이거나 공식 공고가 아직 발표되지 않았을 수 있습니다.</p><a href="https://www.applyhome.co.kr/" target="_blank" rel="noreferrer">청약홈에서 직접 확인 ↗</a></section>}
+   </a>)}</div>:<section className="dfHousingOffline"><h2>{rows.length?"조건에 맞는 공고가 없습니다.":"공식 청약정보 수집 준비 중"}</h2><p>{rows.length?"검색 조건을 변경해 보세요.":"현재 공식 분양공고 데이터가 아직 동기화되지 않았습니다. 실제 공고와 분양가는 청약홈에서 확인할 수 있으며, 검증되지 않은 정보는 표시하지 않습니다."}</p><a href="https://www.applyhome.co.kr/" target="_blank" rel="noreferrer">청약홈에서 직접 확인 ↗</a></section>}
    <footer className="dfHousingSource"><div><b>정보 제공 · 한국부동산원 청약홈</b><p>본 서비스는 공식 공개자료를 재구성하며 모집공고 정정·접수 결과를 실시간 보장하지 않습니다.</p></div><a href={HOUSING_SOURCE} target="_blank" rel="noreferrer">공식 API 출처 보기 ↗</a></footer>
   </div>}
   <DFBottomNav active="news"/>
