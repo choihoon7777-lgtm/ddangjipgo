@@ -604,3 +604,15 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyRow:focus-visible,.dfPolicyFilters a:focus-visible,.dfPolicyRetry:focus-visible{outline:3px solid #f47721;outline-offset:3px}
 
 .dfPolicyBodyText{font-size:15px;line-height:1.85;overflow-wrap:anywhere;white-space:pre-wrap}.dfPolicyBodyText p{margin:0 0 16px}.dfPolicyBodyText summary{cursor:pointer;min-height:44px;color:#102f53;font-weight:700;padding:10px 0;white-space:normal}.dfPolicyBodyText details{border-top:1px solid #e3e9ee}
+
+/* Development Focus reader progressive disclosure */
+.dfPolicyBodyDisclosure{width:100%;margin:0}
+.dfPolicyBodyDisclosure summary{display:flex;justify-content:space-between;align-items:center;gap:12px;list-style:none;cursor:pointer;min-height:48px;padding:12px 0;color:#102f53;font-weight:850;font-size:14px}
+.dfPolicyBodyDisclosure summary::-webkit-details-marker{display:none}
+.dfPolicyBodyDisclosure summary:after{content:"⌄";font-size:18px;line-height:1;color:#f47721;flex:0 0 auto}
+.dfPolicyBodyDisclosure[open] summary:after{content:"⌃"}
+.dfPolicyBodyDisclosure summary span{margin-left:auto;font-size:11px;color:#758697;font-weight:500;text-align:right}
+.dfPolicyBodyDisclosure summary:focus-visible{outline:3px solid #f47721;outline-offset:3px;border-radius:7px}
+.dfPolicyBodyDisclosure .dfPolicyBodyText{border-top:1px solid #e4eaf0;padding:16px 0 0;font-size:15px;line-height:1.9;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+.dfPolicyBodyDisclosure .dfPolicyBodyText p{margin:0 0 18px}
+@media(max-width:390px){.dfPolicyBodyDisclosure summary{font-size:13px;flex-wrap:wrap}.dfPolicyBodyDisclosure summary span{font-size:10px}}
