@@ -7,7 +7,7 @@ const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-
 const time=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미점검";
 const date=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"공개일 미확인";
 export default function GuestUpdates(){
- const [status,setStatus]=useState(null),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all");
+ const [status,setStatus]=useState(null),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6);
  async function load(){
   setLoading(true);
   const [a,b]=await Promise.allSettled([
@@ -51,38 +51,58 @@ export default function GuestUpdates(){
  }
  const agencies=status?.sources||[];
  const sorted=useMemo(()=>records.filter(d=>view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete")),[records,view]);
- const completed=agencies.filter(x=>x.last_result==="success").length,errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
- return <main className="adminShell dfAdminUnified">
-  <DFAdminHeader title="신규자료 업데이트" kicker="LIVE OFFICIAL COLLECTION · NO LOGIN"/>
-  <section className="adminPanel">
-   <div className="adminSectionTitle"><div><small>LIVE OPERATION</small><h2>전국 공식자료 실제 업데이트</h2></div><a className="adminSecondary" href="/focus/policy">공개화면 보기 ↗</a></div>
-   <p className="adminDataNote">로그인 없이 등록된 공식기관 자료를 직접 조회하고 DB에 업데이트합니다. 서버에서 공식 URL만 수집하고, 원문 검증에 실패한 자료는 자동 비공개됩니다.</p>
-   <div className="adminStats">
-    <div><b>{status?.total??"—"}</b><span>DB 저장 자료</span></div>
-    <div><b>{status?.ready??"—"}</b><span>핵심 내용 확보</span></div>
-    <div><b>{status?.pending??"—"}</b><span>원문 검증 대기</span></div>
-    <div><b>{completed}</b><span>최근 정상 기관</span></div>
-    <div><b>{errors}</b><span>오류 기관</span></div>
+ const shown=sorted.slice(0,shownCount);
+ const completed=agencies.filter(x=>x.last_result==="success").length;
+ const errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
+ const notRun=agencies.filter(x=>!x.last_attempt_at).length;
+ const pendingCount=status?.pending??0;
+ return <main className="adminShell dfAdminUnified dfUpdateView">
+  <DFAdminHeader title="신규자료 업데이트" kicker="공식자료 실시간 수집"/>
+  <section className="adminPanel dfUpdateIntroPanel">
+   <div className="dfUpdateHeading"><div><small>OFFICIAL DATA</small><h1>전국 개발정보 업데이트</h1></div><a className="dfUpdateTextLink" href="/focus/policy">공개자료 보기 <span aria-hidden="true">↗</span></a></div>
+   <p className="dfUpdateIntro">정부·지자체의 공식 고시·공고를 실제 수집합니다. 확인된 내용만 공개하고, 원문이 부족한 자료는 검증 대기로 보관합니다.</p>
+   <div className="dfUpdateStats" aria-label="자료 수집 요약">
+    <div><strong>{status?.total??"—"}</strong><span>전체 저장</span></div>
+    <div><strong>{status?.ready??"—"}</strong><span>핵심 내용 확보</span></div>
+    <div><strong>{pendingCount}</strong><span>원문 확인 대기</span></div>
    </div>
-   <div className="dfReviewActions">
-    <button className="adminPrimary" disabled={busy} onClick={()=>run(true)}>{busy?"실제 수집 실행 중…":"전국 29개 기관 지금 업데이트"}</button>
-    <button className="adminSecondary" disabled={busy} onClick={()=>run(false)}>미점검 3개 기관 우선 수집</button>
-    <button className="adminSecondary" disabled={busy} onClick={load}>DB 현황 새로고침</button>
+   <button className="dfUpdateMainButton" disabled={busy||loading} onClick={()=>run(true)}>{busy?"공식자료 수집 중…":"전국 29개 기관 신규자료 수집"}<span aria-hidden="true">↗</span></button>
+   <div className="dfUpdateToolbar">
+    <button disabled={busy||loading} onClick={()=>run(false)}>미점검 3개 기관 수집</button>
+    <button disabled={busy} onClick={load}>현황 새로고침 <span aria-hidden="true">↻</span></button>
    </div>
-   {!!progress&&<p className="adminDataNote" role="status">{progress}</p>}
-   {!!message&&<p className="adminDataNote" role="status">{message}</p>}
-   <p className="adminDataNote">대상 기관별 실제 결과를 아래에서 확인할 수 있습니다. 같은 묶음의 과도한 반복 실행을 막기 위해 15분 간격 제한이 적용됩니다.</p>
-   {results.length>0&&<div className="dfSourceStatus">{results.map(r=><div key={r.batch}><b>기관 묶음 {r.batch+1} · {r.busy?"재수집 대기":r.error?"요청 실패":"실제 처리"}</b><span>{r.error||r.message||("신규 "+(r.created||0)+"건 · 검증 후 공개 "+(r.published||0)+"건 · 오류 "+(r.failed||0)+"건")}</span>{r.sources?.map(s=><p key={s.source}>{s.source} · 발견 {s.found}건 · 신규 {s.created}건 · 공개 {s.published}건{s.error?" · "+s.error:""}</p>)}</div>)}</div>}
+   {progress&&<p className="dfUpdateProgress" role="status">{progress}</p>}
+   {message&&<p className="dfUpdateMessage" role="status">{message}</p>}
+   {results.length>0&&<details className="dfUpdateDisclosure"><summary>방금 실행한 기관별 결과 확인 ({results.length}개 묶음)</summary><div className="dfUpdateRunList">{results.map(r=><div key={r.batch}><strong>{r.batch+1}번째 기관 묶음</strong><span>{r.error||r.message||"신규 "+(r.created||0)+"건 · 공개 "+(r.published||0)+"건 · 오류 "+(r.failed||0)+"건"}</span>{r.sources?.map(row=><p key={row.source}>{row.source}: 신규 {row.created}건{row.error?" / 오류: "+row.error:""}</p>)}</div>)}</div></details>}
   </section>
-  <section className="adminPanel"><div className="adminSectionTitle"><div><small>ACTUAL SOURCE HEALTH</small><h2>29개 공식기관 수집 현황</h2></div><span>{agencies.length}곳</span></div>
-   <div className="dfSourceStatus">{agencies.map(s=><div key={s.name}><b>{s.name}</b><span>{s.region_code||"전국"} · 최종 점검 {time(s.last_attempt_at)} · {s.last_result==="success"?"정상":s.last_result==="failed"?"오류":s.last_result==="partial"?"부분 성공":"미실행"} · 발견 {s.last_found||0}건 · 신규 {s.last_created||0}건{s.last_error?" · 원인: "+s.last_error:""}</span></div>)}</div>
+  <section className="adminPanel dfUpdateSourcesPanel">
+   <div className="dfUpdateSectionHead"><div><small>수집 상태</small><h2>공식기관 현황</h2></div><span className="dfUpdateSectionCount">{agencies.length}개 기관</span></div>
+   <div className="dfUpdateHealth">
+    <span><i className="dfUpdateDot dfUpdateDotGood"/> 정상 {completed}</span>
+    <span><i className="dfUpdateDot dfUpdateDotBad"/> 오류 {errors}</span>
+    <span><i className="dfUpdateDot"/> 미점검 {notRun}</span>
+   </div>
+   <details className="dfUpdateDisclosure dfUpdateSourceDisclosure">
+    <summary>기관별 수집 현황과 오류 원인 보기</summary>
+    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={src.name}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?"정상":src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
+   </details>
   </section>
-  <section className="adminPanel"><div className="adminSectionTitle"><div><small>REAL PUBLISHED DOCUMENTS</small><h2>실제 공개자료</h2></div><span>{sorted.length}건</span></div>
-   <div className="statTabs">{[["all","전체"],["verified","원문 확보"],["partial","핵심 요약"]].map(([k,v])=><button key={k} className={view===k?"on":""} onClick={()=>setView(k)}>{v}</button>)}</div>
-   {loading&&<p className="adminDataNote">실제 데이터를 조회하고 있습니다.</p>}
-   <div className="dfSourceList">{sorted.map(x=><article key={x.id}><div><small>{x.source_name||"공식기관"} · {x.detail_status==="complete"?"본문 확보":"핵심 요약"}</small><b>{x.title}</b><span>{date(x.published_at)}</span><p>{(x.key_content||"").slice(0,320)||"본문 확인 필요"}</p></div><div className="dfReviewActions"><a className="adminPrimary" href={"/focus/policy?id="+x.id}>개발포커스 내용 보기 ↗</a>{x.source_url&&<a className="adminSecondary" href={x.source_url} target="_blank" rel="noreferrer">공식기관 원문 ↗</a>}</div></article>)}{!loading&&!sorted.length&&<div className="adminEmpty">현재 공개 자료가 없습니다.</div>}</div>
+  <section className="adminPanel dfUpdateFeedPanel">
+   <div className="dfUpdateSectionHead"><div><small>검증된 공개자료</small><h2>최근 개발정보</h2></div><span className="dfUpdateSectionCount">{sorted.length}건</span></div>
+   <div className="dfUpdateFilters" aria-label="원문 확보 상태별 필터">
+    {[["all","전체"],["verified","원문 확보"],["partial","핵심 요약"]].map(([k,label])=><button key={k} type="button" className={view===k?"active":""} aria-pressed={view===k} onClick={()=>{setView(k);setShownCount(6)}}>{label}</button>)}
+   </div>
+   {loading&&<p className="dfUpdateLoading">공개자료를 불러오는 중입니다.</p>}
+   <div className="dfUpdateCards">{shown.map(item=><article className="dfUpdateDocCard" key={item.id}>
+    <div className="dfUpdateDocMeta"><span>{item.source_name||"공식기관"}</span><span className="dfUpdateMetaDivider">·</span><span>{date(item.published_at||item.fetched_at)}</span></div>
+    <h3>{item.title}</h3>
+    {item.key_content&&<p className="dfUpdateExcerpt">{item.key_content.replace(/\s+/g," ").trim()}</p>}
+    <div className="dfUpdateDocFoot"><span className="dfUpdateDocStatus">{item.detail_status==="complete"?"원문 확보":"핵심 요약"}</span><div className="dfUpdateDocLinks"><a href={"/focus/policy?id="+item.id}>핵심 내용 보기 <span aria-hidden="true">→</span></a>{item.source_url&&<a className="dfUpdateSourceLink" href={item.source_url} target="_blank" rel="noreferrer">공식 출처 ↗</a>}</div></div>
+   </article>)}</div>
+   {!loading&&!sorted.length&&<p className="dfUpdateLoading">현재 해당 조건의 공개자료가 없습니다.</p>}
+   {shown.length<sorted.length&&<button className="dfUpdateMore" onClick={()=>setShownCount(c=>c+6)}>자료 더 보기 <span>{sorted.length-shown.length}건 남음</span><span aria-hidden="true">↓</span></button>}
   </section>
-  <section className="adminPanel"><div className="adminSectionTitle"><div><small>SECURITY</small><h2>관리자 수정 권한</h2></div></div><p className="adminDataNote">공식자료 수집 및 원문 검증은 로그인 없이 실제 실행됩니다. 임의 문서 등록·관리자 승인·삭제·내용 조작은 공개하지 않았습니다. 자동 검증을 통과한 공식 문서만 공개합니다.</p><a className="adminSecondary" href="/focus-admin/login">관리자 수정 기능 로그인 ↗</a></section>
+  <p className="dfUpdateSecurityNote">신규자료 실제 수집은 로그인 없이 가능하며, 문서 수정·삭제와 수동 공개승인은 관리자 권한이 필요합니다. <a href="/focus-admin/login">관리자 로그인</a></p>
   <DFAdminBottomNav active="system"/>
  </main>;
 }
