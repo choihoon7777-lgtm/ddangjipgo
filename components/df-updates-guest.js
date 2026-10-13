@@ -1,86 +1,88 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 import {dfSupabase} from "../lib/df-browser";
-import {DFAdminHeader,DFAdminBottomNav,DFToast} from "./df-shell";
+import {DFAdminHeader,DFAdminBottomNav} from "./df-shell";
 
-const agencies=[
-["강원특별자치도 자동수집","강원"],["경기도 자동수집","경기"],["경상남도 자동수집","경남"],["경상북도 자동수집","경북"],["과학기술정보통신부","전국"],
-["광주광역시 자동수집","광주"],["국민참여입법센터 지방입법예고","전국"],["국토교통부","전국"],["대구광역시 고시·공고","대구"],["대구광역시 자동수집","대구"],
-["대전광역시 고시·공고","대전"],["대전광역시 자동수집","대전"],["부산광역시 고시·공고","부산"],["부산광역시 자동수집","부산"],["서울특별시 고시·공고","서울"],
-["서울특별시 자동수집","서울"],["세종특별자치시 자동수집","세종"],["울산광역시 고시·공고","울산"],["울산광역시 자동수집","울산"],["인천광역시 고시·공고","인천"],
-["인천광역시 자동수집","인천"],["전국 지자체 입법예고(자치법규정보시스템)","전국"],["전라남도 자동수집","전남"],["전북특별자치도 자동수집","전북"],["제주특별자치도 자동수집","제주"],
-["충청남도 자동수집","충남"],["충청북도 고시·공고","충북"],["충청북도 자동수집","충북"],["행정안전부","전국"]
-];
-const d=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"발표일 미확인";
-const sample=[
-{id:"sample-one",source_name:"[시뮬레이션] 예시 지자체",title:"[가상 예시] 도시관리계획 변경 고시",key_content:"개별 고시 본문과 관계도서 대조가 필요한 자료입니다.",key_extract_status:"pending",detail_status:"queued",published_at:null,source_url:null},
-{id:"sample-two",source_name:"[시뮬레이션] 예시 공공기관",title:"[가상 예시] 개발계획 변경 입법예고",key_content:"사업면적과 대상구역 수치를 원문과 대조해야 합니다.",key_extract_status:"pending",detail_status:"failed",published_at:null,source_url:null}
-];
+const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-update";
+const time=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미점검";
+const date=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"공개일 미확인";
 export default function GuestUpdates(){
- const [records,setRecords]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[mode,setMode]=useState("all");
- const [sim,setSim]=useState({}),[audit,setAudit]=useState([]),[message,setMessage]=useState("");
- async function refresh(){
-  setLoading(true);setError("");
-  const {data,error}=await dfSupabase.rpc("df_public_development_policy",{p_channel:null,p_topic:null,p_limit:100,p_offset:0});
-  if(error)setError("공개자료 조회 실패: "+error.message);
-  else setRecords(data||[]);
+ const [status,setStatus]=useState(null),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all");
+ async function load(){
+  setLoading(true);
+  const [a,b]=await Promise.allSettled([
+   fetch(ENDPOINT,{method:"GET",cache:"no-store"}).then(async r=>{const v=await r.json();if(!r.ok)throw Error(v.error||"기관 현황 조회 실패");return v}),
+   dfSupabase.rpc("df_public_development_policy",{p_channel:null,p_topic:null,p_limit:100,p_offset:0})
+  ]);
+  if(a.status==="fulfilled")setStatus(a.value);else setMessage("수집 현황을 불러오지 못했습니다: "+a.reason.message);
+  if(b.status==="fulfilled"&&!b.value.error)setRecords(b.value.data||[]);
+  else setMessage("공개자료 조회 오류: "+(b.status==="rejected"?b.reason.message:b.value.error.message));
   setLoading(false);
  }
- useEffect(()=>{refresh()},[]);
- const bySource=useMemo(()=>{
-  const map=new Map();
-  for(const item of records)map.set(item.source_name,(map.get(item.source_name)||0)+1);
-  return map;
- },[records]);
- const all=useMemo(()=>[...records,...sample].filter(x=>mode==="all"||(mode==="pending"&&(!x.key_content||x.key_extract_status!=="ready"))||(mode==="sample"&&x.id.startsWith("sample"))||(mode==="hidden"&&sim[x.id]==="hide")),[mode,records,sim]);
- function collect(){
-  const entries=agencies.slice(0,3).map(([name])=>({name,result:"수집 가능 여부 검사",status:"체험 완료"}));
-  setAudit(entries);setMessage("시뮬레이션 완료 · 3개 기관 수집 과정을 표시했습니다. 실제 수집·DB 저장은 실행하지 않았습니다.");
+ useEffect(()=>{load()},[]);
+ async function callBatch(i){
+  const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({batch:i})});
+  const data=await r.json().catch(()=>({error:"서버 응답 오류"}));
+  if(!r.ok&&r.status!==429)throw Error(data.error||"실제 수집 실행 실패");
+  return data;
  }
- function extract(){
-  const steps=[{name:"상세 페이지 열기",status:"체험 완료"},{name:"본문·첨부 확인",status:"가상 자료"},{name:"주요 수치 검증",status:"승인 전 보류"}];
-  setAudit(steps);setMessage("원문 검증 흐름을 표시했습니다. 실제 원문 추출 또는 자료 등록은 실행하지 않았습니다.");
+ async function run(all){
+  if(busy)return;
+  setBusy(true);setMessage("");setProgress("");setResults([]);
+  const sourceList=status?.sources||[];
+  const batches=all?Array.from({length:10},(_,i)=>i):[Array.from({length:10},(_,i)=>({batch:i,last:Math.max(0,...sourceList.slice(i*3,i*3+3).map(s=>Date.parse(s.last_attempt_at||"")||0))})).sort((a,b)=>a.last-b.last)[0].batch];
+  let cursor=0;const done=[];
+  try{
+   await Promise.all(Array.from({length:all?2:1},async()=>{
+    while(cursor<batches.length){
+     const batch=batches[cursor++];
+     try{
+      const result=await callBatch(batch);
+      done.push({...result,batch});
+     }catch(e){done.push({batch,error:e.message})}
+     setProgress("실제 서버 실행 "+done.length+"/"+batches.length+"묶음 · 신규 "+done.reduce((n,x)=>n+(x.created||0),0)+"건");
+    }
+   }));
+   setResults(done.sort((a,b)=>a.batch-b.batch));
+   const created=done.reduce((n,x)=>n+(x.created||0),0),published=done.reduce((n,x)=>n+(x.published||0),0),fail=done.reduce((n,x)=>n+(x.failed||0),0);
+   setMessage("실제 업데이트 완료 · 신규 등록 "+created+"건 · 검증 후 공개 "+published+"건 · 수집 오류 "+fail+"건"+(done.some(x=>x.busy)?" · 일부 기관은 15분 재수집 제한 적용":""));
+  }catch(e){setMessage("수집 중 오류: "+e.message)}
+  finally{setBusy(false);await load()}
  }
- function mark(item,action){
-  setSim(prev=>({...prev,[item.id]:action}));
-  setAudit(a=>[{name:item.title,status:action==="hide"?"비공개 체험":action==="retry"?"재시도 체험":"승인 체험"},...a].slice(0,12));
-  setMessage("화면에서만 "+(action==="hide"?"비공개":action==="retry"?"재시도 예약":"검토 승인")+"를 체험했습니다. 실제 서비스 데이터는 변경되지 않았습니다.");
- }
- const changedCount=Object.keys(sim).length;
- return <main className="adminShell dfAdminUnified"><DFAdminHeader title="신규자료 업데이트" kicker="GUEST PREVIEW · NO LOGIN"/>
- <section className="adminPanel">
-  <div className="adminSectionTitle"><div><small>READ ONLY · SIMULATION</small><h2>비로그인 통합관제 체험</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
-  <p className="adminDataNote">실제 공개 개발정책을 읽어옵니다. 수집·재시도·승인·비공개 버튼은 시뮬레이션이며 외부 기관에 요청하거나 DB를 변경하지 않습니다.</p>
-  <div className="adminStats">
-   <div><b>{loading?"—":records.length}</b><span>실제 공개자료</span></div>
-   <div><b>{agencies.length}</b><span>연동 대상 기관</span></div>
-   <div><b>{sample.length}</b><span>가상 검증대기</span></div>
-   <div><b>{changedCount}</b><span>체험 변경</span></div>
-  </div>
-  {error&&<p className="adminDataNote" role="alert">{error}</p>}
-  <div className="dfReviewActions">
-   <button className="adminPrimary" disabled={loading} onClick={collect}>기관 수집 체험</button>
-   <button className="adminSecondary" disabled={loading} onClick={extract}>원문 추출 체험</button>
-   <button className="adminSecondary" onClick={refresh}>실제 공개자료 새로고침</button>
-  </div>
-  {!!audit.length&&<div className="dfSourceStatus">{audit.map((x,i)=><div key={i}><b>{x.name}</b><span>{x.status} · 시뮬레이션, 서버 미반영</span></div>)}</div>}
- </section>
- <section className="adminPanel"><div className="adminSectionTitle"><div><small>SOURCE DIRECTORY</small><h2>연동 대상 기관</h2></div><span>{agencies.length}개</span></div>
-  <div className="dfSourceStatus">{agencies.map(([name,region])=><div key={name}><b>{name}</b><span>{region} · 현재 공개자료 {bySource.get(name)||0}건 · 실제 수집 상태는 운영자 로그인 후 확인</span></div>)}</div>
- </section>
- <section className="adminPanel">
-  <div className="adminSectionTitle"><div><small>DOCUMENT REVIEW</small><h2>검수·공개 흐름</h2></div><span>{all.length}건</span></div>
-  <div className="statTabs">{[["all","전체"],["pending","원문 대기"],["sample","가상 예시"],["hidden","체험 비공개"]].map(([k,v])=><button key={k} className={mode===k?"on":""} onClick={()=>setMode(k)}>{v}</button>)}</div>
-  <div className="dfSourceList">{all.map(x=><article key={x.id}><div>
-   <small>{x.source_name||"공식기관"} · {x.id.startsWith("sample")?"가상 예시":"실제 공개자료"} · {sim[x.id]?"체험: "+sim[x.id]:"실제 DB 변경 없음"}</small>
-   <b>{x.title}</b><span>{d(x.published_at)}</span><p>{(x.key_content||"확인된 핵심 요약이 없습니다.").slice(0,260)}</p>
-  </div><div className="dfReviewActions">
-   {x.source_url&&<a className="adminSecondary" href={x.source_url} target="_blank" rel="noreferrer">공식 원문 ↗</a>}
-   <button className="adminSecondary" onClick={()=>mark(x,"retry")}>재시도 체험</button>
-   <button className="adminSecondary" onClick={()=>mark(x,"hide")}>비공개 체험</button>
-   <button className="adminPrimary" onClick={()=>mark(x,"approve")}>승인 체험</button>
-  </div></article>)}
-  {!loading&&!all.length&&<div className="adminEmpty">해당 조건에 맞는 자료가 없습니다.</div>}</div>
- </section>
- <DFToast message={message} onClose={()=>setMessage("")}/><DFAdminBottomNav active="system"/></main>;
+ const agencies=status?.sources||[];
+ const sorted=useMemo(()=>records.filter(d=>view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete")),[records,view]);
+ const completed=agencies.filter(x=>x.last_result==="success").length,errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
+ return <main className="adminShell dfAdminUnified">
+  <DFAdminHeader title="신규자료 업데이트" kicker="LIVE OFFICIAL COLLECTION · NO LOGIN"/>
+  <section className="adminPanel">
+   <div className="adminSectionTitle"><div><small>LIVE OPERATION</small><h2>전국 공식자료 실제 업데이트</h2></div><a className="adminSecondary" href="/focus/policy">공개화면 보기 ↗</a></div>
+   <p className="adminDataNote">로그인 없이 등록된 공식기관 자료를 직접 조회하고 DB에 업데이트합니다. 서버에서 공식 URL만 수집하고, 원문 검증에 실패한 자료는 자동 비공개됩니다.</p>
+   <div className="adminStats">
+    <div><b>{status?.total??"—"}</b><span>DB 저장 자료</span></div>
+    <div><b>{status?.ready??"—"}</b><span>핵심 내용 확보</span></div>
+    <div><b>{status?.pending??"—"}</b><span>원문 검증 대기</span></div>
+    <div><b>{completed}</b><span>최근 정상 기관</span></div>
+    <div><b>{errors}</b><span>오류 기관</span></div>
+   </div>
+   <div className="dfReviewActions">
+    <button className="adminPrimary" disabled={busy} onClick={()=>run(true)}>{busy?"실제 수집 실행 중…":"전국 29개 기관 지금 업데이트"}</button>
+    <button className="adminSecondary" disabled={busy} onClick={()=>run(false)}>미점검 3개 기관 우선 수집</button>
+    <button className="adminSecondary" disabled={busy} onClick={load}>DB 현황 새로고침</button>
+   </div>
+   {!!progress&&<p className="adminDataNote" role="status">{progress}</p>}
+   {!!message&&<p className="adminDataNote" role="status">{message}</p>}
+   <p className="adminDataNote">대상 기관별 실제 결과를 아래에서 확인할 수 있습니다. 같은 묶음의 과도한 반복 실행을 막기 위해 15분 간격 제한이 적용됩니다.</p>
+   {results.length>0&&<div className="dfSourceStatus">{results.map(r=><div key={r.batch}><b>기관 묶음 {r.batch+1} · {r.busy?"재수집 대기":r.error?"요청 실패":"실제 처리"}</b><span>{r.error||r.message||("신규 "+(r.created||0)+"건 · 검증 후 공개 "+(r.published||0)+"건 · 오류 "+(r.failed||0)+"건")}</span>{r.sources?.map(s=><p key={s.source}>{s.source} · 발견 {s.found}건 · 신규 {s.created}건 · 공개 {s.published}건{s.error?" · "+s.error:""}</p>)}</div>)}</div>}
+  </section>
+  <section className="adminPanel"><div className="adminSectionTitle"><div><small>ACTUAL SOURCE HEALTH</small><h2>29개 공식기관 수집 현황</h2></div><span>{agencies.length}곳</span></div>
+   <div className="dfSourceStatus">{agencies.map(s=><div key={s.name}><b>{s.name}</b><span>{s.region_code||"전국"} · 최종 점검 {time(s.last_attempt_at)} · {s.last_result==="success"?"정상":s.last_result==="failed"?"오류":s.last_result==="partial"?"부분 성공":"미실행"} · 발견 {s.last_found||0}건 · 신규 {s.last_created||0}건{s.last_error?" · 원인: "+s.last_error:""}</span></div>)}</div>
+  </section>
+  <section className="adminPanel"><div className="adminSectionTitle"><div><small>REAL PUBLISHED DOCUMENTS</small><h2>실제 공개자료</h2></div><span>{sorted.length}건</span></div>
+   <div className="statTabs">{[["all","전체"],["verified","원문 확보"],["partial","핵심 요약"]].map(([k,v])=><button key={k} className={view===k?"on":""} onClick={()=>setView(k)}>{v}</button>)}</div>
+   {loading&&<p className="adminDataNote">실제 데이터를 조회하고 있습니다.</p>}
+   <div className="dfSourceList">{sorted.map(x=><article key={x.id}><div><small>{x.source_name||"공식기관"} · {x.detail_status==="complete"?"본문 확보":"핵심 요약"}</small><b>{x.title}</b><span>{date(x.published_at)}</span><p>{(x.key_content||"").slice(0,320)||"본문 확인 필요"}</p></div><div className="dfReviewActions"><a className="adminPrimary" href={"/focus/policy?id="+x.id}>개발포커스 내용 보기 ↗</a>{x.source_url&&<a className="adminSecondary" href={x.source_url} target="_blank" rel="noreferrer">공식기관 원문 ↗</a>}</div></article>)}{!loading&&!sorted.length&&<div className="adminEmpty">현재 공개 자료가 없습니다.</div>}</div>
+  </section>
+  <section className="adminPanel"><div className="adminSectionTitle"><div><small>SECURITY</small><h2>관리자 수정 권한</h2></div></div><p className="adminDataNote">공식자료 수집 및 원문 검증은 로그인 없이 실제 실행됩니다. 임의 문서 등록·관리자 승인·삭제·내용 조작은 공개하지 않았습니다. 자동 검증을 통과한 공식 문서만 공개합니다.</p><a className="adminSecondary" href="/focus-admin/login">관리자 수정 기능 로그인 ↗</a></section>
+  <DFAdminBottomNav active="system"/>
+ </main>;
 }
