@@ -75,7 +75,7 @@ function discover(base:string,raw:string):Item[]{
   const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description").slice(0,1200);
   if(!relevant(title)||!link||seen.has(link))continue;
   const rawBody=b.match(/<(?:cn|content:encoded)(?:\s[^>]*)?>([\s\S]*?)<\/(?:cn|content:encoded)>/i)?.[1]||"";
-  const cleaned=text(rawBody.replace(/&lt;!--\[data-hwpjson\][\s\S]*/i,"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner).slice(0,40000)).slice(0,16000);
+  const cleaned=text(rawBody.replace(/&lt;!--\[data-hwpjson\][\s\S]*/i,"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner).slice(0,300000));
   const attached=/<fileUrl>|<fileCnt>[1-9]/i.test(b);
   seen.add(link);out.push({title,link,published:parseDate(published),snippet,officialBody:cleaned.length>=140?cleaned:(snippet.length>=300?snippet:""),hasAttachments:attached});
   if(out.length>=8)break;
@@ -193,7 +193,7 @@ function bodyFrom(raw:string,title:string){
  const prefix=title.replace(/\s+/g,"").slice(0,8);
  const pageMatch=pageText.replace(/\s+/g,"").includes(prefix);
  const noise=(selected.match(/개인정보처리방침|로그인|회원가입|사이트맵|전체메뉴|저작권|이전글|다음글/g)||[]).length;
- if(!pageMatch||noise>1||selected.length<140||selected.length>16000)return "";
+ if(!pageMatch||noise>1||selected.length<140||selected.length>250000)return "";
  return selected;
 }
 function summary(body:string,title=""){
@@ -202,13 +202,13 @@ function summary(body:string,title=""){
  const lines=body.replace(/\r/g,"").split(/\n+/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
  const selected:string[]=[],seen=new Set<string>();
  for(const line of lines){
-  if(line.length<20||line.length>650||/저작권|개인정보처리방침|미리보기|다운로드|^첨부파일|^서울특별시장$|^공고 제\d/i.test(line))continue;
+  if(line.length<20||/저작권|개인정보처리방침|미리보기|다운로드|^첨부파일|^서울특별시장$|^공고 제\d/i.test(line))continue;
   const flat=normalize(line);
   // Headline repetition is not a substantive summary.
   if(!flat||seen.has(flat)||normalizedTitle&&flat===normalizedTitle)continue;
   if(!/(고시|공고|변경|계획|면적|사업|인가|지정|결정|지역|주택|개발|기간|준공|공급|하천|공원|일시|장소|의견|토지|조례|규제|보상|건축|철도|도시|용도|기준|분양|공청회)/.test(line)&&!/\b20\d{2}[.\/-]\s*\d{1,2}/.test(line))continue;
-  selected.push(line.slice(0,300));seen.add(flat);
-  if(selected.length>=5||selected.join("\n").length>=1100)break;
+  selected.push(line);seen.add(flat);
+  // No editorial length limit: retain every relevant verified source paragraph.
  }
  return selected.join("\n");
 }
@@ -231,7 +231,7 @@ async function collectRow(source:any,item:Item){
    const detail=await download(item.detailApi,12000);
    const j=JSON.parse(detail.raw);
    if(j.error||!j.gosi||String(j.gosi.title||"").replace(/\s+/g,"")!==item.title.replace(/\s+/g,""))throw new Error("JEJU_OFFICIAL_DETAIL_MISMATCH");
-   body=text(String(j.gosi.content||"")).slice(0,26000);
+   body=text(String(j.gosi.content||""));
    item.hasAttachments=Number(j.gosi.fileCount||0)>0||Array.isArray(j.gosi.gosiFiles)&&j.gosi.gosiFiles.length>0;
   }else if(item.officialBody&&item.officialBody.length>=140){
    usedFeedBody=true;
