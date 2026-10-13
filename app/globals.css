@@ -578,3 +578,9 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyRow h3{color:#10233c}
 .dfPolicyKeyPreview{font-size:10.5px!important;line-height:1.7!important;color:#55697b!important}
 .dfPolicyRowFoot span{background:#fff3e9;border-radius:999px;padding:4px 7px}
+
+/* Final policy reader wording / hierarchy */
+.dfPolicyKeyHead span{font-size:11px!important}
+.dfPolicyKeyHead b{letter-spacing:-.1px}
+.dfPolicySource>div span{max-width:520px}
+.dfPolicyRow .dfPolicyKeyPreview.muted{opacity:.72}
