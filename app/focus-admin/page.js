@@ -5,7 +5,8 @@ import{DFAdminHeader,DFAdminBottomNav}from"../../components/df-shell";
 
 const groups=[
  {kicker:"EDITORIAL",title:"기사·편집국",items:[
-  ["공식자료 수집","정부·공공기관 공식자료를 수집하고 변경자료를 확인합니다.","/focus-admin/sources"],
+  ["신규자료 업데이트","전국 수집·원문 추출·기관별 오류·검토 승인·공개를 관리합니다.","/focus-admin/updates"],
+  ["공식자료 직접 수집","공식 URL 등록 및 기사화를 관리합니다.","/focus-admin/sources"],
   ["AI 기사작성","공식자료를 FACT → 기자 → 데스크 → 검증 순서로 기사화합니다.","/focus-admin/ai-test"],
   ["직접 기사 작성","직접 기사 초안을 작성하고 검증 대기열로 보냅니다.","/focus-admin/write"],
   ["검토·발행","사실·숫자·날짜·출처·중복·법적위험을 확인하고 발행합니다.","/focus-admin/publish"]
@@ -38,7 +39,7 @@ export default function Admin(){
   <section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
-   <a href="/focus-admin/sources"><b>공식자료 수집</b><span>자료 확인·변경감지</span></a>
+   <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
    <a href="/focus-admin/ai-test"><b>AI 기사작성</b><span>공식자료 → 기사</span></a>
    <a href="/focus-admin/write"><b>직접 기사 작성</b><span>초안 작성</span></a>
    <a href="/focus-admin/publish"><b>검토·발행</b><span>{stats.queue??"—"}건 대기</span></a>
