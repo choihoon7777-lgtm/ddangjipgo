@@ -57,7 +57,7 @@ export default function Login(){
  }
 
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="운영센터 로그인" kicker="PASSWORD ACCESS" back="/my"/>
- <section className="adminPanel"><div className="adminSectionTitle"><div><small>NO LOGIN REQUIRED</small><h2>로그인 없이 관리자 체험</h2></div></div><p className="adminDataNote">실제 공개자료로 화면을 확인하고, 수집·승인 과정을 시뮬레이션할 수 있습니다. 체험 결과는 DB에 저장되지 않습니다.</p><div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">신규자료 업데이트 체험 →</a><a className="adminSecondary" href="/focus-admin">운영센터 둘러보기</a></div></section>
+ <section className="adminPanel"><div className="adminSectionTitle"><div><small>NO LOGIN REQUIRED</small><h2>로그인 없이 실제 신규자료 업데이트</h2></div></div><p className="adminDataNote">공식기관 자료를 로그인 없이 실제 수집하고 DB에 업데이트할 수 있습니다. 원문 검증을 통과하지 않은 자료는 공개하지 않습니다.</p><div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus-admin">운영센터 둘러보기</a></div></section>
  <section className="dfAdminLoginHero"><small>DEVELOPMENT FOCUS</small><h1>{mode==="setup"?"처음 한 번만\n비밀번호를 설정하세요":"개발포커스 운영센터\n로그인"}</h1><p>{mode==="setup"?"초대된 이메일로 운영센터 전용 비밀번호를 만들면 이후부터 바로 로그인할 수 있습니다.":"등록한 이메일과 비밀번호로 개발포커스 운영센터에 들어갑니다."}</p></section>
  <section className="adminPanel formPanel">
   <div className="dfLoginMode"><button className={mode==="setup"?"on":""} onClick={()=>{setMode("setup");setMsg("");setPassword("");setConfirm("")}}>처음 비밀번호 설정</button><button className={mode==="login"?"on":""} onClick={()=>{setMode("login");setMsg("");setPassword("");setConfirm("")}}>로그인</button></div>
