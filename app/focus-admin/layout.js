@@ -4,7 +4,7 @@ import {usePathname} from "next/navigation";
 
 // Only the overview and the update control room expose a public, read-only guest preview.
 // Every other operational admin page still requires a valid admin session and RLS.
-const guestPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/login"]);
+const guestPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/blog-import","/focus-admin/login"]);
 export default function FocusAdminLayout({children}){
  const path=usePathname();
  const [status,setStatus]=useState(guestPages.has(path)?"ready":"checking");
