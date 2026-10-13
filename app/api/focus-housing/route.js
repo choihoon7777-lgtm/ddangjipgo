@@ -1,7 +1,9 @@
 
 import {NextResponse} from "next/server";
 import {createClient} from "@supabase/supabase-js";
+import {readLiveOffers,readLiveOfferById} from "../../../lib/df-housing-live.mjs";
 export const dynamic="force-dynamic";
+export const maxDuration=60;
 const url="https://svafsvyjjufbqvxzoqee.supabase.co";
 const key="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";
 const reply=(payload,status=200)=>NextResponse.json(payload,{status,headers:{"Cache-Control":"public, s-maxage=300, stale-while-revalidate=600"}});
@@ -21,6 +23,16 @@ export async function GET(request){
   q=q.order("published_date",{ascending:false,nullsFirst:false}).limit(400);
  }
  const {data,error}=await q;
+ const liveKey=process.env.DATA_GO_KR_API_KEY||process.env.DATA_GO_KR_SERVICE_KEY||process.env.PUBLIC_DATA_API_KEY;
+ if((error||(!id&&!(data||[]).length))&&liveKey){
+  try{
+   if(id)return reply({ok:true,item:await readLiveOfferById(liveKey,id),source:"official_live"});
+   let items=await readLiveOffers(liveKey);
+   const region=(args.get("region")||"").trim(),term=(args.get("q")||"").trim().toLowerCase(),kind=args.get("kind")||"";
+   items=items.filter(r=>(!region||String(r.region_name||r.address||"").startsWith(region))&&(!kind||r.supply_kind===kind)&&(!term||[r.house_name,r.address,r.region_name].filter(Boolean).join(" ").toLowerCase().includes(term)));
+   return reply({ok:true,items,updatedAt:new Date().toISOString(),source:"official_live"});
+  }catch(e){console.error("HOUSING_LIVE_UNAVAILABLE",e.message)}
+ }
  if(error){
   console.error("HOUSING_READ_FAILED",error.code||"UNKNOWN");
   return reply({ok:false,error:"HOUSING_DATA_UNAVAILABLE",items:[]},503);

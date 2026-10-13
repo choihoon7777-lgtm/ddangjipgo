@@ -28,8 +28,6 @@ async function fromOfficial(operation,key,conditions={},page=1){
  return json;
 }
 async function collectNotices(operation,key){
- const conditions={"RCRIT_PBLANC_DE::GTE":null}; // replaced below; no arbitrary client parameters
- delete conditions["RCRIT_PBLANC_DE::GTE"];
  const all=[],start=localDate(-120);
  for(let page=1;page<=8;page++){
   const url=new URL(BASE+operation);
@@ -51,7 +49,7 @@ async function processKind(kind,key){
  const [detailEndpoint,modelEndpoint]=HOUSING_KINDS[kind];
  const source=await collectNotices(detailEndpoint,key);
  const unique=[...new Map(source.map(r=>[String(r.HOUSE_MANAGE_NO)+":"+String(r.PBLANC_NO),r])).values()];
- const recent=unique.sort((a,b)=>String(b.RCRIT_PBLANC_DE||"").localeCompare(String(a.RCRIT_PBLANC_DE||""))).slice(0,220);
+ const recent=unique.sort((a,b)=>String(b.RCRIT_PBLANC_DE||"").localeCompare(String(a.RCRIT_PBLANC_DE||""))).slice(0,120);
  const result=new Array(recent.length);
  let next=0;
  await Promise.all(Array.from({length:4},async()=>{
@@ -75,7 +73,7 @@ async function processKind(kind,key){
 export async function GET(req){
  const auth=req.headers.get("authorization")||"";
  if(!process.env.CRON_SECRET||auth!=="Bearer "+process.env.CRON_SECRET)return out({ok:false,error:"UNAUTHORIZED"},401);
- const rawKey=process.env.DATA_GO_KR_API_KEY||process.env.PUBLIC_DATA_API_KEY||"";
+ const rawKey=process.env.DATA_GO_KR_API_KEY||process.env.DATA_GO_KR_SERVICE_KEY||process.env.PUBLIC_DATA_API_KEY||"";
  const dbKey=process.env.SUPABASE_SERVICE_ROLE_KEY||"";
  if(!rawKey||!dbKey)return out({ok:false,error:"CONFIGURATION_REQUIRED",missing:[...(!rawKey?["DATA_GO_KR_API_KEY"]:[]),...(!dbKey?["SUPABASE_SERVICE_ROLE_KEY"]:[])]},503);
  let key=rawKey;
@@ -83,14 +81,14 @@ export async function GET(req){
  try{
   const db=createClient(URL,dbKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const counts={};
-  for(const kind of Object.keys(HOUSING_KINDS)){
+  await Promise.all(Object.keys(HOUSING_KINDS).map(async kind=>{
    const records=await processKind(kind,key);
    for(let i=0;i<records.length;i+=100){
     const {error}=await db.from("df_housing_offers").upsert(records.slice(i,i+100),{onConflict:"offer_key"});
     if(error)throw Error("DATABASE_UPSERT_FAILED_"+(error.code||"UNKNOWN"));
    }
    counts[kind]=records.length;
-  }
+  }));
   return out({ok:true,counts,syncedAt:new Date().toISOString()});
  }catch(error){console.error("HOUSING_SYNC_FAILED",error.message);return out({ok:false,error:"HOUSING_SYNC_FAILED",reason:error.message},502)}
 }

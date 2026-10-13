@@ -7,7 +7,7 @@ import "./housing.css";
 const REGIONS=["전국","서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충북","충남","전북","전남","경북","경남","제주"];
 const KINDS=[["","전체"],["APT","일반분양"],["REMAIN","무순위·잔여세대"],["OPTIONAL","임의공급"]];
 const dateText=v=>v?v.replaceAll("-","."):"미확인";
-const today=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const today=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));return p.year+"-"+p.month+"-"+p.day};
 function DateField({title,value}){return <div className="dfHousingDate"><span>{title}</span><b>{dateText(value)}</b></div>}
 function Models({rows=[]}){
  if(!rows.length)return <p className="dfHousingNoModels">주택형별 분양가 자료가 아직 수집되지 않았습니다. 아래 청약홈 공식 공고문에서 확인해 주세요.</p>;
@@ -38,9 +38,9 @@ function Detail({item}){
  </div>;
 }
 export default function HousingPage(){
- const [rows,setRows]=useState([]),[item,setItem]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
+ const [rows,setRows]=useState([]),[item,setItem]=useState(null),[selectedId,setSelectedId]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
  const [search,setSearch]=useState(""),[region,setRegion]=useState("전국"),[kind,setKind]=useState(""),[status,setStatus]=useState("전체"),[retry,setRetry]=useState(0);
- useEffect(()=>{let active=true;const id=new URLSearchParams(window.location.search).get("id");setLoading(true);setError("");
+ useEffect(()=>{let active=true;const id=new URLSearchParams(window.location.search).get("id");setSelectedId(id||"");setLoading(true);setError("");
   fetch("/api/focus-housing"+(id?"?id="+encodeURIComponent(id):""),{cache:"no-store"})
    .then(async r=>{const p=await r.json();if(!r.ok||!p.ok)throw Error(p.error||"데이터를 불러오지 못했습니다.");return p})
    .then(p=>{if(active){if(id)setItem(p.item);else setRows(p.items||[]);}})
@@ -48,7 +48,7 @@ export default function HousingPage(){
    .finally(()=>{if(active)setLoading(false)});
   return()=>{active=false};
  },[retry]);
- const isDetail=new URLSearchParams(typeof window==="undefined"?"":window.location.search).has("id");
+ const isDetail=Boolean(selectedId);
  const filtered=useMemo(()=>rows.filter(r=>{
   if(search&&![r.house_name,r.address,r.region_name].filter(Boolean).join(" ").toLowerCase().includes(search.trim().toLowerCase()))return false;
   if(region!=="전국"&&!String(r.region_name||r.address||"").startsWith(region))return false;
