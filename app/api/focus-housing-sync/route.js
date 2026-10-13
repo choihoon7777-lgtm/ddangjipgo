@@ -11,7 +11,7 @@ const DATABASE="https://svafsvyjjufbqvxzoqee.supabase.co";
 const out=(data,status=200)=>NextResponse.json(data,{status,headers:{"Cache-Control":"private, no-store"}});
 const fingerprint=row=>createHash("sha256").update(JSON.stringify({source_json:row.source_json,models_json:row.models_json||null})).digest("hex");
 function changed(oldValue,newValue){
- const keys=["house_name","region_name","address","published_date","special_start_date","special_end_date","first_date","second_date","application_start_date","application_end_date","winner_date","contract_start_date","contract_end_date","total_households","top_price_manwon","models_json"];
+ const keys=["house_name","region_name","address","published_date","special_start_date","special_end_date","first_date","second_date","application_start_date","application_end_date","winner_date","contract_start_date","contract_end_date","total_households","top_price_manwon","models_json","official_url","source_json"];
  return keys.filter(k=>JSON.stringify(oldValue[k])!==JSON.stringify(newValue[k]));
 }
 function errorCode(e){const code=String(e?.code||e?.message||"SYNC_UNKNOWN");return /^[A-Z0-9_]{3,60}$/.test(code)?code:"SYNC_UNKNOWN"}
@@ -37,7 +37,7 @@ export async function GET(req){
     const {data:existing,error:lookupError}=await db.from("df_housing_offers").select("offer_key,source_hash,house_name,region_name,address,published_date,special_start_date,special_end_date,first_date,second_date,application_start_date,application_end_date,winner_date,contract_start_date,contract_end_date,total_households,top_price_manwon,models_json,source_json").in("offer_key",rows.map(x=>x.offer_key));
     if(lookupError)throw new Error("LOOKUP_FAILED");
     const oldMap=new Map((existing||[]).map(x=>[x.offer_key,x]));
-    const upserts=[],versions=[];
+    const upserts=[],versions=[],unchangedKeys=[];
     for(const row of rows){
      const old=oldMap.get(row.offer_key);
      if(!("models_json" in row)&&old){
@@ -45,13 +45,17 @@ export async function GET(req){
       row.top_price_manwon=old.top_price_manwon;
      }
      const hash=fingerprint(row);
-     if(old&&hash===old.source_hash){counts[kind].unchanged++;continue}
+     if(old&&hash===old.source_hash){counts[kind].unchanged++;unchangedKeys.push(row.offer_key);continue}
      if(old){
       const delta=changed(old,row);
       if(delta.length)versions.push({offer_key:row.offer_key,previous_hash:old.source_hash,changed_fields:delta,previous_snapshot:old});
       counts[kind].changed++;
      }else counts[kind].inserted++;
      upserts.push({...row,source_hash:hash,verified_at:new Date().toISOString()});
+    }
+    if(unchangedKeys.length){
+     const {error}=await db.from("df_housing_offers").update({refreshed_at:new Date().toISOString()}).in("offer_key",unchangedKeys);
+     if(error)throw new Error("HEARTBEAT_FAILED");
     }
     if(versions.length){
      const {error}=await db.from("df_housing_offer_versions").insert(versions);
