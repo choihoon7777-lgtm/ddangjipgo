@@ -65,6 +65,22 @@ function discover(base:string,raw:string):Item[]{
   const match=plain.match(/(20\d{2})[-./]\s*(\d{1,2})[-./]\s*(\d{1,2})/);
   if(!match)continue;
   const published=`${match[1]}-${match[2].padStart(2,"0")}-${match[3].padStart(2,"0")}T00:00:00+09:00`;
+  // Daegu's notice list uses a fixed JavaScript view callback instead of a direct href.
+  // The sno/gosi_gbn URL structure is published on Daegu's own notice detail pages.
+  if(new URL(base).hostname==="www.daegu.go.kr"&&new URL(base).searchParams.get("menu_id")==="00940170"){
+   for(const a of block.matchAll(/<a\b[^>]*href=["']javascript:fn_goLinkView\(['"](\d{3,10})['"]\s*,\s*['"]([A-Za-z])['"]\)["'][^>]*>([\s\S]*?)<\/a>/gi)){
+    const title=text(a[3]);
+    if(!relevant(title)||title.length<9)continue;
+    const detail=new URL(base);
+    detail.searchParams.set("menu_link","/front/daeguSidoGosi/daeguSidoGosiView.do");
+    detail.searchParams.set("sno",a[1]);detail.searchParams.set("gosi_gbn",a[2]);
+    const link=officialLink(base,detail.toString());
+    if(!link||seen.has(link))continue;
+    seen.add(link);out.push({title,link,published,snippet:""});break;
+   }
+   if(out.length>=8)break;
+   continue;
+  }
   // The Gangwon official notice board uses goPage(id) rather than an href.
   if(new URL(base).hostname==="state.gwd.go.kr"&&new URL(base).pathname.endsWith("/announce")){
    for(const a of block.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)){
