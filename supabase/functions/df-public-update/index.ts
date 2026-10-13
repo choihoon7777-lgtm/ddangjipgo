@@ -14,7 +14,7 @@ const hash=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest
 const cors=(req:Request)=>{
  const o=req.headers.get("origin")||"";
  const ok=/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(o)||/^https:\/\/[a-z0-9.-]+\.go\.kr$/i.test(o);
- return {"Access-Control-Allow-Origin":ok?o:"null","Access-Control-Allow-Methods":"POST,OPTIONS","Access-Control-Allow-Headers":"content-type,apikey,x-client-info","Vary":"Origin","Cache-Control":"no-store"};
+ return {"Access-Control-Allow-Origin":ok?o:"null","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"content-type,apikey,x-client-info","Vary":"Origin","Cache-Control":"no-store"};
 };
 const respond=(req:Request,status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers:{...cors(req),"Content-Type":"application/json; charset=utf-8"}});
 const allowed=(u:URL)=>u.protocol==="https:"&&!u.username&&!u.password&&!u.port&&/\.go\.kr$/.test(u.hostname);
@@ -195,6 +195,21 @@ async function runBatch(batch:number){
 }
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors(req)});
+ if(!SUPABASE_ENDPOINT||!SECRET)return respond(req,503,{error:"SERVER_CONFIG_MISSING"});
+ if(req.method==="GET"){
+  try{
+   const [sources,total,published,pending,failed]=await Promise.all([
+    db.from("df_sources").select("name,region_code,collector_enabled,last_attempt_at,last_collected_at,last_result,last_error,last_found,last_created,last_changed").eq("is_active",true).order("name"),
+    db.from("df_source_documents").select("id",{count:"exact",head:true}),
+    db.from("df_source_documents").select("id",{count:"exact",head:true}).eq("key_extract_status","ready"),
+    db.from("df_source_documents").select("id",{count:"exact",head:true}).in("detail_status",["queued","discovered","partial"]),
+    db.from("df_source_documents").select("id",{count:"exact",head:true}).eq("detail_status","failed")
+   ]);
+   const error=[sources,total,published,pending,failed].find(r=>r.error)?.error;
+   if(error)throw error;
+   return respond(req,200,{ok:true,total:total.count||0,ready:published.count||0,pending:pending.count||0,failed:failed.count||0,sources:sources.data||[],checked_at:new Date().toISOString()});
+  }catch(e){return respond(req,500,{error:String(e instanceof Error?e.message:e).slice(0,180)})}
+ }
  if(req.method!=="POST")return respond(req,405,{error:"METHOD_NOT_ALLOWED"});
  try{
   const data=await req.json().catch(()=>({}));
