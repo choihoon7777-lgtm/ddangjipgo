@@ -699,3 +699,52 @@ article.dfPolicyDetail .dfPolicySource{
 .dfAdminUnified .dfSourceList article>.dfReviewActions a,.dfAdminUnified .dfSourceList article>.dfReviewActions button{flex:1 1 135px;min-width:0;max-width:100%;width:auto;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-align:center;padding:11px 12px;font-size:12px;line-height:1.45}
 .dfAdminUnified .dfSourceList article>div:first-child>b{font-size:14px;line-height:1.45;word-break:keep-all}
 .dfAdminUnified .dfSourceList article>div:first-child>p{font-size:11px;line-height:1.6}
+
+
+/* InvestGO -> Development Focus: source-preserving editorial staging inventory */
+.dfAdminUnified.dfNaverImport{overflow-x:hidden;background:#f4f6f8;padding-bottom:76px;min-height:100vh}
+.dfNaverImport *, .dfNaverImport *::before,.dfNaverImport *::after{box-sizing:border-box}
+.dfNaverImport .dfAdminUnifiedHead b{font-size:16px}
+.dfNaverHero,.dfNaverContent,.dfNaverNotice{background:#fff;margin:12px 12px 0;border:1px solid #e6ebf1;border-radius:16px;padding:18px 16px;min-width:0}
+.dfNaverHero>small,.dfNaverSectionTitle small{color:#b66a2d;font-size:10px;font-weight:800;letter-spacing:.4px}
+.dfNaverHero h1{font-size:21px;font-weight:850;line-height:1.33;letter-spacing:-.6px;color:#192f4b;margin:7px 0 10px}
+.dfAdminUnified.dfNaverImport .dfNaverHero p,.dfAdminUnified.dfNaverImport .dfNaverNotice p{font-size:12px;line-height:1.7;color:#627286;word-break:keep-all;margin:0}
+.dfNaverStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.dfNaverStats>div{border:1px solid #edf0f4;border-radius:11px;background:#f7f9fb;padding:12px 6px;text-align:center}
+.dfNaverStats strong{display:block;color:#18385d;font-size:24px;font-weight:850;line-height:1.3}
+.dfNaverStats span{display:block;font-size:11px;color:#78889a;margin-top:3px;white-space:normal;word-break:keep-all}
+.dfNaverOriginalLink{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;color:#254b72;border-radius:10px;border:1px solid #e1e8f0;font-size:12px;font-weight:780;text-decoration:none}
+.dfNaverSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dfNaverSectionTitle h2{font-size:18px;font-weight:850;letter-spacing:-.4px;margin:5px 0 10px;color:#193555}
+.dfNaverSectionTitle>span{font-size:12px;color:#78869a}
+.dfNaverTabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dfNaverTabs a{font-size:12px;text-align:center;color:#526982;font-weight:700;border:1px solid #e2e8ef;border-radius:22px;min-height:36px;padding:8px 12px;text-decoration:none}
+.dfNaverTabs a.current{background:#19385f;border-color:#19385f;color:#fff}
+.dfNaverTabs a small{font-size:10px;opacity:.75;margin-left:3px}
+.dfNaverSearch{display:flex;gap:8px;margin:13px 0;min-width:0}
+.dfNaverSearch input{flex:1;width:100%;min-width:0;min-height:42px;border:1px solid #dee5ed;border-radius:10px;padding:10px 12px;font-size:13px}
+.dfNaverSearch button{flex:none;min-width:64px;border:0;border-radius:10px;background:#244667;color:#fff;font-size:12px;font-weight:750;padding:9px 12px}
+.dfNaverCategories{display:flex;gap:6px;overflow-x:auto;padding:0 0 9px;scrollbar-width:none}
+.dfNaverCategories a{display:flex;flex:none;align-items:center;border-radius:8px;background:#f5f7fa;color:#5c7188;font-weight:700;text-decoration:none;font-size:11px;padding:8px 10px;white-space:nowrap}
+.dfNaverCategories a.on{background:#e5eef8;color:#214975}
+.dfNaverList{display:grid;gap:10px;margin-top:10px;min-width:0}
+.dfNaverEntry{display:block;min-width:0!important;width:100%!important;border:1px solid #e6ebf0;border-radius:13px;background:#fff;padding:14px!important;overflow-wrap:anywhere}
+.dfNaverEntryTop{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;color:#78889a;font-size:10.5px}
+.dfNaverEntryTop>span{color:#2c597e;font-weight:800}
+.dfNaverEntryTop time{font-size:10.5px;white-space:nowrap}
+.dfNaverEntry h3{font-size:15px;font-weight:820;line-height:1.48;color:#193353;margin:8px 0;word-break:keep-all;overflow-wrap:anywhere}
+.dfAdminUnified.dfNaverImport .dfNaverEntry p{color:#5b7186;font-size:12px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;line-clamp:3;overflow:hidden;word-break:keep-all;margin:0 0 12px}
+.dfNaverEntryFooter{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px;border-top:1px solid #ecf0f4;padding-top:11px}
+.dfNaverEntryFooter>span{display:inline-block;border-radius:6px;background:#edf3f8;color:#456582;padding:5px 7px;font-size:10px;font-weight:750}
+.dfNaverEntryFooter>span.dfNaverStateExcluded{background:#f3f4f5;color:#798593}
+.dfNaverEntryFooter>a{font-size:12px;font-weight:800;color:#244b74;text-decoration:none}
+.dfNaverPager{display:flex;justify-content:center;align-items:center;gap:12px;margin:20px 0 5px;font-size:12px}
+.dfNaverPager a{padding:8px 12px;border-radius:9px;border:1px solid #e0e6ee;color:#2b4c6e;text-decoration:none;font-weight:750}
+.dfNaverPager span{font-size:11px;color:#75869b}
+.dfAdminUnified.dfNaverImport .dfNaverNotice{background:#f8fafc}
+.dfNaverNotice b{display:block;margin-bottom:8px;font-size:13px;color:#274566}
+.dfAdminUnified.dfNaverImport .dfNaverNotice p+p{margin-top:9px}
+.dfNaverFooter{display:flex;align-items:center;justify-content:center;gap:25px;margin:24px 0;color:#657b92;font-size:12px}
+.dfNaverFooter a{text-decoration:none;color:inherit}
+.dfAdminUnified.dfNaverImport .dfNaverEmpty{color:#718293;font-size:13px;text-align:center;line-height:1.6;padding:22px 0}
+@media(max-width:370px){.dfNaverHero,.dfNaverContent,.dfNaverNotice{margin-left:8px;margin-right:8px;padding:15px 12px}.dfNaverEntry h3{font-size:14px}.dfNaverTabs a{font-size:11px;padding:8px 9px}}
