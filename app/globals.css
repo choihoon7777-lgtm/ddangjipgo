@@ -616,3 +616,6 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyBodyDisclosure .dfPolicyBodyText{border-top:1px solid #e4eaf0;padding:16px 0 0;font-size:15px;line-height:1.9;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
 .dfPolicyBodyDisclosure .dfPolicyBodyText p{margin:0 0 18px}
 @media(max-width:390px){.dfPolicyBodyDisclosure summary{font-size:13px;flex-wrap:wrap}.dfPolicyBodyDisclosure summary span{font-size:10px}}
+
+/* Official collection freshness notice */
+.dfPolicyFreshness{margin:0 0 18px;padding:13px 14px;border:1px solid #efdfcf;border-left:3px solid #f47721;border-radius:11px;background:#fffaf4;color:#6f5136;font-size:13px;line-height:1.65;font-weight:650;overflow-wrap:anywhere}
