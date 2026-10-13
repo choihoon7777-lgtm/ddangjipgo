@@ -48,16 +48,17 @@ export default function Policy(){
     <h1>{detail.title}</h1>
     <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
-     <div className="dfPolicyKeyHead"><span>핵심 내용 · 주요 변경사항</span><b>{detail.key_extract_status==="ready"?"공식 문서 발췌":"원문 확인 필요"}</b></div>
+     <div className="dfPolicyKeyHead"><span>핵심 내용 · 주요 변경사항</span><b>{detail.key_extract_status==="ready"?(detail.detail_status==="complete"?"공식 문서 발췌":"공식자료 확인 · 핵심 정리"):"원문 확인 필요"}</b></div>
      <pre>{detail.key_extract_status==="ready"&&detail.key_content?detail.key_content:"개별 공식 본문이 아직 확보되지 않았습니다. 목록 정보만으로 변경 내용을 판단하지 않습니다."}</pre>
     </div>
    </section>
    {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).filter(([k,v])=>k!=="첨부"&&v!==null&&String(v).trim()).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
+   {detail.detail_status!=="complete"&&detail.key_extract_status==="ready"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>자료 설명</small><span>첨부 전문 미추출</span></div><div className="dfPolicyBodyText"><p>{detail.content_text}</p></div></section>}
    {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock"><div className="dfPolicySectionHead"><small>공식 본문 전체</small><span>펼쳐서 확인</span></div><OfficialBody text={detail.content_text}/></section>}
    {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
    <footer className="dfPolicySource">
-    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>수집된 공식자료를 발췌해 제공합니다. 첨부 도면과 전체 문서는 공식 사이트에서 확인할 수 있습니다.</span></div>
-    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">{detail.detail_status==="complete"?"공식 사이트에서 자세히 보기 ↗":"공식 기관 목록에서 확인 ↗"}</a>}
+    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>{detail.detail_status==="complete"?"공식 문서의 주요 내용을 발췌했습니다. 도면 등 상세 자료는 공식 사이트에서 확인하세요.":"공식 기관의 공개 자료를 확인해 핵심 내용을 정리했습니다. 첨부 문서 전문과 도면은 아직 추출·대조되지 않았습니다."}</span></div>
+    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noreferrer">{detail.key_extract_status==="ready"?"공식 사이트에서 자세히 보기 ↗":"공식 기관에서 확인 ↗"}</a>}
    </footer>
   </article><DFBottomNav active="news"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
