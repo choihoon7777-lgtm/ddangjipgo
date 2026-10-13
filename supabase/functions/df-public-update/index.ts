@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 const SUPABASE_ENDPOINT = Deno.env.get("SUPABASE_URL") || "";
 const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return""}})();
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
-const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","입법예고","조례","규칙"];
+const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","첨단산업","혁신도시","국가산단","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
 const fallback={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
@@ -39,15 +39,23 @@ async function download(value:string,timeout=12000){
 }
 type Item={title:string;link:string;published:string|null;snippet:string;officialBody?:string;hasAttachments?:boolean};
 const officialLink=(base:string,path:string)=>{try{const u=new URL(entities(path),base);return allowed(u)?u.href:""}catch{return""}};
+const parseDate=(s:string):string|null=>{
+ const m=s.match(/^(20\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})/);
+ if(m){
+  const date=new Date(m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0")+"T00:00:00+09:00");
+  return Number.isNaN(date.getTime())?null:date.toISOString();
+ }
+ const time=Date.parse(s);return Number.isNaN(time)?null:new Date(time).toISOString();
+};
 function discover(base:string,raw:string):Item[]{
  const out:Item[]=[],seen=new Set<string>();
  for(const m of raw.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)){
   const b=m[1],title=tag(b,"title"),link=officialLink(base,tag(b,"link")||tag(b,"guid")),published=tag(b,"pubDate")||tag(b,"dc:date"),snippet=tag(b,"description");
   if(!relevant(title)||!link||seen.has(link))continue;
-  const rawBody=b.match(/<cn(?:\s[^>]*)?>([\s\S]*?)<\/cn>/i)?.[1]||"";
-  const cleaned=text(rawBody.replace(/^\s*<!\[CDATA\[/,"").replace(/\]\]>\s*$/,""));
+  const rawBody=b.match(/<(?:cn|content:encoded)(?:\s[^>]*)?>([\s\S]*?)<\/(?:cn|content:encoded)>/i)?.[1]||"";
+  const cleaned=text(rawBody.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner));
   const attached=/<fileUrl>|<fileCnt>[1-9]/i.test(b);
-  seen.add(link);out.push({title,link,published:published&&!isNaN(Date.parse(published))?new Date(published).toISOString():null,snippet,officialBody:cleaned.length>=140?cleaned:"",hasAttachments:attached});
+  seen.add(link);out.push({title,link,published:parseDate(published),snippet,officialBody:cleaned.length>=140?cleaned:(snippet.length>=300?snippet:""),hasAttachments:attached});
   if(out.length>=8)break;
  }
  if(out.length)return out;
@@ -57,6 +65,19 @@ function discover(base:string,raw:string):Item[]{
   const match=plain.match(/(20\d{2})[-./]\s*(\d{1,2})[-./]\s*(\d{1,2})/);
   if(!match)continue;
   const published=`${match[1]}-${match[2].padStart(2,"0")}-${match[3].padStart(2,"0")}T00:00:00+09:00`;
+  // The Gangwon official notice board uses goPage(id) rather than an href.
+  if(new URL(base).hostname==="state.gwd.go.kr"&&new URL(base).pathname.endsWith("/announce")){
+   for(const a of block.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)){
+    const seq=a[1].match(/onclick=["']\s*goPage\((\d{4,12})\)/)?.[1];
+    const title=text(a[2]);
+    if(!seq||!relevant(title)||title.length<9)continue;
+    const link=officialLink(base,"?articleSeq="+seq);
+    if(!link||seen.has(link))continue;
+    seen.add(link);out.push({title,link,published,snippet:""});break;
+   }
+   if(out.length>=8)break;
+   if(out.length)continue;
+  }
   for(const a of block.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)){
    const title=text(a[2]),link=officialLink(base,a[1]);
    if(!relevant(title)||title.length<9||title.length>190||!link||seen.has(link))continue;
@@ -134,9 +155,10 @@ async function collectRow(source:any,item:Item){
   if(byUrl.error||byTitle.error)throw byUrl.error||byTitle.error;
   if(byUrl.data||byTitle.data)return "duplicate";
  }
- let verified=false,body="",keyContent="",error="";
+ let verified=false,body="",keyContent="",error="",usedFeedBody=false;
  try{
   if(item.officialBody&&item.officialBody.length>=140){
+   usedFeedBody=true;
    // Seoul city publishes the authenticated notice body inside its official RSS <cn>.
    // For hash-based view links, downloading the list page would discard that body.
    body=item.officialBody;
@@ -150,10 +172,10 @@ async function collectRow(source:any,item:Item){
  }catch(e){error=String(e instanceof Error?e.message:e).slice(0,150)}
  if(!old){
   const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
-  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified,auto_hidden:!verified,needs_detail_fetch:!verified,detail_ok:verified,last_detail_error:error||null};
+  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified,auto_hidden:!verified,needs_detail_fetch:!verified||usedFeedBody,detail_ok:verified&&!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:error||null};
   const idHash=await hash(item.link);
   const cHash=await hash(body||item.snippet||item.title);
-  const record={source_id:source.id,external_id:item.link,canonical_key:idHash,title:item.title,source_url:item.link,detail_url:item.link,published_at:item.published,content_text:verified?body:item.snippet||item.title,content_hash:cHash,body_hash:verified?cHash:null,detail_status:verified?(hasAttachment?"partial":"complete"):"queued",detail_retry_count:0,detail_completed_at:verified?now:null,last_checked_at:now,key_content:verified?keyContent:null,key_extract_status:verified?"ready":"pending",key_extracted_at:verified?now:null,raw_payload:payload,verification_status:verified?"verified":"pending"};
+  const record={source_id:source.id,external_id:item.link,canonical_key:idHash,title:item.title,source_url:item.link,detail_url:item.link,published_at:item.published,content_text:verified?body:item.snippet||item.title,content_hash:cHash,body_hash:verified?cHash:null,detail_status:verified?(hasAttachment||usedFeedBody?"partial":"complete"):"queued",detail_retry_count:0,detail_completed_at:verified?now:null,last_checked_at:now,key_content:verified?keyContent:null,key_extract_status:verified?"ready":"pending",key_extracted_at:verified?now:null,raw_payload:payload,verification_status:verified?"verified":"pending"};
   const insert=await db.from("df_source_documents").insert(record).select("id").single();
   if(insert.error){if(insert.error.code==="23505")return"duplicate";throw insert.error}
   if(verified)await db.from("df_source_document_versions").insert({document_id:insert.data.id,content_hash:cHash,title:item.title,content_text:body,source_url:item.link,source_published_at:item.published});
@@ -183,7 +205,7 @@ async function collectRow(source:any,item:Item){
  }
  const cHash=await hash(body);
  const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
- const upd=await db.from("df_source_documents").update({title:item.title,content_text:body,content_hash:cHash,body_hash:cHash,detail_status:hasAttachment?"partial":"complete",detail_completed_at:now,key_content:keyContent,key_extract_status:"ready",key_extracted_at:now,verification_status:"verified",raw_payload:{...(old.raw_payload||{}),public_hidden:false,auto_hidden:false,needs_detail_fetch:false,detail_ok:true,last_detail_error:null},last_checked_at:now}).eq("id",old.id);
+ const upd=await db.from("df_source_documents").update({title:item.title,content_text:body,content_hash:cHash,body_hash:cHash,detail_status:hasAttachment||usedFeedBody?"partial":"complete",detail_completed_at:now,key_content:keyContent,key_extract_status:"ready",key_extracted_at:now,verification_status:"verified",raw_payload:{...(old.raw_payload||{}),public_hidden:false,auto_hidden:false,needs_detail_fetch:usedFeedBody,detail_ok:!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:null},last_checked_at:now}).eq("id",old.id);
  if(upd.error)throw upd.error;
  await db.from("df_source_document_versions").upsert({document_id:old.id,content_hash:cHash,title:item.title,content_text:body,source_url:item.link,source_published_at:item.published},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
  return"completed_published";
