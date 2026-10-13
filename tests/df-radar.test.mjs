@@ -36,3 +36,27 @@ test('healthy direct local engine remains primary',async()=>{
   assert.equal(response.headers.get('x-official-data-engine'),'LOCAL');
  }finally{if(old===undefined)delete process.env[env];else process.env[env]=old}
 });
+
+import {officialSnapshot,compareSnapshots,distanceMeters,spatialEvidence} from '../lib/df-radar-engine.js';
+
+test('official zoning radar ignores order and rejects incomplete measurements',()=>{
+ const pnu='3020011100106290001';
+ assert.equal(officialSnapshot({ok:true,pnu,zoning:{zones:[],districts:[],areas:[]}},pnu),null);
+ assert.equal(officialSnapshot({ok:true,pnu:'3020011100106290002',zoning:{zones:['상업'],districts:[],areas:[]}},pnu),null);
+ const a=officialSnapshot({ok:true,pnu,zoning:{zones:['일반상업지역'],districts:['지구단위계획구역'],areas:[]}},pnu);
+ const b=officialSnapshot({ok:true,pnu,zoning:{zones:['일반상업지역'],districts:['지구단위계획구역','온천원보호지구'],areas:[]}},pnu);
+ assert.equal(compareSnapshots(a,a).status,'unchanged');
+ const diff=compareSnapshots(a,b);
+ assert.equal(diff.status,'changed');
+ assert.deepEqual(diff.changes.map(x=>x.value),['온천원보호지구']);
+});
+
+test('geographic claims require verified source coordinates',()=>{
+ const parcel={lat:36.35,lon:127.35,radius_m:1000};
+ assert.equal(distanceMeters(parcel,{lat:36.35,lon:127.35}),0);
+ assert.equal(spatialEvidence(parcel,{point:{lat:36.3504,lon:127.3504}}).status,'unverified');
+ const record={point:{lat:36.3504,lon:127.3504},verificationStatus:'verified',locationSource:'official parcel coordinate',sourceUrl:'https://www.daejeon.go.kr/'};
+ const x=spatialEvidence(parcel,record);
+ assert.equal(x.status,'within-radius');
+ assert.ok(x.distanceMeters<100);
+});
