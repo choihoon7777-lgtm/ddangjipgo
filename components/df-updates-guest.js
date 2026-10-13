@@ -57,6 +57,8 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
  const sorted=useMemo(()=>(Array.isArray(records)?records:[]).filter(d=>d&&typeof d==="object"&&(view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete"))),[records,view]);
  const shown=sorted.slice(0,shownCount);
  const completed=agencies.filter(x=>x.last_result==="success").length;
+ const found=agencies.filter(x=>x.last_result==="success"&&(Number(x.last_found)||0)>0).length;
+ const checkedWithoutHits=agencies.filter(x=>x.last_result==="success"&&!(Number(x.last_found)>0)).length;
  const errors=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial").length;
  const notRun=agencies.filter(x=>!x.last_attempt_at).length;
  const pendingCount=status?.pending??0;
@@ -74,7 +76,7 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
    </div>
    <button className="dfUpdateMainButton" disabled={busy||loading} onClick={()=>run(true)}>{busy?"공식자료 수집 중…":"전국 29개 기관 신규자료 수집"}<span aria-hidden="true">↗</span></button>
    <div className="dfUpdateToolbar">
-    <button disabled={busy||loading} onClick={()=>run(false)}>미점검 3개 기관 수집</button>
+    <button disabled={busy||loading} onClick={()=>run(false)}>가장 오래된 3개 기관 재점검</button>
     <button disabled={busy} onClick={load}>현황 새로고침 <span aria-hidden="true">↻</span></button>
    </div>
    {progress&&<p className="dfUpdateProgress" role="status">{progress}</p>}
@@ -96,13 +98,13 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
   <section className="adminPanel dfUpdateSourcesPanel">
    <div className="dfUpdateSectionHead"><div><small>수집 상태</small><h2>공식기관 현황</h2></div><span className="dfUpdateSectionCount">{agencies.length}개 기관</span></div>
    <div className="dfUpdateHealth">
-    <span><i className="dfUpdateDot dfUpdateDotGood"/> 정상 {completed}</span>
+    <span><i className="dfUpdateDot dfUpdateDotGood"/> 연결 성공 {completed}</span><span>자료 발견 {found}</span><span>관련 자료 없음 {checkedWithoutHits}</span>
     <span><i className="dfUpdateDot dfUpdateDotBad"/> 오류 {errors}</span>
     <span><i className="dfUpdateDot"/> 미점검 {notRun}</span>
    </div>
    <details className="dfUpdateDisclosure dfUpdateSourceDisclosure">
     <summary>기관별 수집 현황과 오류 원인 보기</summary>
-    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={String(src.name||"미확인 기관")}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?"정상":src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
+    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={String(src.name||"미확인 기관")}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?(Number(src.last_found)>0?"자료 발견":"목록 정상 · 관련 없음"):src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
    </details>
   </section>
   <section className="adminPanel dfUpdateFeedPanel">
