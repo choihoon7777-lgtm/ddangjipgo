@@ -74,7 +74,7 @@ function ArticleInner(){
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
    <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"투자GO의 기존 분석 콘텐츠입니다. 최초 작성일과 출처를 명시하며 당시 시점의 견해를 보존합니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
-   {isBlog&&<section className="dfPublicSources"><small>ORIGINAL SOURCE</small><h2>원문 출처</h2><a href={a.original_source_url} target="_blank" rel="noopener noreferrer"><div><b>{a.original_source_label||"네이버 투자GO"}</b><span>원문 링크 · 최초 게시 글</span></div><strong>↗</strong></a></section>
+   {isBlog&&<section className="dfPublicSources"><small>ORIGINAL SOURCE</small><h2>원문 출처</h2><a href={a.original_source_url} target="_blank" rel="noopener noreferrer"><div><b>{a.original_source_label||"네이버 투자GO"}</b><span>원문 링크 · 최초 게시 글</span></div><strong>↗</strong></a></section>}
    {sources.length>0&&<section className="dfPublicSources"><small>OFFICIAL SOURCES</small><h2>공식 출처</h2>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}</section>}
   </article><DFBottomNav active="news"/>
  </main>
