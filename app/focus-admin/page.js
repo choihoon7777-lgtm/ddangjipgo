@@ -6,6 +6,7 @@ import{DFAdminHeader,DFAdminBottomNav}from"../../components/df-shell";
 const groups=[
  {kicker:"EDITORIAL",title:"기사·편집국",items:[
   ["신규자료 업데이트","전국 수집·원문 추출·기관별 오류·검토 승인·공개를 관리합니다.","/focus-admin/updates"],
+  ["언론 모니터링","언론 RSS 7개 채널 · 관련 보도 후보 · 공식자료 대조","/focus-admin/media"],
   ["공식자료 직접 수집","공식 URL 등록 및 기사화를 관리합니다.","/focus-admin/sources"],
   ["AI 기사작성","공식자료를 FACT → 기자 → 데스크 → 검증 순서로 기사화합니다.","/focus-admin/ai-test"],
   ["직접 기사 작성","직접 기사 초안을 작성하고 검증 대기열로 보냅니다.","/focus-admin/write"],
@@ -50,6 +51,7 @@ export default function Admin(){
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
    <a href="/focus-admin/radar"><b>개발레이더 검수</b><span>공식 고시·공고 위치근거 확인</span></a>
    <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
+   {!guest&&<a href="/focus-admin/media"><b>언론 모니터링 공장</b><span>3개 언론사 · 7개 채널 · 시간별 기사 후보</span></a>}
    <a href="/focus-admin/blog-import"><b>투자GO 블로그 이식</b><span>네이버 50건 목록 · 중복 검토 · 원본 보존</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/ai-test"}><b>AI 기사작성</b><span>{guest?"관리자 로그인 후 기사 작성":"공식자료 → 기사"}</span></a>
    <a href={guest?"/focus-admin/updates":"/focus-admin/write"}><b>직접 기사 작성</b><span>{guest?"관리자 로그인 후 실제 작성":"초안 작성"}</span></a>
