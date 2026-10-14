@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && next build",
+    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && npm run test:premium-ui && next build",
     "start": "next start",
     "test:radar": "node --test tests/df-radar.test.mjs",
     "test:housing": "node --test tests/df-housing*.test.mjs",
     "test:editorial": "node --test tests/df-editorial.test.mjs",
-    "test:guest": "node --test tests/df-guest-navigation.test.mjs"
+    "test:guest": "node --test tests/df-guest-navigation.test.mjs",
+    "test:premium-ui": "node --test tests/df-premium-ui.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

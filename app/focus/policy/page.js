@@ -35,7 +35,7 @@ export default function Policy(){
  const latestCollected=items.reduce((latest,x)=>Math.max(latest,Date.parse(x.fetched_at||"")||0),0);
  const collectionDelayed=latestCollected>0&&Date.now()-latestCollected>72*60*60*1000;
  function href(c=channel,t=topic){const p=new URLSearchParams();if(c!=="전체")p.set("channel",c);if(t!=="전체")p.set("topic",t);return"/focus/policy"+(p.toString()?"?"+p.toString():"")}
- if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="news"/></main>;
+ if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="policy"/></main>;
  if(detail)return <main className="focusShell dfHigh"><DFBrandHeader/>
   <article className="dfPolicyDetail">
    <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
@@ -56,7 +56,7 @@ export default function Policy(){
     <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>{detail.detail_status==="complete"?"공식 문서의 주요 내용을 발췌했습니다. 도면 등 상세 자료는 공식 사이트에서 확인하세요.":"공식 기관의 공개 자료를 확인해 핵심 내용을 정리했습니다. 첨부 문서 전문과 도면은 아직 추출·대조되지 않았습니다."}</span></div>
     {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noopener noreferrer">공식 원문 보기 ↗</a>}
    </footer>
-  </article><DFBottomNav active="news"/></main>;
+  </article><DFBottomNav active="policy"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
   <section className="dfPolicyHero"><small>전국 공식자료</small><h1>개발정책</h1><p>전국 정부·지자체의 고시·공고·보도자료를 충분한 본문과 함께 전합니다.</p><div><b>본문을 기사처럼</b><span>더 자세한 문서는 페이지 하단의 공식 원문 링크로 확인</span></div></section>
   <section className="dfPolicyFilters">
@@ -64,5 +64,5 @@ export default function Policy(){
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
   <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">공식 상세 본문 미확보 · 원문 확인 필요</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>상세보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
-  <DFBottomNav active="news"/></main>
+  <DFBottomNav active="policy"/></main>
 }
