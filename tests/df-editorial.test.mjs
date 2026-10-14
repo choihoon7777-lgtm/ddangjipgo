@@ -22,7 +22,7 @@ test("No excerpt cap: all 28k+ characters survive formatting",()=>{
 });
 
 test("Deduplicate only exact substantial paragraphs and preserve other passages",()=>{
- const intro="서울시는 정비사업 연내 착공을 추진하기 위해 조합과 시공사, 자치구의 협력을 강화하고 공정 지연 요소를 점검하겠다고 발표했다.";
+ const intro="서울시는 정비사업 연내 착공을 추진하기 위해 조합과 시공사, 자치구의 협력을 강화하고 공정 지연 요소를 점검하겠다고 발표했다. 사업장별 인허가 처리와 공사비 갈등 해소 여부를 추가 점검할 예정이라고 밝혔다.";
  const blocks=parseEditorialBody("■ 핵심 내용\n"+intro+"\n\n■ 공식 문서 내용\n"+intro+"\n\n사업비 숫자 15,000호와 16,117호는 다르다.");
  assert.equal(blocks.filter(x=>x.text===intro).length,1);
  assert.ok(blocks.some(x=>x.text.includes("16,117호")));
