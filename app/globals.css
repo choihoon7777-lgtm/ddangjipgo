@@ -966,3 +966,68 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfGuestAdminDraftPreview p{font-size:14px;color:#314d67;white-space:pre-wrap;line-height:1.92;word-break:keep-all}
 .dfGuestAdminNotice{padding:12px 15px;color:#2c5d78;background:#f0f6fa;font-size:12px;border-left:3px solid #225d83}
 @media(max-width:380px){.dfGuestAdminLinkGrid{gap:5px}.dfGuestAdminLinkGrid a{font-size:11px;padding:8px;min-height:45px}.dfGuestAdminChecks label{font-size:10px}}
+
+/* Universal editorial type system. One readable treatment for every published article,
+   verified official document, imported insight and administrator review. */
+.dfNewsArticle{padding:26px 20px 48px!important}
+.dfNewsArticle .dfArticleMeta{gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.dfNewsArticle .dfArticleMeta span{font-size:11px!important;letter-spacing:.25px!important;color:#c8732f!important}
+.dfNewsArticle .dfArticleMeta em{font-size:10px!important;padding:5px 8px!important}
+.dfNewsArticle>h1{font-size:clamp(27px,4.5vw,36px)!important;line-height:1.39!important;letter-spacing:-.95px!important;word-break:keep-all!important;overflow-wrap:anywhere;color:#122e49!important;margin:7px 0 18px!important;font-weight:850!important}
+.dfNewsArticle .dfNewsLead{font-size:15px!important;line-height:1.78!important;letter-spacing:-.17px!important;color:#506b82!important;margin:0 0 16px!important;word-break:keep-all}
+.dfNewsArticle .dfTime{font-size:11px!important;line-height:1.65!important;letter-spacing:0!important;color:#8192a3!important;margin:0 0 19px!important}
+.dfNewsArticle .dfArticleActions{margin:17px 0 23px}
+.dfNewsArticle .dfArticleActions>button,.dfNewsArticle .dfArticleActions>a{min-height:40px;font-size:12px!important}
+.dfNewsArticle .dfKeySummary{margin:27px 0 31px!important;padding:20px 17px!important;background:#f5f8fb!important;border:1px solid #e1e9f0;border-top:3px solid #183d63!important;border-radius:13px!important}
+.dfNewsArticle .dfKeySummary>small{font-size:12px!important;line-height:1.4!important;letter-spacing:-.25px!important;color:#173e61!important;margin-bottom:15px!important}
+.dfNewsArticle .dfKeySummary p{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:9px;margin:0 0 14px!important;font-size:13.5px!important;line-height:1.75!important;color:#25445f!important;word-break:keep-all}
+.dfNewsArticle .dfKeySummary p:last-child{margin-bottom:0!important}
+.dfNewsArticle .dfKeySummary p b{font-size:12px!important;color:#bd843d!important;font-variant-numeric:tabular-nums}
+.dfNewsArticle .dfInsightDateNotice{font-size:12px!important;line-height:1.65!important;margin:10px 0 16px!important}
+.dfNewsArticle .dfOfficialNewsFullText{margin-top:20px;padding:0 0 6px}
+.dfNewsArticle .dfOfficialNewsFullText>h2{font-size:19px!important;font-weight:850!important;line-height:1.5!important;padding-bottom:12px!important;margin:20px 0 23px!important;color:#183e62!important;border-bottom:1px solid #dce5ee!important}
+.dfOfficialArticleText.dfEditorialProse{font-size:16px!important;line-height:1.92!important;letter-spacing:-.13px!important;word-break:keep-all;overflow-wrap:anywhere;color:#233d55}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialParagraph{font-size:inherit!important;line-height:inherit!important;white-space:pre-line!important;margin:0 0 20px!important;word-break:keep-all!important;color:inherit!important}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialHeading{margin:35px 0 16px!important;padding:0 0 0 13px!important;border:0!important;border-left:3px solid #bb8346!important;font-size:19px!important;font-weight:850!important;line-height:1.5!important;letter-spacing:-.5px!important;color:#173d61!important;word-break:keep-all;scroll-margin-top:80px}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialHeading:first-child{margin-top:0!important}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialList{padding:15px 14px 14px 25px!important;margin:3px 0 24px!important;background:#f8fafc;border:1px solid #e7edf3;border-radius:11px;list-style:none!important}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialList li{position:relative;padding-left:8px;margin:0 0 11px;font-size:15px;line-height:1.78;white-space:pre-line;color:#304d68;word-break:keep-all}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialList li:last-child{margin-bottom:0}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialList li:before{position:absolute;left:-10px;top:11px;width:5px;height:5px;border-radius:50%;background:#bc8b50;content:""}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialQuote{font-size:16px;line-height:1.78;color:#334e68;background:#f6f9fc;border-left:3px solid #9bacbd;padding:14px 15px;margin:18px 0 23px;border-radius:0 9px 9px 0;word-break:keep-all}
+.dfOfficialArticleText.dfEditorialProse .dfEditorialFootnote{display:block;font-size:12px!important;line-height:1.75!important;margin:20px 0!important;padding:12px 13px;border-radius:9px;background:#f7f8fa;color:#708297!important;white-space:pre-line!important}
+.dfEditorialOutline{display:grid;gap:0;margin:0 0 30px;padding:15px 18px;background:#fafbfd;border:1px solid #e4eaf1;border-radius:12px}
+.dfEditorialOutline>b{display:block;font-size:13px;letter-spacing:-.2px;color:#1b4668;margin-bottom:8px}
+.dfEditorialOutline>a{display:flex;justify-content:space-between;align-items:start;gap:8px;color:#4e6a81;text-decoration:none;padding:9px 0;border-bottom:1px solid #ecf0f4;font-size:12px;line-height:1.6;word-break:keep-all}
+.dfEditorialOutline>a:last-child{border:0}
+.dfEditorialOutline>a span{color:#c58a49;flex-shrink:0}
+.dfNewsArticle .dfPublicSources{margin-top:35px;padding-top:22px;border-top:1px solid #dfe7ee}
+.dfNewsArticle .dfPublicSources>small{font-size:10px!important}
+.dfNewsArticle .dfPublicSources h2{font-size:17px;line-height:1.5;margin:7px 0 7px;color:#153b61}
+.dfEditorialSourceIntro{font-size:12px!important;line-height:1.7!important;color:#788b9c!important;margin:0 0 13px!important}
+.dfNewsArticle .dfPublicSources a{min-height:52px;font-size:12px!important;line-height:1.6;word-break:keep-all}
+.dfNewsArticle .dfPublicSources a b{font-size:12px!important}
+.dfNewsArticle .dfPublicSources a span{font-size:11px!important;line-height:1.6!important}
+.dfPolicyDetail .dfPolicySummaryCard>h1{font-size:clamp(25px,4.4vw,34px)!important;line-height:1.43!important;letter-spacing:-.9px!important;word-break:keep-all}
+.dfPolicyDetail .dfPolicyDate{font-size:12px!important}
+.dfPolicyDetail .dfPolicyKeyHead>span{font-size:14px!important;font-weight:850;color:#1a4668}
+.dfPolicyDetail .dfPolicyKeySentences{display:grid;gap:10px}
+.dfPolicyDetail .dfPolicyKeySentences p{font-size:14px!important;line-height:1.78!important;margin:0!important;color:#31516d!important;white-space:pre-line;word-break:keep-all}
+.dfPolicyDetail .dfPolicyKeySentences p+ p{border-top:1px solid #e6edf3;padding-top:10px}
+.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:15.5px!important}
+.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse .dfEditorialHeading{font-size:17px!important;margin:27px 0 12px!important}
+.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse .dfEditorialList li{font-size:14.5px!important}
+.dfPolicyFeed .dfPolicyRow h3{font-size:16px!important;line-height:1.54!important;word-break:keep-all}
+.dfPolicyFeed .dfPolicyRow .dfPolicyKeyPreview{font-size:12px!important;line-height:1.77!important;-webkit-line-clamp:4!important;word-break:keep-all}
+.dfAdminArticleReview{background:#fff;padding:20px 18px 28px!important}
+.dfAdminArticleReview h1{font-size:25px!important;line-height:1.45!important;word-break:keep-all}
+.dfAdminArticleReview .dfEditorialProse{font-size:15.5px!important}
+@media(max-width:420px){
+ .dfNewsArticle{padding:20px 17px 37px!important}
+ .dfNewsArticle>h1{font-size:28px!important;line-height:1.4!important}
+ .dfOfficialArticleText.dfEditorialProse{font-size:15.8px!important;line-height:1.88!important}
+ .dfOfficialArticleText.dfEditorialProse .dfEditorialHeading{font-size:18px!important}
+ .dfNewsArticle .dfKeySummary{padding:17px 14px!important}
+ .dfNewsArticle .dfKeySummary p{font-size:13px!important}
+ .dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:15px!important}
+}
