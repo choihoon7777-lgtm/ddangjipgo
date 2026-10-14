@@ -1031,3 +1031,28 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfNewsArticle .dfKeySummary p{font-size:13px!important}
  .dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:15px!important}
 }
+
+/* Mobile QA: news lists and article supporting text must not collapse to 8px. */
+.dfHigh .focusNews{min-height:76px;gap:12px;padding:17px 0}
+.dfHigh .focusNews>div:first-child{min-width:0}
+.dfHigh .focusNews small{font-size:11px!important;line-height:1.55!important;letter-spacing:-.05px}
+.dfHigh .focusNews h3{font-size:16px!important;line-height:1.55!important;letter-spacing:-.32px!important;margin:6px 0!important;word-break:keep-all;overflow-wrap:anywhere}
+.dfHigh .leadNews h3{font-size:19px!important;line-height:1.5!important}
+.dfHigh .focusNews p{font-size:11px!important;line-height:1.6!important;color:#748497!important;margin-top:5px!important;word-break:keep-all}
+.dfHigh .focusNews .dfNewsSubtitle{font-size:13px!important;line-height:1.7!important;color:#597086!important;margin:5px 0!important}
+.dfHigh .focusNews .newsArrow{font-size:19px;flex-shrink:0}
+.dfNewsArticle .dfArticleTrust b{font-size:11px!important;line-height:1.55!important;letter-spacing:.6px!important}
+.dfNewsArticle .dfArticleTrust span{font-size:12px!important;line-height:1.65!important}
+.dfNewsArticle .dfArticleActionMsg{font-size:12px!important;line-height:1.6!important}
+.dfPolicyDetail .dfPolicySource>div small{font-size:11px!important}
+.dfPolicyDetail .dfPolicySource>div b{font-size:14px!important;line-height:1.55!important}
+.dfPolicyDetail .dfPolicySource>div span{font-size:12px!important;line-height:1.7!important}
+.dfPolicyDetail .dfPolicyKeyHead b{font-size:11px!important;line-height:1.45!important;text-align:right}
+.dfPolicyDetail .dfPolicySource a{font-size:13px!important;min-height:48px;line-height:1.55}
+@media(max-width:360px){
+ .dfHigh .focusNews h3{font-size:15px!important}
+ .dfHigh .leadNews h3{font-size:17px!important}
+ .dfHigh .focusNews p{font-size:11px!important}
+ .dfNewsArticle .dfOfficialArticleText.dfEditorialProse{font-size:15px!important}
+ .dfNewsArticle .dfEditorialOutline{padding:13px}
+}
