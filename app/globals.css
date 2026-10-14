@@ -996,11 +996,16 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfOfficialArticleText.dfEditorialProse .dfEditorialList li:before{position:absolute;left:-10px;top:11px;width:5px;height:5px;border-radius:50%;background:#bc8b50;content:""}
 .dfOfficialArticleText.dfEditorialProse .dfEditorialQuote{font-size:16px;line-height:1.78;color:#334e68;background:#f6f9fc;border-left:3px solid #9bacbd;padding:14px 15px;margin:18px 0 23px;border-radius:0 9px 9px 0;word-break:keep-all}
 .dfOfficialArticleText.dfEditorialProse .dfEditorialFootnote{display:block;font-size:12px!important;line-height:1.75!important;margin:20px 0!important;padding:12px 13px;border-radius:9px;background:#f7f8fa;color:#708297!important;white-space:pre-line!important}
-.dfEditorialOutline{display:grid;gap:0;margin:0 0 30px;padding:15px 18px;background:#fafbfd;border:1px solid #e4eaf1;border-radius:12px}
-.dfEditorialOutline>b{display:block;font-size:13px;letter-spacing:-.2px;color:#1b4668;margin-bottom:8px}
-.dfEditorialOutline>a{display:flex;justify-content:space-between;align-items:start;gap:8px;color:#4e6a81;text-decoration:none;padding:9px 0;border-bottom:1px solid #ecf0f4;font-size:12px;line-height:1.6;word-break:keep-all}
-.dfEditorialOutline>a:last-child{border:0}
-.dfEditorialOutline>a span{color:#c58a49;flex-shrink:0}
+.dfEditorialOutline{display:block;margin:0 0 30px;padding:11px 16px;background:#fafbfd;border:1px solid #e4eaf1;border-radius:12px;min-width:0;max-width:100%;box-sizing:border-box}
+.dfEditorialOutline>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;cursor:pointer;font-size:14px;font-weight:850;letter-spacing:-.2px;color:#1b4668;list-style:none;word-break:keep-all}
+.dfEditorialOutline>summary::-webkit-details-marker{display:none}
+.dfEditorialOutline>summary span{font-size:12px;font-weight:650;color:#687e90;white-space:nowrap}
+.dfEditorialOutline[open]>summary span span{display:inline-block;transform:rotate(180deg)}
+.dfEditorialOutline>nav{display:grid;gap:0;padding-top:6px;border-top:1px solid #e5ebf1}
+.dfEditorialOutline>nav>a{display:flex;justify-content:space-between;align-items:center;min-height:44px;gap:8px;color:#3d5b73;text-decoration:none;padding:10px 0;border-bottom:1px solid #ecf0f4;font-size:13.5px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.dfEditorialOutline>nav>a:last-child{border:0}
+.dfEditorialOutline>nav>a span{color:#c58a49;flex-shrink:0}
+.dfEditorialOutline>nav>a:focus-visible,.dfEditorialOutline>summary:focus-visible{outline:2px solid #2869a0;outline-offset:3px}
 .dfNewsArticle .dfPublicSources{margin-top:35px;padding-top:22px;border-top:1px solid #dfe7ee}
 .dfNewsArticle .dfPublicSources>small{font-size:10px!important}
 .dfNewsArticle .dfPublicSources h2{font-size:17px;line-height:1.5;margin:7px 0 7px;color:#153b61}
@@ -1014,22 +1019,22 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfPolicyDetail .dfPolicyKeySentences{display:grid;gap:10px}
 .dfPolicyDetail .dfPolicyKeySentences p{font-size:14px!important;line-height:1.78!important;margin:0!important;color:#31516d!important;white-space:pre-line;word-break:keep-all}
 .dfPolicyDetail .dfPolicyKeySentences p+ p{border-top:1px solid #e6edf3;padding-top:10px}
-.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:15.5px!important}
+.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:16px!important}
 .dfPolicyDetail .dfPolicyFullReader .dfEditorialProse .dfEditorialHeading{font-size:17px!important;margin:27px 0 12px!important}
-.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse .dfEditorialList li{font-size:14.5px!important}
+.dfPolicyDetail .dfPolicyFullReader .dfEditorialProse .dfEditorialList li{font-size:15.5px!important}
 .dfPolicyFeed .dfPolicyRow h3{font-size:16px!important;line-height:1.54!important;word-break:keep-all}
-.dfPolicyFeed .dfPolicyRow .dfPolicyKeyPreview{font-size:12px!important;line-height:1.77!important;-webkit-line-clamp:4!important;word-break:keep-all}
+.dfPolicyFeed .dfPolicyRow .dfPolicyKeyPreview{font-size:13px!important;line-height:1.77!important;-webkit-line-clamp:4!important;word-break:keep-all}
 .dfAdminArticleReview{background:#fff;padding:20px 18px 28px!important}
 .dfAdminArticleReview h1{font-size:25px!important;line-height:1.45!important;word-break:keep-all}
-.dfAdminArticleReview .dfEditorialProse{font-size:15.5px!important}
+.dfAdminArticleReview .dfEditorialProse{font-size:16px!important}
 @media(max-width:420px){
  .dfNewsArticle{padding:20px 17px 37px!important}
- .dfNewsArticle>h1{font-size:28px!important;line-height:1.4!important}
+ .dfNewsArticle>h1{font-size:clamp(25px,7vw,28px)!important;line-height:1.4!important}
  .dfOfficialArticleText.dfEditorialProse{font-size:15.8px!important;line-height:1.88!important}
  .dfOfficialArticleText.dfEditorialProse .dfEditorialHeading{font-size:18px!important}
  .dfNewsArticle .dfKeySummary{padding:17px 14px!important}
  .dfNewsArticle .dfKeySummary p{font-size:13px!important}
- .dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:15px!important}
+ .dfPolicyDetail .dfPolicyFullReader .dfEditorialProse{font-size:16px!important}
 }
 
 /* Mobile QA: news lists and article supporting text must not collapse to 8px. */
@@ -1053,7 +1058,7 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfHigh .focusNews h3{font-size:15px!important}
  .dfHigh .leadNews h3{font-size:17px!important}
  .dfHigh .focusNews p{font-size:11px!important}
- .dfNewsArticle .dfOfficialArticleText.dfEditorialProse{font-size:15px!important}
+ .dfNewsArticle .dfOfficialArticleText.dfEditorialProse{font-size:15.8px!important}
  .dfNewsArticle .dfEditorialOutline{padding:13px}
 }
 

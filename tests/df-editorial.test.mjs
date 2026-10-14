@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const source=await readFile(new URL("../lib/df-editorial-format.js",import.meta.url),"utf8");
-const {parseEditorialBody,safeOriginalUrl}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+const {parseEditorialBody,getEditorialOutline,safeOriginalUrl}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
 
 test("Official headings and bullets display as structured paragraphs without dropped facts",()=>{
  const blocks=parseEditorialBody("■ 사업 개요\n실제 착공한 사업은 14곳이다.\n남은 사업은 11곳이다.\n\n① 사업일정\n② 공사비 검토\n\n※ 이 기사는 공식 자료를 기준으로 작성했다.");
@@ -14,11 +14,11 @@ test("Official headings and bullets display as structured paragraphs without dro
 });
 
 test("No excerpt cap: all 28k+ characters survive formatting",()=>{
- const long=Array.from({length:170},(_,i)=>"2026년 사업계획 세부항목 "+(i+1)+"번은 공식 검증된 조항이다.").join("\n\n");
- assert.ok(long.length>5000);
+ const long=Array.from({length:700},(_,i)=>"2026년 사업계획 세부항목 "+(i+1)+"번은 공식 검증된 조항이다.").join("\n\n");
+ assert.ok(long.length>28000);
  const blocks=parseEditorialBody(long);
  assert.equal(blocks.map(x=>x.text).join("\n\n"),long);
- assert.match(blocks.at(-1).text,/170번/);
+ assert.match(blocks.at(-1).text,/700번/);
 });
 
 test("Deduplicate only exact substantial paragraphs and preserve other passages",()=>{
@@ -26,6 +26,23 @@ test("Deduplicate only exact substantial paragraphs and preserve other passages"
  const blocks=parseEditorialBody("■ 핵심 내용\n"+intro+"\n\n■ 공식 문서 내용\n"+intro+"\n\n사업비 숫자 15,000호와 16,117호는 다르다.");
  assert.equal(blocks.filter(x=>x.text===intro).length,1);
  assert.ok(blocks.some(x=>x.text.includes("16,117호")));
+});
+
+test("Whitespace or legal-number differences cannot be treated as duplicate paragraphs",()=>{
+ const a="사업 기간 및 인가일은 2026년 10월 14일을 기준으로 확정하지 않았으며 관계기관 협의 뒤 별도로 고시한다. 공식자료에 없는 개발호재나 지가 상승 전망은 임의로 추가하지 않는다.";
+ const b=a.replace("관계기관 협의","관계 기관 협의");
+ const c=a.replace("2026년 10월 14일","2026년 10월 15일");
+ const blocks=parseEditorialBody([a,b,c,a].join("\n\n"));
+ assert.deepEqual(blocks.map(x=>x.text),[a,b,c]);
+});
+
+test("Long government notices expose heading links aligned to rendered section indices",()=>{
+ const source="■ 사업 개요\n확인된 내용입니다.\n\n■ 구역 지정\n지정계획입니다.\n\n■ 주민 의견\n의견 제출 일정을 안내합니다.\n\n■ 첨부자료\n도면은 공식 출처에서 확인합니다.";
+ const sections=parseEditorialBody(source);
+ const outline=getEditorialOutline(sections);
+ assert.deepEqual(outline.map(x=>x.text),["사업 개요","구역 지정","주민 의견","첨부자료"]);
+ assert.ok(outline.every(x=>sections[x.index].text===x.text));
+ assert.equal(getEditorialOutline(parseEditorialBody("■ 개요\n내용\n■ 일정\n내용")).length,0);
 });
 
 test("Source links accept HTTPS only",()=>{
