@@ -9,7 +9,7 @@ const linkFor=(name,channel="전체")=>{
  return "/focus/region"+(q.toString()?"?"+q.toString():"");
 };
 export default function Region(){
- const[name,setName]=useState("전국"),[channel,setChannel]=useState("전체");
+ const[name,setName]=useState("전국"),[channel,setChannel]=useState("전체"),[sourceHealth,setSourceHealth]=useState(null);
  const[official,setOfficial]=useState([]),[articles,setArticles]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState("");
  const[showCount,setShowCount]=useState(10),[refreshed,setRefreshed]=useState(""),[lastFetch,setLastFetch]=useState(null),[partial,setPartial]=useState(false),[reload,setReload]=useState(0);
  useEffect(()=>{
@@ -21,6 +21,7 @@ export default function Region(){
   async function load(isRefresh=false){
    if(!isRefresh){setLoading(true);setError("")}
    try{
+    const healthPromise=fetch("/api/health/official?region="+encodeURIComponent(selected),{cache:"no-store"}).then(async r=>r.ok?r.json():null).catch(()=>null);
     // The public RPC already applies its publication/visibility policy. Page through
     // verified/public sources rather than reading the protected document table.
     const docs=[];let reachedEnd=false,scanned=0;
@@ -39,7 +40,9 @@ export default function Region(){
       .select("id,title,category,region_code,published_at,updated_at,source_channel")
       .in("status",["published","corrected"]).order("published_at",{ascending:false}).limit(20);
     const articleResult=await(selected==="전국"?query:query.eq("region_code",selected));
+    const collection=await healthPromise;
     if(!live)return;
+    setSourceHealth(collection?.ok?collection:null);
     setOfficial(selectedDocs);setArticles(articleResult.data||[]);
     setPartial(!reachedEnd&&scanned>=800);
     setLastFetch(docs.reduce((n,x)=>Math.max(n,Date.parse(x.fetched_at||"")||0),0));
@@ -65,6 +68,11 @@ export default function Region(){
   <section className="dfRegionOfficial">
    <div className="focusTitle"><div><small className="focusEyebrow">OFFICIAL UPDATE</small><h2>{name==="전국"?"전국":name} 정책·고시·보도자료</h2></div><button type="button" className="dfRegionRefresh" onClick={()=>setReload(v=>v+1)} disabled={loading}>{loading?"조회 중":"새로고침 ↻"}</button></div>
    <p className="dfRegionExplanation">정부·지자체가 발표한 공식자료를 발표일 순서로 제공합니다. 상세 내용은 개발포커스에서 읽고, 원문은 해당 기관으로 연결됩니다.</p>
+   <div className="dfRegionCollectorCard" role="status">
+    <div><strong>공식기관 자동 수집 상태</strong><a href="/focus-admin/updates">기관별 현황 ↗</a></div>
+    {sourceHealth?.regional?<><p>{name==="전국"?"전국 수집처":name+" 지역 수집처"} {sourceHealth.regional.total}곳 · 최근 성공 {sourceHealth.regional.success} · 오류 {sourceHealth.regional.failed+sourceHealth.regional.partial}{sourceHealth.regional.pending?" · 미점검 "+sourceHealth.regional.pending:""}</p>
+    <small>{sourceHealth.regional.status==="partial"?"일부 공식기관에서 오류가 발생해 최신 자료가 누락될 수 있습니다.":sourceHealth.regional.status==="healthy"?"최근 수집 시도 정상 · 모든 신규자료 수집을 보장하지 않습니다.":sourceHealth.regional.status==="no-source"?"해당 지역의 개별 수집처가 없어 전국 자료를 확인해야 합니다.":"최근 수집 상태 확인이 필요합니다."}{sourceHealth.regional.lastAttempt?" · 최근 점검 "+new Date(sourceHealth.regional.lastAttempt).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):""}</small></>:<p>실시간 수집 상태 확인 전 · 수집 완료 여부는 관제 페이지에서 확인하세요.</p>}
+   </div>
    <div className="dfRegionChannels" aria-label="공식자료 유형 선택">{OFFICIAL_CHANNELS.map(x=><a key={x} className={x===channel?"on":""} href={linkFor(name,x)} aria-current={channel===x?"page":undefined}>{x}</a>)}</div>
    {stale&&<p className="dfRegionStale" role="status">마지막 공식자료 수집 확인: {officialDate(lastFetch)} · 최신 발표의 수집 여부는 확인이 필요합니다.</p>}
    {error&&<div className="dfRegionStale" role="alert">{error}</div>}
