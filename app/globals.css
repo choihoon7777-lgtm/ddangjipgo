@@ -1192,3 +1192,12 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 /* DOSIMAEK identity in property/search subheaders; preserve back/search targets. */
 .dfArticleTop .dfSubTitle>b{display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.4;min-width:0}
 .dfArticleTop .dfCitySubMark{display:block;flex:0 0 18px;width:18px;height:18px;border-radius:5px}
+
+/* Quick newsroom publish workflow, mobile-first */
+.dfQuickPublishGuide{background:#f2f7fb;border:1px solid #dce7f1;border-radius:12px;padding:15px;margin:0 0 16px;display:flex;flex-direction:column;gap:7px;color:#183d5b}
+.dfQuickPublishGuide>b{font-size:17px;line-height:1.4}.dfQuickPublishGuide>span{font-size:13px;line-height:1.7;color:#536c80}.dfQuickPublishGuide>div{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}.dfQuickPublishGuide>div>a{min-height:44px;display:flex;align-items:center;padding:8px 12px;border:1px solid #d7e3ed;border-radius:8px;font-size:13px;font-weight:750;background:#fff;color:#193e5c}
+.dfQuickSaved{display:flex;flex-direction:column;gap:10px;margin:16px 0;padding:16px;border:1px solid #b9dccd;border-radius:12px;background:#f4fbf7;color:#183c31}
+.dfQuickSaved>b{font-size:15px;line-height:1.5}.dfQuickSaved>span,.dfQuickSaved>small{font-size:12px;line-height:1.6}.dfQuickSaved>a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font-size:13px;font-weight:750}
+.dfQuickFocusInfo{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#eef4fa;border:1px solid #dae5ee;border-radius:10px;padding:12px;margin:12px 0}.dfQuickFocusInfo>b{font-size:12px}.dfQuickFocusInfo>button{background:#fff;border:1px solid #b9cedb;border-radius:8px;color:#1a4565;min-height:42px;padding:8px 11px;font-weight:750}
+.dfAdminFastPublish{display:flex;flex-direction:column;gap:12px}.dfAdminFastPublish small{font-size:12px;line-height:1.6;color:#6d8091}.dfAdminFastPublish h2{font-size:21px;color:#173c5c;margin:5px 0}.dfAdminFastPublish p{font-size:13px;line-height:1.7;color:#5a7185}.dfAdminFastLinks{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dfAdminFastLinks>a{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:9px;font-size:13px;font-weight:800}.dfAdminFastLinks>a:first-child{grid-column:1/-1}
+@media(max-width:360px){.dfAdminFastLinks>a{font-size:12px}.dfQuickFocusInfo{flex-wrap:wrap}}

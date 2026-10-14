@@ -14,12 +14,12 @@ const checks=[
 ];
 
 export default function Publish(){
- const[items,setItems]=useState([]),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
+ const[items,setItems]=useState([]),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
  async function load(){
   const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at,scheduled_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
   if(error){setMsg(error.message);return}setItems(data||[]);
  }
- useEffect(()=>{load()},[]);
+ useEffect(()=>{const id=new URLSearchParams(window.location.search).get("article")||"";if(/^[0-9a-f-]{36}$/i.test(id))setFocusId(id);load()},[]);
  async function setCheck(x,field,value=true){
   setBusy(x.article_id+field);setMsg("");
   try{
@@ -81,15 +81,15 @@ export default function Publish(){
  function cancelSchedule(x){setConfirmTask({title:"예약발행 취소",body:"설정된 예약시간을 삭제하고 검토 상태로 되돌립니다.",label:"예약 취소",danger:true,run:()=>doCancelSchedule(x)})}
  async function doPublish(x){
   setBusy(x.article_id+"publish");setMsg("");
-  try{const{data:{user}}=await dfSupabase.auth.getUser();const{error}=await dfSupabase.rpc("df_publish_article",{p_article_id:x.article_id,p_actor:user.id});if(error)throw error;setMsg("기사를 발행했습니다.");await load();}
+  try{const{data:{user}}=await dfSupabase.auth.getUser();const{error}=await dfSupabase.rpc("df_publish_article",{p_article_id:x.article_id,p_actor:user.id});if(error)throw error;setPublishedArticle({id:x.article_id,title:x.df_articles?.title||"발행 기사"});setMsg("기사 발행 완료! 실제 도시맥 기사 링크에서 공개 상태를 확인하세요.");await load();}
   catch(e){setMsg(e.message)}finally{setBusy("")}
  }
  function publish(x){setConfirmTask({title:"지금 기사 발행",body:"검증을 마친 기사가 즉시 공개됩니다.",label:"지금 발행",run:()=>doPublish(x)})}
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="기사 검토·발행" kicker="PUBLISH QUEUE"/>
- <section className="adminPanel"><h2>기사 검증·발행</h2><p>각 항목은 실제 근거를 확인한 뒤 개별 승인합니다. RED는 발행 차단, YELLOW는 추가 확인이 필요합니다.</p>
+ <section className="adminPanel"><div className="dfQuickPublishGuide"><b>한 번에 발행하기</b><span>원고 검토 → 사실·숫자·날짜·출처·중복 체크 → 최종 확인 → 발행</span><div><a href="/focus-admin/write">+ 새 기사 작성</a><a href="/focus/live">도시맥 공개 기사 보기 ↗</a></div></div><h2>기사 검증·발행</h2><p>각 항목은 실제 근거를 확인한 뒤 개별 승인합니다. RED는 발행 차단, YELLOW는 추가 확인이 필요합니다.</p>{publishedArticle&&<div className="dfQuickSaved" role="status"><b>✓ {publishedArticle.title}</b><span>발행 완료 · 도시맥에서 바로 읽을 수 있습니다.</span><a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">실제 발행 기사 확인 ↗</a><a href="/focus/live">최신 뉴스에서 확인 →</a></div>}{focusId&&<div className="dfQuickFocusInfo"><b>방금 작성한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 검토 대기열 보기</button></div>}
  <div className="riskLegend"><span>GREEN · 발행검토 가능</span><span>YELLOW · 추가 확인</span><span>RED · 발행 차단</span></div>
  
- {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:items.map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
+ {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:(focusId?items.filter(x=>x.article_id===focusId):items).map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
  return <article className="adminPanel dfReviewCard" key={x.id}>
   <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {articleStatus[a.status]||a.status||"검토중"}</small>
   <h3>{a.title}</h3>
@@ -105,6 +105,6 @@ export default function Publish(){
    <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>{a.status==="held"?"보류 해제":"보류"}</button>
    <button className="adminPrimary" disabled={!passed||busy!==""||["published","corrected"].includes(a.status)} onClick={()=>publish(x)}>{["published","corrected"].includes(a.status)?"발행완료":a.scheduled_at?"지금 발행":"발행"}</button>
   </div>
- </article>})}
+ </article>})}{focusId&&items.length>0&&!items.some(x=>x.article_id===focusId)&&<div className="dfQuickSaved"><b>해당 기사는 현재 검토 대기열에 없습니다.</b><p>이미 발행됐거나 검토가 완료된 기사일 수 있습니다.</p><a href={"/focus/article?id="+encodeURIComponent(focusId)}>공개 기사 확인 ↗</a><button type="button" onClick={()=>setFocusId("")}>전체 대기열 보기</button></div>}
  </section><DFToast message={msg} onClose={()=>setMsg("")}/><DFConfirmModal open={!!confirmTask} title={confirmTask?.title} body={confirmTask?.body} confirmLabel={confirmTask?.label} danger={confirmTask?.danger} onCancel={()=>setConfirmTask(null)} onConfirm={()=>{const task=confirmTask;setConfirmTask(null);task?.run?.()}}/><DFAdminBottomNav active="editor"/></main>
 }

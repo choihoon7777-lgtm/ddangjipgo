@@ -47,6 +47,7 @@ export default function Admin(){
    <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
   </section>}
 
+  <section className="adminPanel dfAdminFastPublish"><div><small>QUICK PUBLISH</small><h2>기사를 빠르게 발행하세요</h2><p>기사 작성부터 검토·발행, 도시맥 실제 노출 확인까지 바로 이동합니다.</p></div><div className="dfAdminFastLinks"><a className="adminPrimary" href="/focus-admin/write">+ 새 기사 작성</a><a className="adminSecondary" href="/focus-admin/publish">검토·발행</a><a className="adminSecondary" href="/focus/live">발행 기사 확인 ↗</a></div><small>{guest?"비로그인에서는 작성·발행을 체험할 수 있으며 실제 저장·발행은 관리자 로그인이 필요합니다.":"검증된 공식 출처와 최종 승인을 통과한 원고만 공개합니다."}</small></section>
   {!guest&&<section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>}
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
