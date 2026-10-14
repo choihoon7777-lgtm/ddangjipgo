@@ -1201,3 +1201,6 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfQuickFocusInfo{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#eef4fa;border:1px solid #dae5ee;border-radius:10px;padding:12px;margin:12px 0}.dfQuickFocusInfo>b{font-size:12px}.dfQuickFocusInfo>button{background:#fff;border:1px solid #b9cedb;border-radius:8px;color:#1a4565;min-height:42px;padding:8px 11px;font-weight:750}
 .dfAdminFastPublish{display:flex;flex-direction:column;gap:12px}.dfAdminFastPublish small{font-size:12px;line-height:1.6;color:#6d8091}.dfAdminFastPublish h2{font-size:21px;color:#173c5c;margin:5px 0}.dfAdminFastPublish p{font-size:13px;line-height:1.7;color:#5a7185}.dfAdminFastLinks{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dfAdminFastLinks>a{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:9px;font-size:13px;font-weight:800}.dfAdminFastLinks>a:first-child{grid-column:1/-1}
 @media(max-width:360px){.dfAdminFastLinks>a{font-size:12px}.dfQuickFocusInfo{flex-wrap:wrap}}
+
+.dfReviewRequestButton{width:100%;min-height:49px!important;font-size:14px!important;line-height:1.4;justify-content:center;background:#153e61!important;color:#fff!important;border-radius:10px!important}
+.dfReviewRequestButton:disabled{opacity:.48;cursor:not-allowed}

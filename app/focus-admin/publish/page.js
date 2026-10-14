@@ -84,9 +84,40 @@ export default function Publish(){
   try{const{data:{user}}=await dfSupabase.auth.getUser();const{error}=await dfSupabase.rpc("df_publish_article",{p_article_id:x.article_id,p_actor:user.id});if(error)throw error;setPublishedArticle({id:x.article_id,title:x.df_articles?.title||"발행 기사"});setMsg("기사 발행 완료! 실제 도시맥 기사 링크에서 공개 상태를 확인하세요.");await load();}
   catch(e){setMsg(e.message)}finally{setBusy("")}
  }
+ async function requestReviewAndPublish(x){
+  if(busy)return;
+  setBusy(x.article_id+"reviewRequest");setMsg("");
+  try{
+   const {data:{user},error:authError}=await dfSupabase.auth.getUser();
+   if(authError||!user)throw new Error("실제 발행은 운영자 로그인 후 가능합니다.");
+   const {data:q,error:qError}=await dfSupabase.from("df_editorial_queue")
+    .select("article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,df_articles(id,title,status,risk_level)")
+    .eq("article_id",x.article_id).is("reviewed_at",null).maybeSingle();
+   if(qError)throw qError;
+   if(!q)throw new Error("검토 대상 기사가 없거나 이미 처리되었습니다.");
+   const a=q.df_articles||{};
+   if(["published","corrected"].includes(a.status))throw new Error("이미 공개된 기사입니다.");
+   const notReady=checks.filter(([field])=>q[field]!==true).map(([,label])=>label);
+   if(a.risk_level!=="green"||q.legal_check_status!=="passed"||notReady.length){
+    const reasons=[...(a.risk_level!=="green"?["위험등급 "+(a.risk_level||"미확인")]:[]),
+      ...(notReady.length?["미완료 검증: "+notReady.join("·")]:[]),
+      ...(q.legal_check_status!=="passed"?["법적 검토 미통과"]:[])];
+    setMsg("검토요청 접수 · 자동발행 보류: "+reasons.join(" / ")+". 근거자료를 확인하고 해당 항목을 승인해 주세요.");
+    return;
+   }
+   const {data:published,error:publishError}=await dfSupabase.rpc("df_publish_article",{p_article_id:q.article_id,p_actor:user.id});
+   if(publishError)throw publishError;
+   if(!published||!["published","corrected"].includes(published.status))throw new Error("발행 응답을 확인하지 못했습니다. 다시 조회하세요.");
+   const {data:live,error:verifyError}=await dfSupabase.from("df_articles").select("id,title,status,published_at").eq("id",q.article_id).in("status",["published","corrected"]).maybeSingle();
+   if(verifyError||!live){setMsg("발행 요청을 완료했습니다. 기사 공개 여부를 새로고침하여 확인하세요.");return;}
+   setPublishedArticle({id:live.id,title:live.title});
+   setMsg("자동발행 완료 · 실제 도시맥 기사에서 확인할 수 있습니다.");
+  }catch(e){setMsg("발행 보류: "+(e?.message||"알 수 없는 오류"))}
+  finally{await load();setBusy("")}
+ }
  function publish(x){setConfirmTask({title:"지금 기사 발행",body:"검증을 마친 기사가 즉시 공개됩니다.",label:"지금 발행",run:()=>doPublish(x)})}
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="기사 검토·발행" kicker="PUBLISH QUEUE"/>
- <section className="adminPanel"><div className="dfQuickPublishGuide"><b>한 번에 발행하기</b><span>원고 검토 → 사실·숫자·날짜·출처·중복 체크 → 최종 확인 → 발행</span><div><a href="/focus-admin/write">+ 새 기사 작성</a><a href="/focus/live">도시맥 공개 기사 보기 ↗</a></div></div><h2>기사 검증·발행</h2><p>각 항목은 실제 근거를 확인한 뒤 개별 승인합니다. RED는 발행 차단, YELLOW는 추가 확인이 필요합니다.</p>{publishedArticle&&<div className="dfQuickSaved" role="status"><b>✓ {publishedArticle.title}</b><span>발행 완료 · 도시맥에서 바로 읽을 수 있습니다.</span><a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">실제 발행 기사 확인 ↗</a><a href="/focus/live">최신 뉴스에서 확인 →</a></div>}{focusId&&<div className="dfQuickFocusInfo"><b>방금 작성한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 검토 대기열 보기</button></div>}
+ <section className="adminPanel"><div className="dfQuickPublishGuide"><b>검토요청 → 자동발행</b><span>검토요청을 누르면 기존 검증 결과를 즉시 확인하고, 전부 통과한 기사만 자동 발행합니다. 확인되지 않은 기사는 보류 사유를 알려드립니다.</span><div><a href="/focus-admin/write">+ 새 기사 작성</a><a href="/focus/live">도시맥 공개 기사 보기 ↗</a></div></div><h2>기사 검증·발행</h2><p>각 항목은 실제 근거를 확인한 뒤 개별 승인합니다. RED는 발행 차단, YELLOW는 추가 확인이 필요합니다.</p>{publishedArticle&&<div className="dfQuickSaved" role="status"><b>✓ {publishedArticle.title}</b><span>발행 완료 · 도시맥에서 바로 읽을 수 있습니다.</span><a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">실제 발행 기사 확인 ↗</a><a href="/focus/live">최신 뉴스에서 확인 →</a></div>}{focusId&&<div className="dfQuickFocusInfo"><b>방금 작성한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 검토 대기열 보기</button></div>}
  <div className="riskLegend"><span>GREEN · 발행검토 가능</span><span>YELLOW · 추가 확인</span><span>RED · 발행 차단</span></div>
  
  {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:(focusId?items.filter(x=>x.article_id===focusId):items).map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
@@ -97,7 +128,7 @@ export default function Publish(){
   <div className="dfCheckGrid">{checks.map(([field,label])=><button key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
   <div className="editorGate"><span>법적검토 · {legalStatus[x.legal_check_status]||x.legal_check_status}</span></div>
   {(x.source_text||x.ai_fact)&&<details className="dfReviewEvidence"><summary>근거자료 확인</summary>{x.source_text&&<><b>공식자료</b><pre>{x.source_text}</pre></>}{x.ai_fact&&<><b>FACT</b><pre>{x.ai_fact}</pre></>}</details>}
-  <div className="dfReviewActions"><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
+  <div className="dfReviewActions"><button type="button" className="adminPrimary dfReviewRequestButton" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"검증 확인 중…":"검토요청 · 통과 시 바로 발행"}</button><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
    {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}
    {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
    {passed&&!["published","corrected"].includes(a.status)&&<div className="dfScheduleBox"><input type="datetime-local" value={scheduleTimes[x.article_id]||""} onChange={e=>setScheduleTimes({...scheduleTimes,[x.article_id]:e.target.value})}/><button className="adminSecondary" disabled={busy!==""} onClick={()=>schedule(x)}>예약발행</button>{a.scheduled_at&&<button className="adminSecondary" disabled={busy!==""} onClick={()=>cancelSchedule(x)}>예약취소</button>}</div>}
