@@ -1,30 +1,30 @@
 "use client";
-import {useEffect,useState} from "react";
-import {usePathname} from "next/navigation";
+import{useEffect,useState}from"react";
+import{usePathname}from"next/navigation";
+import DFAdminGuestPreview from"../../components/df-admin-guest-preview";
 
-// Only the overview and the update control room expose a public, read-only guest preview.
-// Every other operational admin page still requires a valid admin session and RLS.
-const guestPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/blog-import","/focus-admin/login"]);
+// All management screens are available for visual testing without login.
+// Operational pages are never mounted for anonymous or unauthorized visitors.
+// Supabase RLS and privileged server routes retain their existing protections.
+const publicPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/blog-import","/focus-admin/login"]);
 export default function FocusAdminLayout({children}){
- const path=usePathname();
- const [status,setStatus]=useState(guestPages.has(path)?"ready":"checking");
- useEffect(()=>{
-  let alive=true;
-  if(guestPages.has(path)){setStatus("ready");return()=>{alive=false}};
-  setStatus("checking");
-  (async()=>{
-   // Anonymous live-update pages never initialize browser-auth/session storage.
-   const {dfSupabase}=await import("../../lib/df-browser");
+ const path=usePathname()||"/focus-admin";
+ const publicPage=publicPages.has(path);
+ const[auth,setAuth]=useState(publicPage?"public":"checking");
+ useEffect(()=>{let live=true;if(publicPage){setAuth("public");return()=>{live=false}}
+  setAuth("checking");
+  (async()=>{try{
+   const{dfSupabase}=await import("../../lib/df-browser");
    const{data:{user}}=await dfSupabase.auth.getUser();
-   if(!alive)return;
-   if(!user){location.replace("/focus-admin/login");return}
-   const{data,error}=await dfSupabase.from("df_admin_roles").select("role,is_active").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
-   if(!alive)return;
-   if(error||!data){location.replace("/focus-admin/login?denied=1");return}
-   setStatus("ready");
-  })();
-  return()=>{alive=false};
- },[path]);
- if(status!=="ready")return <main className="adminShell dfAdminUnified"><section className="dfAdminAuthState"><b>관리자 권한 확인 중</b><span>실제 자료 변경은 승인된 운영 계정만 가능합니다.</span></section></main>;
- return children;
+   if(!live)return;
+   if(!user){setAuth("guest");return}
+   const{data,error}=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
+   if(live)setAuth(!error&&data?"admin":"guest");
+  }catch{if(live)setAuth("guest")}})();
+  return()=>{live=false}
+ },[path,publicPage]);
+ if(publicPage)return children;
+ if(auth==="admin")return children;
+ if(auth==="guest")return <DFAdminGuestPreview path={path}/>;
+ return <main className="adminShell dfAdminUnified"><section className="dfAdminAuthState"><b>관리자 페이지 준비 중</b><span>로그인 없이 모든 메뉴를 검수할 수 있습니다.</span></section></main>;
 }
