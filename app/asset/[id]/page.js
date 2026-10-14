@@ -4,6 +4,7 @@ import{useParams}from"next/navigation";
 import{dfSupabase}from"../../../lib/df-browser";
 import{orderRegionalNews}from"../../../lib/df-radar-relevance";
 import DFParcelRadar from"../../../components/df-parcel-radar";
+import DFPropertyTransactionPulse from"../../../components/df-property-transaction-pulse";
 import{DFSubHeader,DFBottomNav}from"../../../components/df-shell";
 
 export default function Asset(){
@@ -21,9 +22,12 @@ export default function Asset(){
  useEffect(()=>{if(id)load()},[id]);
  async function toggle(){if(!item)return;const{error}=await dfSupabase.from("df_land_watchlists").update({is_active:!item.is_active}).eq("id",item.id);if(error)setMsg(error.message);else load()}
  async function markRead(alertId){await dfSupabase.from("df_land_alerts").update({status:"read"}).eq("id",alertId);load()}
+ async function changeWatch(field,enabled){if(!item)return;const{error}=await dfSupabase.from("df_land_watchlists").update({[field]:enabled}).eq("id",item.id);if(error)setMsg("추적 설정 변경에 실패했습니다.");else setItem({...item,[field]:enabled})}
  if(!item)return <main className="focusShell dfHigh"><DFSubHeader title="땅짚고" kicker="MY PROPERTY" back="/my/properties" right={null}/><div className="dfArticleState">{msg||"관심부동산을 불러오는 중입니다."}</div><DFBottomNav active="land"/></main>;
  return <main className="focusShell dfHigh"><DFSubHeader title="땅짚고" kicker="MY PROPERTY" back="/my/properties" right={null}/>
  <section className="dfLandResultHero"><small>{item.region_code||"REGION"} · {item.is_active?"TRACKING":"PAUSED"}</small><h1>{item.label||item.address_text}</h1><p>{item.address_text}</p><button className="adminSecondary" onClick={toggle}>{item.is_active?"관심 알림 대상 일시중지":"관심 알림 대상 다시 지정"}</button></section>
+ <section className="focusBlock dfPropertyAlertSettings"><div className="focusTitle"><div><small className="focusEyebrow">WATCH OPTIONS</small><h2>이 부동산 알림 설정</h2></div><a href="/alerts">알림함 →</a></div><label><span><b>필지와 일치하는 공식 고시 알림</b><small>공식 문서의 동일 PNU 또는 동·지번 언급만 알림 후보로 등록</small></span><input type="checkbox" checked={!!item.watch_official} onChange={e=>changeWatch("watch_official",e.target.checked)}/></label><label><span><b>같은 동 참고 소식도 보기</b><small>거리·사업구역 포함 여부가 확인되지 않은 동 단위 정보는 별도로 구분</small></span><input type="checkbox" disabled={!item.watch_official} checked={!!item.watch_dong_updates} onChange={e=>changeWatch("watch_dong_updates",e.target.checked)}/></label><p className="dfLandSource">등록 필지와 실제 개발사업 관계는 고시 원문·지형도면으로 다시 확인해야 합니다. 공식자료 알림은 매일 오전 점검하며, 거래 가격 자동 푸시는 준비 중입니다.</p></section>
+ <DFPropertyTransactionPulse watchlistId={item.id} address={item.address_text} pnu={item.parcel_key}/>
  <DFParcelRadar address={item.address_text} pnu={/^[0-9]{19}$/.test(item.parcel_key||"")?item.parcel_key:null} point={item.latitude!=null&&item.longitude!=null?{lat:item.latitude,lon:item.longitude}:null} profileId={item.profile_id}/>
  <section className="focusBlock"><div className="focusTitle"><div><small className="focusEyebrow">ALERTS</small><h2>변화 알림</h2></div><a href="/alerts">전체보기 →</a></div>{alerts.length?alerts.slice(0,5).map(x=><article className={"dfAlertCard "+x.status} key={x.id}><div><small>{new Date(x.created_at).toLocaleString("ko-KR")} · {x.status}</small><b>{x.title}</b></div>{x.article_id&&<a href={"/focus/article?id="+x.article_id} onClick={()=>markRead(x.id)}>기사보기 →</a>}</article>):<div className="focusEmpty"><b>아직 연결된 알림이 없습니다.</b><span>연결된 알림이 아직 없습니다. 자동 수집·대상 판정·발송 설정이 완료되어야 실제 변화 알림을 받을 수 있습니다.</span></div>}</section>
  <section className="focusBlock"><div className="focusTitle"><div><small className="focusEyebrow">REGIONAL SIGNAL</small><h2>{item.region_code||"지역"} 개발뉴스</h2><p className="dfLandSource">지역 기준 참고뉴스입니다. 기사 제목에 동명이 언급되어도 해당 필지의 개발 변경이나 주변 영향은 자동으로 확정하지 않습니다.</p></div></div>{news.length?orderRegionalNews(news,item.address_text).map(x=><a className="focusNews" href={"/focus/article?id="+x.id} key={x.id}><div><small>{x.category} · {x._placeMention.label}</small><h3>{x.title}</h3><p>{new Date(x.published_at).toLocaleDateString("ko-KR")}</p></div><span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>공개된 지역기사가 없습니다.</b></div>}</section>
