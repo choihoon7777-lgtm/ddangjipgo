@@ -5,7 +5,7 @@ const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSO
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
 const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
-const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/page/10109/67.do","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
+const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/page/10109/67.do","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
 const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
@@ -49,6 +49,23 @@ const parseDate=(s:string):string|null=>{
 };
 function discover(base:string,raw:string):Item[]{
  const out:Item[]=[],seen=new Set<string>();
+ // Daegu government newsroom: actual article URLs, dates and titles are
+ // present in date-labelled list items (not HTML table rows).
+ if(new URL(base).hostname==="info.daegu.go.kr"&&new URL(base).searchParams.get("mtnkey")==="todaylist"){
+  for(const li of raw.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)){
+   const block=li[0];
+   const a=block.match(/<a\b[^>]*href=["']([^"']*mtnkey=articleview[^"']*)["']/i);
+   const head=block.match(/<p\b[^>]*class=["'][^"']*\btitle\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/i);
+   const date=block.match(/<p\b[^>]*class=["'][^"']*\bdate\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/i);
+   if(!a||!head||!date)continue;
+   const title=text(head[1]),link=officialLink(base,a[1]),published=parseDate(text(date[1]));
+   if(!relevant(title)||title.length<9||title.length>190||!link||!published||seen.has(link))continue;
+   const intro=block.match(/<p\b[^>]*class=["'][^"']*\bcontext\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/i);
+   seen.add(link);out.push({title,link,published,snippet:intro?text(intro[1]).slice(0,1100):""});
+   if(out.length>=8)break;
+  }
+  return out;
+ }
  // Jeju's official government website supplies a JSON index and JSON detail
  // API; the HTML listing only contains Vue templates with no actual notices.
  if(new URL(base).hostname==="www.jeju.go.kr"&&new URL(base).pathname==="/tool/sido/api.jsp"){
@@ -352,7 +369,7 @@ async function runBatch(batch:number){
     items=items.slice(0,8);
    }
    // Valid official RSS with no matching development content is NOT a failed connection.
-   const validButFiltered=isValidatedNoRelevantBoard(current.url,current.raw)||
+   const validButFiltered=(new URL(current.url).hostname==="info.daegu.go.kr"&&/mtnkey=articleview/.test(current.raw)&&/class=["']date["']/.test(current.raw))||isValidatedNoRelevantBoard(current.url,current.raw)||
     (/<rss[\s>]/i.test(current.raw)&&/<item[\s>]/i.test(current.raw))||
     (source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고"))||
     (source.name==="대구광역시 고시·공고"&&current.raw.includes("fn_goLinkView(")&&current.raw.includes("00940170"))||

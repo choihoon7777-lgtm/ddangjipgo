@@ -3,3 +3,5 @@ test("Fallback boards are explicit vetted government endpoints",async()=>{const 
 test("Filtered official list cannot be mistaken for a source homepage or disable security",async()=>{const src=await read("../supabase/functions/df-public-update/index.ts");assert.match(src,/\.protocol==="https:"/);assert.match(src,/isValidatedNoRelevantBoard\(current.url,current.raw\)/);assert.match(src,/last_result:"failed"/);assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);});
 
 test("Official board preferred over homepage and failed board still retries original",async()=>{const s=await read("../supabase/functions/df-public-update/index.ts");assert.match(s,/const primary=source\.collector_kind==="local_auto"&&fallback\[source.name\]/);assert.match(s,/try\{current=await download\(alternate,11000\)\}/)});
+
+test("Daegu official newsroom uses dated true detail links instead of homepage menu",async()=>{const s=await read("../supabase/functions/df-public-update/index.ts");assert.match(s,/info\.daegu\.go\.kr\/newshome\/mtnmain\.php\?mtnkey=todaylist/);assert.match(s,/mtnkey=articleview/);assert.match(s,/head=block\.match/);assert.match(s,/date=block\.match/);});
