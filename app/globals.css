@@ -1056,3 +1056,15 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfNewsArticle .dfOfficialArticleText.dfEditorialProse{font-size:15px!important}
  .dfNewsArticle .dfEditorialOutline{padding:13px}
 }
+
+/* Guest experience: no forced sign-in or hidden personal features. */
+.dfGuestSkipBox{background:#f5f8fb;border:1px solid #dfebf4;padding:17px 16px;margin-bottom:22px;border-radius:13px}
+.dfGuestSkipBox>b{font-size:16px;font-weight:850;color:#183c5e;line-height:1.5}
+.dfGuestSkipBox p{font-size:12px;line-height:1.77;color:#536f86;margin:8px 0 17px;word-break:keep-all}
+.dfGuestSkipAction{display:flex;align-items:center;justify-content:center;min-height:49px;border-radius:9px;background:#173f66;color:white!important;font-size:14px;font-weight:850;text-decoration:none;line-height:1.6;padding:10px 14px;text-align:center}
+.dfGuestLoginOptional{display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:750;line-height:1.5;text-decoration:none;min-height:44px;padding:8px 11px;border:1px solid #d9e5ef;border-radius:9px;color:#395f7c;background:#fff;white-space:nowrap}
+.dfGuestNotice{background:#f1f6fa;color:#2a5877;font-size:12px;line-height:1.7;border:1px solid #dce8f1;border-left:3px solid #234d74;border-radius:9px;padding:12px 13px;margin:0 0 16px;word-break:keep-all}
+.dfAccountCard{align-items:center;gap:10px;flex-wrap:wrap}
+.dfAccountCard>div{min-width:0;flex:1}
+.dfAccountCard span{font-size:12px!important;line-height:1.75!important;word-break:keep-all}
+@media(max-width:390px){.dfGuestLoginOptional{min-width:0;white-space:normal}.dfGuestSkipBox{padding:15px 13px}}
