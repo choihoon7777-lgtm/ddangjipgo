@@ -19,11 +19,11 @@ export default function Login(){
     if(data.session){location.replace(safeNext());return}
     setMsg("가입 요청이 완료됐습니다. 이메일 확인이 필요한 경우 받은 메일의 링크를 누른 뒤 로그인하세요.");setMode("login");
    }
-  }catch(e){setMsg(e.message||"로그인 처리 중 오류가 발생했습니다.")}finally{setBusy(false)}
+  }catch(e){setMsg(e?.message==="Invalid login credentials"?"계정 정보가 일치하지 않습니다. 비밀번호를 확인하거나 로그인 없이 체험을 계속할 수 있습니다.":e.message||"로그인 처리 중 오류가 발생했습니다.")}finally{setBusy(false)}
  }
  return <main className="focusShell dfHigh"><DFSubHeader title="로그인" kicker="MY FOCUS" back="/my" right={null}/>
  <section className="dfMyHero"><small>PERSONAL FOCUS</small><h1>관심 부동산과 기사를<br/>내 계정에 저장합니다.</h1><p>땅짚고 관심부동산·알림·저장기사·최근 본 기사를 한 계정에서 관리합니다.</p></section>
- <section className="adminPanel formPanel">
+ <section className="adminPanel formPanel"><div className="dfGuestSkipBox"><b>로그인 없이 바로 체험할 수 있습니다.</b><p>관심부동산 등록·기사 저장·알림·관리자 화면 검수까지 로그인 없이 가능합니다. 체험 정보는 이 기기에만 보관됩니다.</p><a href={safeNext()} className="dfGuestSkipAction">로그인 없이 계속하기 →</a></div>
   <div className="dfLoginMode"><button className={mode==="login"?"on":""} onClick={()=>setMode("login")}>로그인</button><button className={mode==="signup"?"on":""} onClick={()=>setMode("signup")}>회원가입</button></div>
   <label>이메일<input type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
   <label>비밀번호<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==="login"?"current-password":"new-password"} placeholder="8자 이상"/></label>
