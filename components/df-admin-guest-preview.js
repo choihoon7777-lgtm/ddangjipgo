@@ -2,6 +2,7 @@
 import{useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav}from"./df-shell";
+import OfficialArticleText from "./df-official-article-text";
 
 const menu=[
  ["updates","신규자료 업데이트","전국 공식자료 수집·원문 보기"],
@@ -75,7 +76,7 @@ export default function DFAdminGuestPreview({path}){
    <label className="dfGuestAdminLabel">{slug==="ads"?"광고 안내문":slug==="notices"?"공지 내용":slug==="claims"?"정정 사유·원문 확인":"본문 또는 원문 자료"}<textarea rows={7} value={body} onChange={e=>setBody(e.target.value)} placeholder="검수할 내용을 직접 입력하세요"/></label>
    {slug==="ads"&&<label className="dfGuestAdminLabel">대상 지역<select value={region} onChange={e=>setRegion(e.target.value)}>{["전국","서울","경기","대전","부산","인천","세종"].map(x=><option key={x}>{x}</option>)}</select></label>}
    <button className="adminPrimary" disabled={!title.trim()||!body.trim()} onClick={confirmDemo}>체험용 미리보기 확인</button>
-   {showPreview&&<article className="dfGuestAdminDraftPreview"><small>미리보기 · 서버 미저장 · {region}</small><h2>{title}</h2><p>{body}</p>{source&&<small>입력한 근거: {source}</small>}</article>}
+   {showPreview&&<article className="dfGuestAdminDraftPreview"><small>미리보기 · 서버 미저장 · {region}</small><h2>{title}</h2><OfficialArticleText content={body}/>{source&&<small>입력한 근거: {source}</small>}</article>}
   </section>}
 
   {["publish","sources","media","claims","ads","ai-test"].includes(slug)&&demoRows[slug]&&slug!=="publish"&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>REVIEW FLOW</small><h2>처리 단계</h2></div></div><div className="dfGuestAdminSteps">{demoRows[slug].map((s,i)=><div key={i}><em>{i+1}</em><span>{s}</span></div>)}</div></section>}
