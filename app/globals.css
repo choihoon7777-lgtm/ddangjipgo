@@ -929,3 +929,40 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfAlertHow{margin-top:22px;padding:18px 15px;border-radius:12px;background:#f5f8fb}
 .dfAlertHow h2{font-size:15px;color:#1c3c5d}.dfAlertHow p{font-size:12px;line-height:1.8;color:#627b8f}
 .dfAlertHow a{font-size:12px;color:#225d87;font-weight:800;text-decoration:none}
+
+/* Login-free admin navigation / local-only testing */
+.dfAdminGuestMode{min-height:100vh;padding-bottom:120px}
+.dfGuestAdminBanner{background:linear-gradient(145deg,#f7f9fc,#f0f5fa)}
+.dfGuestAdminBanner>small{font-size:10px;letter-spacing:1.2px;color:#b57735;font-weight:900}
+.dfGuestAdminBanner h1{font-size:23px;line-height:1.4;color:#173a5b;letter-spacing:-.6px;margin:7px 0}
+.dfGuestAdminBanner>p{font-size:13px;line-height:1.75;color:#5c7790;margin:7px 0 14px;word-break:keep-all}
+.dfGuestAdminMessage{display:grid;gap:6px;padding:12px 13px;border-left:3px solid #b78346;background:#fff;border-radius:8px}
+.dfGuestAdminMessage b{font-size:12px;color:#73552e}
+.dfGuestAdminMessage span{font-size:11px;line-height:1.7;color:#647b90;word-break:keep-all}
+.dfGuestAdminLinkGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px 0}
+.dfGuestAdminLinkGrid a{display:flex;justify-content:space-between;align-items:center;gap:5px;border:1px solid #dde6ef;border-radius:9px;background:#f9fbfd;text-decoration:none;color:#2a4c6b;min-height:49px;padding:10px 11px;font-weight:800;font-size:12px;word-break:keep-all}
+.dfGuestAdminLinkGrid a.on{background:#163d63;color:#fff;border-color:#163d63}
+.dfGuestAdminLinkGrid a span{flex-shrink:0;font-size:18px}
+.dfGuestAdminLabel{display:grid;gap:8px;font-size:12px;font-weight:850;color:#35566e;margin:14px 0;line-height:1.5}
+.dfGuestAdminLabel input,.dfGuestAdminLabel textarea,.dfGuestAdminLabel select{width:100%;box-sizing:border-box;border:1px solid #dce5ed;background:#fff;color:#243e58;border-radius:9px;padding:12px;min-height:46px;font-size:14px;line-height:1.7;min-width:0}
+.dfGuestAdminLabel textarea{resize:vertical;min-height:145px}
+.dfGuestAdminArticles{display:grid;gap:10px;margin:13px 0 0}
+.dfGuestAdminArticles article{padding:13px;border:1px solid #e3eaf1;border-radius:10px;background:#fff;display:flex;flex-direction:column;gap:7px}
+.dfGuestAdminArticles article span{color:#72899b;font-size:11px}
+.dfGuestAdminArticles article b{color:#1a395a;font-size:14px;line-height:1.55;word-break:keep-all}
+.dfGuestAdminArticles article p{font-size:12px;color:#647c92;line-height:1.7;margin:0;white-space:pre-line}
+.dfGuestAdminArticles article a{font-size:12px;color:#1c5a85;font-weight:850;text-decoration:none;align-self:flex-start}
+.dfGuestAdminChecks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:17px 0}
+.dfGuestAdminChecks label{display:flex;align-items:center;gap:7px;padding:12px 9px;border:1px solid #dce7ee;border-radius:10px;color:#2d4a64;font-size:11px;min-height:44px}
+.dfGuestAdminChecks input{width:19px;height:19px;accent-color:#1c456f}
+.dfGuestAdminSampleTitle{font-size:15px;color:#1b3f61;line-height:1.6;margin:14px 0}
+.dfGuestAdminSteps{display:grid;gap:7px;margin:12px 0}
+.dfGuestAdminSteps>div{display:flex;gap:10px;align-items:center;border:1px solid #e8eef4;background:#fbfcfe;padding:10px 13px;border-radius:9px}
+.dfGuestAdminSteps em{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;color:#1e4b70;background:#e8f0f7;font-style:normal;font-size:12px;font-weight:900}
+.dfGuestAdminSteps span{color:#3d607b;font-size:12px}
+.dfGuestAdminDraftPreview{border:1px solid #e2e8ef;background:#fff;border-radius:13px;padding:18px;margin-top:18px}
+.dfGuestAdminDraftPreview>small{font-size:11px;color:#966e39;line-height:1.7}
+.dfGuestAdminDraftPreview h2{font-size:20px;line-height:1.4;color:#153857;margin:12px 0 15px;word-break:keep-all}
+.dfGuestAdminDraftPreview p{font-size:14px;color:#314d67;white-space:pre-wrap;line-height:1.92;word-break:keep-all}
+.dfGuestAdminNotice{padding:12px 15px;color:#2c5d78;background:#f0f6fa;font-size:12px;border-left:3px solid #225d83}
+@media(max-width:380px){.dfGuestAdminLinkGrid{gap:5px}.dfGuestAdminLinkGrid a{font-size:11px;padding:8px;min-height:45px}.dfGuestAdminChecks label{font-size:10px}}
