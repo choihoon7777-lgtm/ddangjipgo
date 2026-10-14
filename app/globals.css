@@ -1204,3 +1204,5 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 
 .dfReviewRequestButton{width:100%;min-height:49px!important;font-size:14px!important;line-height:1.4;justify-content:center;background:#153e61!important;color:#fff!important;border-radius:10px!important}
 .dfReviewRequestButton:disabled{opacity:.48;cursor:not-allowed}
+
+.dfAdminAutoOfficial{border:1px solid #dbe7ee;background:linear-gradient(145deg,#f7fafc,#ffffff);border-radius:15px}.dfAdminAutoOfficial h2{font-size:21px;color:#173e5d;margin:5px 0 9px}.dfAdminAutoOfficial small{color:#b67a3c;font-size:11px;letter-spacing:1px;font-weight:850}.dfAdminAutoOfficial p{color:#607589;font-size:13px;line-height:1.7;margin:0 0 15px}.dfAdminAutoOfficial .dfAdminFastLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dfAdminAutoOfficial .dfAdminFastLinks a{min-width:0;text-align:center}.dfAdminAutoOfficial .dfAdminFastLinks a:first-child{grid-column:1/-1}

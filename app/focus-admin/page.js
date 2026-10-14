@@ -10,7 +10,7 @@ const groups=[
   ["공식자료 직접 수집","공식 URL 등록 및 기사화를 관리합니다.","/focus-admin/sources"],
   ["AI 기사작성","공식자료를 FACT → 기자 → 데스크 → 검증 순서로 기사화합니다.","/focus-admin/ai-test"],
   ["직접 기사 작성","직접 기사 초안을 작성하고 검증 대기열로 보냅니다.","/focus-admin/write"],
-  ["검토·발행","사실·숫자·날짜·출처·중복·법적위험을 확인하고 발행합니다.","/focus-admin/publish"]
+  ["해석 기사 검토·발행","공식자료 자동 게시와 별도입니다. 기사 해석·원고는 검증 후 발행합니다.","/focus-admin/publish"]
  ]},
  {kicker:"CONTENT",title:"콘텐츠 운영",items:[
   ["공지 관리","공지 작성·예약·고정·종료를 관리합니다.","/focus-admin/notices"],
@@ -47,6 +47,7 @@ export default function Admin(){
    <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
   </section>}
 
+  <section className="adminPanel dfAdminAutoOfficial"><div><small>OFFICIAL AUTO POST</small><h2>공식자료는 자동 게시 중</h2><p>정부·지자체 공식 고시·공고·보도자료는 수집 뒤 자동 공개됩니다. 별도 검토요청이나 발행 허락이 필요하지 않습니다. 원문이 누락되거나 수집에 실패한 자료는 오류로 구분합니다.</p></div><div className="dfAdminFastLinks"><a className="adminPrimary" href="/focus/policy">자동 게시 자료 확인 →</a><a className="adminSecondary" href="/focus-admin/updates">수집 현황 보기</a><a className="adminSecondary" href="/focus-admin/publish">기사 검토 대기열</a></div></section>
   <section className="adminPanel dfAdminFastPublish"><div><small>QUICK PUBLISH</small><h2>기사를 빠르게 발행하세요</h2><p>기사 작성부터 검토·발행, 도시맥 실제 노출 확인까지 바로 이동합니다.</p></div><div className="dfAdminFastLinks"><a className="adminPrimary" href="/focus-admin/write">+ 새 기사 작성</a><a className="adminSecondary" href="/focus-admin/publish">검토·발행</a><a className="adminSecondary" href="/focus/live">발행 기사 확인 ↗</a></div><small>{guest?"비로그인에서는 작성·발행을 체험할 수 있으며 실제 저장·발행은 관리자 로그인이 필요합니다.":"검증된 공식 출처와 최종 승인을 통과한 원고만 공개합니다."}</small></section>
   {!guest&&<section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>}
 
