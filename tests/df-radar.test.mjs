@@ -104,3 +104,28 @@ test('official policy documents are grouped by metadata and trusted government p
  assert.equal(REGION_NAMES.length,18);
  assert.ok(OFFICIAL_CHANNELS.includes('보도자료'));
 });
+
+import {sourceHealth,failureKind,healthMessage} from '../lib/df-source-health.js';
+
+test('official collection dashboard distinguishes Cron execution from source errors',()=>{
+ const clock=Date.parse('2026-10-14T01:40:00Z');
+ const sources=[
+  {name:'대전 자동수집',region_code:'대전',collector_enabled:true,last_result:'success',last_attempt_at:'2026-10-14T01:30:00Z'},
+  {name:'대전 고시공고',region_code:'대전',collector_enabled:true,last_result:'failed',last_error:'목록에서 유효한 상세 링크를 찾지 못했습니다.',last_attempt_at:'2026-10-14T01:20:00Z'},
+  {name:'서울 자동수집',region_code:'서울',collector_enabled:true,last_result:'success',last_attempt_at:'2026-10-14T01:20:00Z'},
+  {name:'테스트 제외',region_code:'대전',collector_enabled:false,last_result:'success'}
+ ];
+ const daejeon=sourceHealth(sources,'대전',clock);
+ assert.equal(daejeon.total,2);
+ assert.equal(daejeon.success,1);
+ assert.equal(daejeon.failed,1);
+ assert.equal(daejeon.status,'partial');
+ assert.match(healthMessage(daejeon),/수집 오류/);
+ assert.equal(daejeon.errors[0].kind,'DETAIL_LINK_NOT_FOUND');
+ assert.equal(sourceHealth(sources,'전국',clock).total,3);
+ assert.equal(sourceHealth(sources,'부산',clock).status,'no-source');
+ assert.equal(sourceHealth(sources,'서울',clock+3*60*60*1000).status,'stale');
+ assert.equal(failureKind('invalid peer certificate: UnknownIssuer'),'TLS_CERTIFICATE');
+ assert.equal(failureKind('Connection reset by peer'),'NETWORK_ERROR');
+ assert.equal(failureKind('REDIRECT_LIMIT'),'REDIRECT_ERROR');
+});
