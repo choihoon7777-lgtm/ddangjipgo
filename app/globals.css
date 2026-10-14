@@ -1206,3 +1206,10 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfReviewRequestButton:disabled{opacity:.48;cursor:not-allowed}
 
 .dfAdminAutoOfficial{border:1px solid #dbe7ee;background:linear-gradient(145deg,#f7fafc,#ffffff);border-radius:15px}.dfAdminAutoOfficial h2{font-size:21px;color:#173e5d;margin:5px 0 9px}.dfAdminAutoOfficial small{color:#b67a3c;font-size:11px;letter-spacing:1px;font-weight:850}.dfAdminAutoOfficial p{color:#607589;font-size:13px;line-height:1.7;margin:0 0 15px}.dfAdminAutoOfficial .dfAdminFastLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dfAdminAutoOfficial .dfAdminFastLinks a{min-width:0;text-align:center}.dfAdminAutoOfficial .dfAdminFastLinks a:first-child{grid-column:1/-1}
+
+/* Simplified policy detail: title, date, core facts and discreet original link. */
+.dfPolicyDetail .dfPolicySummaryCard{margin-bottom:8px}
+.dfPolicyDetail .dfPolicyKeyBox{margin-bottom:0}
+.dfPolicyDetail .dfPolicyKeyHead{justify-content:flex-start}
+.dfPolicyDetail .dfPolicySimpleOriginal{display:flex;justify-content:flex-end;padding:13px 4px 28px}
+.dfPolicyDetail .dfPolicySimpleOriginal a{display:inline-flex;align-items:center;min-height:44px;padding:10px 8px;font-size:13px;font-weight:750;color:#426582;text-decoration:underline;text-underline-offset:3px}

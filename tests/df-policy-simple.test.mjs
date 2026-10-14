@@ -1,0 +1,4 @@
+import test from"node:test";import assert from"node:assert/strict";import{readFile}from"node:fs/promises";
+const read=p=>readFile(new URL(p,import.meta.url),"utf8");
+test("Policy detail displays only concise core content and unobtrusive original reference",async()=>{const s=await read("../app/focus/policy/page.js");assert.match(s,/핵심 내용/);assert.match(s,/dfPolicyKeySentences/);assert.match(s,/dfPolicySimpleOriginal/);assert.doesNotMatch(s,/dfPolicyFullReader|dfPolicyFacts|dfPolicyAttachments|dfPolicySource|OfficialArticleText/);assert.doesNotMatch(s,/detail\.source_name/);assert.doesNotMatch(s,/x\.source_name/)});
+test("Original link remains available without source card",async()=>{const s=await read("../app/focus/policy/page.js");assert.match(s,/detail\.source_url&&<div className="dfPolicySimpleOriginal">/);assert.match(s,/target="_blank" rel="noopener noreferrer"/);});

@@ -2,7 +2,6 @@
 import{useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav}from"../../../components/df-shell";
-import OfficialArticleText from "../../../components/df-official-article-text";
 
 const channels=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topics=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자","기타"];
@@ -40,22 +39,15 @@ export default function Policy(){
   <article className="dfPolicyDetail">
    <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
    <section className="dfPolicySummaryCard">
-    <div className="dfPolicyMeta"><span>{detail.channel==="고시공고"?"고시·공고":detail.channel==="조례규칙"?"조례·규칙":detail.channel||"공식자료"}</span><em>{detail.source_name||"공식기관"}</em>{detail.version_count>1&&<b>원문 변경</b>}</div>
+    <div className="dfPolicyMeta"><span>{detail.channel==="고시공고"?"고시·공고":detail.channel==="조례규칙"?"조례·규칙":detail.channel||"공식자료"}</span>{detail.version_count>1&&<b>내용 변경</b>}</div>
     <h1>{detail.title}</h1>
     <p className="dfPolicyDate">{dateKey(detail.published_at||detail.fetched_at)}</p>
     <div className="dfPolicyKeyBox">
-     <div className="dfPolicyKeyHead"><span>핵심 내용</span><b>{detail.key_extract_status==="ready"?(detail.detail_status==="complete"?"공식 문서 발췌":"공식자료 확인 · 핵심 정리"):"원문 확인 필요"}</b></div>
+     <div className="dfPolicyKeyHead"><span>핵심 내용</span></div>
      <div className="dfPolicyKeySentences">{detail.key_extract_status==="ready"&&detail.key_content?String(detail.key_content).split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>):<p>개별 공식 본문이 아직 확보되지 않았습니다. 목록 정보만으로 변경 내용을 판단하지 않습니다.</p>}</div>
     </div>
    </section>
-   {detail.key_facts&&Object.keys(detail.key_facts).length>0&&<section className="dfPolicyFacts dfPolicyBlock"><div className="dfPolicySectionHead"><small>주요 정보</small><span>공식 문서 기준</span></div><div>{Object.entries(detail.key_facts).filter(([k,v])=>k!=="첨부"&&v!==null&&String(v).trim()).map(([k,v])=><p key={k}><b>{k}</b><span>{String(v)}</span></p>)}</div></section>}
-   {detail.detail_status!=="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock dfPolicyFullReader"><div className="dfPolicySectionHead"><small>확인된 공식자료 내용</small><span>첨부·원문 추가 확인 필요</span></div><p className="dfPolicyReaderCaution">현재 확보된 공식 문서 내용을 생략 없이 표시합니다. 별도 첨부파일이나 상세 문서 내용은 아직 모두 검증되지 않았을 수 있습니다.</p><OfficialArticleText content={detail.content_text} partial kind="official"/></section>}
-   {detail.detail_status==="complete"&&detail.content_text&&<section className="dfPolicyBody dfPolicyBlock dfPolicyFullReader"><div className="dfPolicySectionHead"><small>공식 문서 내용</small><span>확보된 본문 전체</span></div><OfficialArticleText content={detail.content_text} kind="official"/></section>}
-   {!!detail.attachments?.length&&<section className="dfPolicyAttachments dfPolicyBlock"><div className="dfPolicySectionHead"><small>첨부파일</small><span>{detail.attachments.length}개</span></div><div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div></section>}
-   <footer className="dfPolicySource">
-    <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><span>{detail.detail_status==="complete"?"공식 문서의 주요 내용을 발췌했습니다. 도면 등 상세 자료는 공식 사이트에서 확인하세요.":"공식 기관의 공개 자료를 확인해 핵심 내용을 정리했습니다. 첨부 문서 전문과 도면은 아직 추출·대조되지 않았습니다."}</span></div>
-    {detail.source_url&&<a href={detail.source_url} target="_blank" rel="noopener noreferrer">공식 원문 보기 ↗</a>}
-   </footer>
+   {detail.source_url&&<div className="dfPolicySimpleOriginal"><a href={detail.source_url} target="_blank" rel="noopener noreferrer">원문 보기 ↗</a></div>}
   </article><DFBottomNav active="policy"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
   <section className="dfPolicyHero"><small>공식자료 · 자동 게시</small><h1>정책·고시</h1><p>정부·지자체 공식자료는 별도 편집 승인 없이 수집 후 자동 공개됩니다. 원문과 확인된 내용을 함께 제공합니다.</p><div><b>공식자료 자동 게시</b><span>수집된 문서를 직접 보여주며, AI 해석 기사는 별도 검증 후 발행합니다.</span></div></section>
@@ -63,6 +55,6 @@ export default function Policy(){
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">공식 상세 본문 미확보 · 원문 확인 필요</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>공식자료 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
+  <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow" href={"/focus/policy?id="+x.id} key={x.id}><div className="dfPolicyRowMeta"><span>{x.channel==="고시공고"?"고시·공고":x.channel==="조례규칙"?"조례·규칙":x.channel||"공식자료"}</span>{x.changed&&<b>변경</b>}</div><h3>{x.title}</h3>{x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">공식 상세 본문 미확보 · 원문 확인 필요</div>}<div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>공식자료 보기</span></div><strong>›</strong></a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}</section>
   <DFBottomNav active="policy"/></main>
 }
