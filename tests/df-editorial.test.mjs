@@ -14,11 +14,11 @@ test("Official headings and bullets display as structured paragraphs without dro
 });
 
 test("No excerpt cap: all 28k+ characters survive formatting",()=>{
- const long=Array.from({length:700},(_,i)=>"2026년 사업계획 세부항목 "+(i+1)+"번은 공식 검증된 조항이다.").join("\n\n");
+ const long=Array.from({length:1000},(_,i)=>"2026년 사업계획 세부항목 "+(i+1)+"번은 공식 검증된 조항이다.").join("\n\n");
  assert.ok(long.length>28000);
  const blocks=parseEditorialBody(long);
  assert.equal(blocks.map(x=>x.text).join("\n\n"),long);
- assert.match(blocks.at(-1).text,/700번/);
+ assert.match(blocks.at(-1).text,/1000번/);
 });
 
 test("Deduplicate only exact substantial paragraphs and preserve other passages",()=>{
@@ -29,7 +29,7 @@ test("Deduplicate only exact substantial paragraphs and preserve other passages"
 });
 
 test("Whitespace or legal-number differences cannot be treated as duplicate paragraphs",()=>{
- const a="사업 기간 및 인가일은 2026년 10월 14일을 기준으로 확정하지 않았으며 관계기관 협의 뒤 별도로 고시한다. 공식자료에 없는 개발호재나 지가 상승 전망은 임의로 추가하지 않는다.";
+ const a="사업 기간 및 인가일은 2026년 10월 14일을 기준으로 확정하지 않았으며 관계기관 협의 뒤 별도로 고시한다. 공식자료에 없는 개발호재나 지가 상승 전망은 임의로 추가하지 않는다. 해당 내용은 최종 변경고시 원문과 대조하여 확인해야 한다.";
  const b=a.replace("관계기관 협의","관계 기관 협의");
  const c=a.replace("2026년 10월 14일","2026년 10월 15일");
  const blocks=parseEditorialBody([a,b,c,a].join("\n\n"));
