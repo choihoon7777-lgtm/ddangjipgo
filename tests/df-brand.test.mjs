@@ -41,3 +41,15 @@ test("Branding uses preview deployment URL for its preview OG images",async()=>{
  }
  const shell=await txt("../components/df-shell.js");assert.match(shell,/dfCitySubMark/);
 });
+
+test("Wordmark gold 맥 remains exactly the same font size as 도시",async()=>{
+ const css=await txt("../app/globals.css");
+ assert.match(css,/header span\{font-size:10px/);
+ const rule=css.match(/\.focusHeaderWrap \.dfCityWordmark>span\{([^}]*)\}/)?.[1]||"";
+ for(const declaration of [
+  "font-size:inherit!important","font-weight:inherit!important","line-height:inherit!important",
+  "letter-spacing:inherit!important","font-family:inherit!important","color:#b97f40!important"
+ ])assert.ok(rule.includes(declaration),declaration);
+ const shell=await txt("../components/df-shell.js");
+ assert.match(shell,/dfCityWordmark">도시<span>맥<\/span><\/span>/);
+});

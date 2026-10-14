@@ -1172,7 +1172,7 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .focusHeaderWrap .dfCityBrand{display:flex!important;align-items:center!important;gap:8px!important;overflow:visible!important;flex:0 1 auto!important;min-width:0;text-decoration:none}
 .focusHeaderWrap .dfCityMark{display:block!important;width:36px!important;height:36px!important;max-width:none!important;object-fit:contain;flex-shrink:0;border-radius:9px}
 .focusHeaderWrap .dfCityWordmark{display:block;color:#143551!important;line-height:1.1;font-size:27px;font-weight:900;letter-spacing:-1.3px;white-space:nowrap}
-.focusHeaderWrap .dfCityWordmark>span{color:#b97f40!important}
+.focusHeaderWrap .dfCityWordmark>span{color:#b97f40!important;font-size:inherit!important;font-weight:inherit!important;line-height:inherit!important;letter-spacing:inherit!important;font-family:inherit!important;vertical-align:baseline!important}
 .dfPremiumHome .dfPremiumEdition{color:#1a405d;font-size:11px;font-weight:850;letter-spacing:1px}
 .dfPremiumCover .dfHomeLeadVisual{min-height:126px!important;background:#123455 url("/dosimaek-skyline.svg") center center/cover no-repeat!important}
 .dfPremiumCover .dfHomeLeadVisual:after{opacity:.25}
