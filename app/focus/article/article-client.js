@@ -3,6 +3,7 @@ import{Suspense,useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
 import OfficialArticleText from "../../../components/df-official-article-text";
+import{safeOriginalUrl}from"../../../lib/df-editorial-format";
 
 function normalizeBody(body){
  if(Array.isArray(body))return body.map(x=>typeof x==="string"?x:(x?.text||"")).filter(Boolean).join("\n\n");
@@ -55,7 +56,9 @@ function ArticleInner(){
  if(loading)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>;
  if(!a)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState"><b>공개된 기사를 찾을 수 없습니다.</b><a href="/focus">메인으로 돌아가기 →</a></div></main>;
  const summaries=Array.isArray(a.summary_3line)?a.summary_3line.filter(Boolean):[];
- const isBlog=a.source_channel==="investgo"&&!!a.original_source_url;
+ const isBlog=a.source_channel==="investgo";
+ const officialOriginal=safeOriginalUrl(a.original_source_url);
+ const hasSameSource=sources.some(x=>x.source_url===officialOriginal);
  const modified=!isBlog&&a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
  return <main className="focusShell dfHigh">
   <DFBrandHeader/>
@@ -69,13 +72,13 @@ function ArticleInner(){
    {isBlog&&<p className="dfInsightDateNotice">본문의 통계·일정·시세는 작성 당시 기준입니다.</p>}
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
-   {summaries.length>0&&<section className="dfKeySummary"><small>KEY POINTS</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
+   {summaries.length>0&&<section className="dfKeySummary"><small>기사 핵심</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
    {isBlog&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(a.hero_image_url||"")&&<figure className="dfInvestgoArticleFigure"><img className="dfInvestgoArticleImage" src={a.hero_image_url} alt={a.title+" 관련 이미지"} decoding="async" loading="eager" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>기사 관련 이미지</figcaption></figure>}
-   {!isBlog&&body?<section className="dfOfficialNewsFullText"><h2>기사 본문</h2><OfficialArticleText content={body}/></section>:<div className="dfStoryBody">{body||"기사 본문이 준비되지 않았습니다."}</div>}
+   {body?<section className="dfOfficialNewsFullText dfUnifiedArticleText"><h2>{isBlog?"전문 분석":"기사 본문"}</h2><OfficialArticleText content={body} kind={isBlog?"insight":"article"}/></section>:<p className="dfOfficialEmpty">기사 본문이 준비되지 않았습니다.</p>}
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
    <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"도시개발·부동산 시장을 해석하는 전문 인사이트입니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
-   {sources.length>0&&<section className="dfPublicSources"><small>ORIGINAL DOCUMENT</small><h2>공식 원문 보기</h2>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}</section>}
+   {(sources.length>0||officialOriginal)&&<section className="dfPublicSources"><small>ORIGINAL SOURCES</small><h2>원문·출처 확인</h2><p className="dfEditorialSourceIntro">{isBlog?"작성 당시 원문과 자료를 확인할 수 있습니다.":"기사에 사용한 공식자료의 원문을 확인할 수 있습니다."}</p>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noopener noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}{officialOriginal&&!hasSameSource&&<a href={officialOriginal} target="_blank" rel="noopener noreferrer"><div><b>{isBlog?"투자GO 원문":"원본 발표 자료"}</b><span>{isBlog?"원래 게시물 보기":"원문 보기"}</span></div><strong>↗</strong></a>}</section>}
   </article><DFBottomNav active="news"/>
  </main>
 }
