@@ -2,12 +2,11 @@
 import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
 const categories=["최신뉴스","개발사업","개발정책","분양·청약","금융","인사이트"];
-const regions=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
 const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":x==="개발정책"?"/focus/policy":x==="분양·청약"?"/focus/housing":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
- const[regionOpen,setRegionOpen]=useState(false),[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false);
- useEffect(()=>{let live=true;setRoute(location.pathname+location.search);const close=e=>{if(e.key==="Escape"){setRegionOpen(false);setMenuOpen(false)}};window.addEventListener("keydown",close);(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(!live||!user)return;const{data}=await dfSupabase.from("df_admin_roles").select("profile_id").eq("profile_id",user.id).eq("is_active",true).maybeSingle();if(live)setIsAdmin(!!data)})();return()=>{live=false;window.removeEventListener("keydown",close)}},[]);
+ const[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false),[unread,setUnread]=useState(0);
+ useEffect(()=>{let live=true;setRoute(location.pathname+location.search);const close=e=>{if(e.key==="Escape")setMenuOpen(false)};window.addEventListener("keydown",close);(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(!live||!user)return;const[role,alerts]=await Promise.all([dfSupabase.from("df_admin_roles").select("profile_id").eq("profile_id",user.id).eq("is_active",true).maybeSingle(),dfSupabase.from("df_land_alerts").select("id",{count:"exact",head:true}).in("status",["pending","sent"])]);if(live){setIsAdmin(!!role.data);setUnread(alerts.count||0)}})();return()=>{live=false;window.removeEventListener("keydown",close)}},[]);
  const currentPath=route.split("?")[0]||"";
  const params=new URLSearchParams(route.includes("?")?route.slice(route.indexOf("?")+1):"");
  const currentCategory=params.get("category");
@@ -24,12 +23,11 @@ export function DFBrandHeader(){
   <header className="focusHeader">
    <a className="focusBrand" href="/focus" aria-label="개발포커스 홈"><img className="focusBrandLogo" src="/development-focus-logo.jpg" alt="개발포커스 DEVELOPMENT FOCUS"/></a>
    <div className="focusTools">
-    <button type="button" className={"focusTool focusRegionTrigger "+(regionOpen?"on":"")} aria-expanded={regionOpen} aria-controls="focus-region-menu" onClick={()=>{setRegionOpen(v=>!v);setMenuOpen(false)}}>전국 <span>⌄</span></button>
+    <a className="focusTool focusToolIcon dfHeaderBell" href="/alerts" aria-label={"내 부동산 알림"+(unread?" 읽지 않은 알림 "+unread+"건":"")} title="내 부동산 알림"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>{unread>0&&<span className="dfHeaderBellCount">{unread>99?"99+":unread}</span>}</a>
     <a className="focusTool focusToolIcon" href="/focus/search" aria-label="통합검색"><span className="focusSearchGlyph">⌕</span></a>
-    <button type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="메뉴" onClick={()=>{setMenuOpen(v=>!v);setRegionOpen(false)}}><span className="focusMenuGlyph">☰</span></button>
+    <button type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="메뉴" onClick={()=>setMenuOpen(v=>!v)}><span className="focusMenuGlyph">☰</span></button>
    </div>
   </header>
-  {regionOpen&&<div className="focusHeaderPopover focusRegionMenu" id="focus-region-menu"><div className="focusPopoverHead"><b>지역 FOCUS</b><a href="/focus/region">전국보기 →</a></div><div className="focusRegionMenuGrid">{["전국",...regions].map(x=><a key={x} href={x==="전국"?"/focus/region":"/focus/region?name="+encodeURIComponent(x)} onClick={()=>setRegionOpen(false)}>{x}</a>)}</div></div>}
   {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
   <nav className="focusTabs" aria-label="개발포커스 주요 메뉴"><a className={activeFor("홈")?"active":""} href="/focus">홈</a>{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
  </div>
