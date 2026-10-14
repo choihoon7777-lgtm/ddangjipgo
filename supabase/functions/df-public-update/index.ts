@@ -5,7 +5,7 @@ const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSO
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
 const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
-const fallback={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"};
+const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/bbs/R0071/list.do","경상북도 자동수집":"https://www.gb.go.kr/page/10109/67.do","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
 const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
@@ -159,6 +159,23 @@ function discover(base:string,raw:string):Item[]{
  }
  return out;
 }
+// Distinguish a working dated official notice board with no relevant entries
+// from a transport/HTML parser failure. Never treat the government home page
+// alone as evidence of a successful notice feed.
+function isValidatedNoRelevantBoard(base:string,html:string){
+ let datedDetails=0;
+ for(const match of html.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi)){
+  const row=match[0];
+  if(!/20\d{2}[.\/-]\s*\d{1,2}[.\/-]\s*\d{1,2}/.test(row))continue;
+  const anchors=[...row.matchAll(/<a\b[^>]*href=["']([^"']+)["']/gi)];
+  if(anchors.some(a=>{
+   const url=officialLink(base,a[1]);
+   return !!url&&/(?:\/view|\/board|\/bbs|gosi|pblanc|page\.do|list\.ulsan)/i.test(new URL(url).pathname);
+  }))datedDetails++;
+  if(datedDetails>=2)return true;
+ }
+ return false;
+}
 function channelUrls(base:string,html:string){
  const links:string[]=[],seen=new Set<string>();
  for(const match of html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)){
@@ -303,7 +320,17 @@ async function runBatch(batch:number){
     const fb=fallback[source.name as keyof typeof fallback];if(!fb)throw e;
     current=await download(fb,11000);
    }
+   // Prefer a verified official board to the site homepage on auto-discovery
+   // sources. A homepage may be healthy yet contain no document detail links.
    let items=discover(current.url,current.raw);
+   const board=fallback[source.name]||"";
+   if(!items.length&&board&&source.collector_kind==="local_auto"&&current.url!==board){
+    try{
+     const page=await download(board,11000);
+     current=page;
+     items=discover(page.url,page.raw);
+    }catch{/* Keep original evidence and report failure if no valid list exists. */}
+   }
    if(!items.length&&fallback[source.name as keyof typeof fallback]){
     const other=await download(fallback[source.name as keyof typeof fallback],11000);
     items=discover(other.url,other.raw);
@@ -321,7 +348,7 @@ async function runBatch(batch:number){
     items=items.slice(0,8);
    }
    // Valid official RSS with no matching development content is NOT a failed connection.
-   const validButFiltered=
+   const validButFiltered=isValidatedNoRelevantBoard(current.url,current.raw)||
     (/<rss[\s>]/i.test(current.raw)&&/<item[\s>]/i.test(current.raw))||
     (source.name==="경기도 자동수집"&&current.raw.includes("bsIdx=469")&&current.raw.includes("고시공고"))||
     (source.name==="대구광역시 고시·공고"&&current.raw.includes("fn_goLinkView(")&&current.raw.includes("00940170"))||
