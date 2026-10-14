@@ -30,7 +30,7 @@ export default function OfficialArticleText({content,partial=false,kind="article
  const outline=getEditorialOutline(sections);
  if(!sections.length)return <p className="dfOfficialEmpty">공개할 문서 본문이 아직 확보되지 않았습니다.</p>;
  return <div className={"dfOfficialArticleText dfEditorialProse dfEditorial-"+kind} aria-label={partial?"공식자료에서 확보한 본문":"기사 본문 전체"}>
-  {outline.length>0&&<details className="dfEditorialOutline" open={outline.length<=5}><summary>이 글의 주요 내용<span>{outline.length}개 목차 <span aria-hidden="true">⌄</span></span></summary><nav aria-label={kind==="official"?"공식자료 차례":"기사 차례"}>{outline.map(x=><a key={x.index} href={"#df-article-section-"+x.index}>{x.text}<span aria-hidden="true">↘</span></a>)}</nav></details>}
+  {outline.length>0&&<details className="dfEditorialOutline" open={outline.length<=5}><summary>이 글의 주요 내용<span>{outline.length}개 목차 <span aria-hidden="true">⌄</span></span></summary><div className="dfEditorialOutlineLinks" role="navigation" aria-label={kind==="official"?"공식자료 차례":"기사 차례"}>{outline.map(x=><a key={x.index} href={"#df-article-section-"+x.index}>{x.text}<span aria-hidden="true">↘</span></a>)}</div></details>}
   {sections.map((b,i)=>{
    if(b.kind==="heading")return <h3 className="dfEditorialHeading" id={"df-article-section-"+i} key={i}>{b.text}</h3>;
    if(b.kind==="list")return <ul className="dfEditorialList" key={i}>{b.items.map((x,j)=><li key={j}>{x}</li>)}</ul>;

@@ -50,3 +50,11 @@ test("Source links accept HTTPS only",()=>{
  assert.equal(safeOriginalUrl("http://notsecure.example.com"),null);
  assert.equal(safeOriginalUrl("https://www.molit.go.kr/abc"),"https://www.molit.go.kr/abc");
 });
+
+test("Article table-of-contents navigation cannot inherit the global fixed bottom nav",async()=>{
+ const component=await readFile(new URL("../components/df-official-article-text.js",import.meta.url),"utf8");
+ const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
+ assert.match(component,/className="dfEditorialOutlineLinks" role="navigation"/);
+ assert.doesNotMatch(component,/<nav\b/);
+ assert.match(css,/\.dfEditorialOutline>\.dfEditorialOutlineLinks\{/);
+});
