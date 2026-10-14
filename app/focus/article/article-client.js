@@ -4,6 +4,7 @@ import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
 import OfficialArticleText from "../../../components/df-official-article-text";
 import{safeOriginalUrl}from"../../../lib/df-editorial-format";
+import{guestIsSaved,guestToggleSaved,guestRecordRecent}from"../../../lib/df-guest-trial";
 
 function normalizeBody(body){
  if(Array.isArray(body))return body.map(x=>typeof x==="string"?x:(x?.text||"")).filter(Boolean).join("\n\n");
@@ -26,12 +27,14 @@ function ArticleInner(){
       await dfSupabase.rpc("df_record_recent_article",{p_article_id:id});
       const{data:s}=await dfSupabase.from("df_saved_articles").select("article_id").eq("profile_id",u.id).eq("article_id",id).maybeSingle();
       setSaved(!!s);
+    }else{
+      try{guestRecordRecent(data);setSaved(guestIsSaved(id))}catch(e){setSaveMsg("체험 저장기록을 사용할 수 없습니다. 기기 저장소 설정을 확인하세요.")}
     }
    }
  })()},[]);
  async function toggleSave(){
   if(!a||saveBusy)return;
-  if(!user){location.href="/login?next="+encodeURIComponent(location.pathname+location.search);return}
+  if(!user){try{const isSaved=guestToggleSaved(a);setSaved(isSaved);setSaveMsg(isSaved?"이 기기에 기사를 저장했습니다.":"이 기기의 저장을 해제했습니다.")}catch(e){setSaveMsg(e.message||"체험 기기 저장에 실패했습니다.")}return}
   setSaveBusy(true);setSaveMsg("");
   try{
    if(saved){
