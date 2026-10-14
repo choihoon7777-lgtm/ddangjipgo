@@ -1118,12 +1118,6 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfPremiumDirectoryGrid>a>b{font-size:14px;line-height:1.45;color:#1c405b}
 .dfPremiumDirectoryGrid>a>small{font-size:11px;line-height:1.55;color:#7b8c9b}
 .dfPremiumHome .dfInvestgoHomeNotice{font-size:12px!important;line-height:1.8!important;color:#60778c!important}
-.dfPremiumHome .dfRegionHome{margin-top:8px}
-.dfPremiumHome .dfRegionHomeDesc{font-size:12px!important;line-height:1.7!important;color:#678095!important}
-.dfPremiumHome .dfFeaturedRegions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important}
-.dfPremiumHome .focusRegionCard{display:flex!important;flex-direction:column;justify-content:center;min-width:0;min-height:98px!important;padding:12px 10px!important;border-radius:9px!important;background:#f9fbfd!important;border:1px solid #e1eaf1!important;box-shadow:none!important}
-.dfPremiumHome .focusRegionCard b{font-size:15px!important;color:#1d4363!important}
-.dfPremiumHome .focusRegionCard span,.dfPremiumHome .focusRegionCard small{font-size:10px!important;color:#7990a2!important}
 .dfPremiumHome .dfHomeTrust{margin:5px 0 10px;background:#f8fafc;border-top:1px solid #e9eef2;border-bottom:1px solid #e9eef2}
 .focusHeaderWrap{background:#fff;border-bottom:1px solid #e8eef3}
 .focusHeaderWrap .focusHeader{min-height:65px!important;padding:9px 14px 7px!important;margin:0!important}
@@ -1147,8 +1141,28 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfPremiumHome .dfLandCompact{margin-left:13px!important;margin-right:13px!important}
 .dfPremiumCover .dfHomeLeadCopy{padding:16px 14px!important}
 .dfPremiumCover .dfHomeLeadCopy h1{font-size:23px!important}
-.dfPremiumHome .dfFeaturedRegions{gap:6px!important}
 .focusHeaderWrap .focusHeader{padding:8px 11px!important}
 .focusHeaderWrap .focusTabs{gap:22px!important;padding:0 13px!important}
 .dfPremiumBottom>a b{font-size:10px!important}
 }
+
+
+/* Final editorial polish: real image only when an approved image record exists. */
+.dfPremiumCover .dfHomeLeadVisual{position:relative;isolation:isolate}
+.dfPremiumCover .dfHomeLeadVisual .dfHomeEditorialCover{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;z-index:0}
+.dfPremiumCover .dfHomeLeadVisual:has(.dfHomeEditorialCover:not([style*="display: none"])):after{position:absolute;inset:0;content:"";background:linear-gradient(90deg,#102d4dd9,#153f65a8);z-index:1;pointer-events:none}
+.dfPremiumCover .dfHomeLeadVisual>div,.dfPremiumCover .dfHomeLeadVisual>span{position:relative;z-index:2}
+.dfPremiumHome .dfLatestBlock .dfLatestRow small,
+.dfPremiumHome .dfHomeSecondaries small,
+.dfPremiumHome .dfInvestgoHome .dfLatestRow small{font-size:12px!important}
+.dfPremiumHome .dfLatestBlock .dfLatestRow span,
+.dfPremiumHome .dfHomeSecondaries span{font-size:12px!important;line-height:1.6!important}
+.dfPremiumHome .dfPremiumDirectoryGrid>a>small{font-size:12px!important}
+.dfNewsArticle .dfArticleMeta span{font-size:12px!important}
+.dfNewsArticle .dfTime{font-size:12px!important}
+.dfNewsArticle .dfPublicSources>small{font-size:12px!important}
+.dfNewsArticle .dfPublicSources a span{font-size:12px!important}
+.dfHigh .focusNews small{font-size:12px!important}
+.dfHigh .focusNews p{font-size:12px!important}
+.dfPolicyDetail .dfPolicySource>div small{font-size:12px!important}
+@media(max-width:360px){.dfPremiumHome .dfHomeSecondaries span{font-size:11.5px!important}}

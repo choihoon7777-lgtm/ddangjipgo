@@ -92,6 +92,6 @@ export default function Region(){
   </section>
   <DFLiveAd placement="region" region={name==="전국"?null:name}/>
   <section className="dfRegionAction"><small>LAND INTELLIGENCE</small><b>{name==="전국"?"관심 부동산을 등록하세요":name+"의 내 부동산을 추적하세요"}</b><span>공식 토지정보와 등록한 필지의 규제 변화 후보를 확인합니다.</span><a href="/search">땅짚고에서 등록하기 →</a></section>
-  <DFBottomNav active="region"/>
+  <DFBottomNav active="news"/>
  </main>
 }

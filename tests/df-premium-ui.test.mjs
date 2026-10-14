@@ -1,7 +1,7 @@
 import test from"node:test";import assert from"node:assert/strict";import{readFile}from"node:fs/promises";
 const read=p=>readFile(new URL(p,import.meta.url),"utf8");
 test("Homepage retains published data, ad, regional navigation, and guest property features",async()=>{
-const s=await read("../app/focus/page.js");for(const x of ['DFLiveNotice placement="home"','DFLiveAd placement="home"','dfHomeLeadCard','dfLatestRow','dfInvestgoHome','dfLandCompact','dfRegionHome','/my/properties','/search','/alerts','/focus/policy','/focus/housing','/focus/projects','/focus/region'])assert.ok(s.includes(x),x);
+const s=await read("../app/focus/page.js");for(const x of ['DFLiveNotice placement="home"','DFLiveAd placement="home"','dfHomeLeadCard','dfLatestRow','dfInvestgoHome','dfLandCompact','dfPremiumDirectory','/my/properties','/search','/alerts','/focus/policy','/focus/housing','/focus/projects','/focus/region'])assert.ok(s.includes(x),x);
 assert.ok(s.indexOf('{latest.length>0&&')<s.indexOf('<section className="focusHero dfLandCompact">'));
 assert.ok(s.indexOf('<section className="focusHero dfLandCompact">')<s.indexOf('{insights.length>0&&'));});
 test("Menus have distinct destinations and keep full discovery access",async()=>{
@@ -9,3 +9,29 @@ const s=await read("../components/df-shell.js");assert.match(s,/const categories
 for(const u of ['/focus/live','/focus/policy','/my/properties','/my','/focus/region','/focus/search','/alerts'])assert.ok(s.includes(u),u);
 assert.match(s,/aria-label="개발포커스 뉴스 카테고리"/);});
 test("Policy tab and accessible touch areas are styled",async()=>{const s=await read("../app/focus/policy/page.js"),css=await read("../app/globals.css");assert.match(s,/DFBottomNav active="policy"/);assert.match(css,/\.focusHeaderWrap \.focusTabs>a\{/);assert.match(css,/\.dfPremiumBottom>a\{/);});
+
+test("Editor-picked articles lead, remaining articles stay in order without duplicates",async()=>{
+ const source=await read("../lib/df-home-editorial.js");
+ const {mergeHomeStories}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+ const a={id:"a",is_top_focus:false},b={id:"b",is_top_focus:true},c={id:"c"};
+ assert.deepEqual(mergeHomeStories([b],[a,b,c]).map(x=>x.id),["b","a","c"]);
+ assert.deepEqual(mergeHomeStories([],[a,c]).map(x=>x.id),["a","c"]);
+ assert.deepEqual(mergeHomeStories([{id:"invalid",is_top_focus:false}],[a]).map(x=>x.id),["a"]);
+});
+test("Representatives are shown only for verifiable public image storage",async()=>{
+ const source=await read("../lib/df-home-editorial.js");
+ const {safeEditorialCover,articleSourceLabel}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+ const trusted="https://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/public/df-news-images/cover.jpg";
+ assert.equal(safeEditorialCover(trusted),trusted);
+ for(const unsafe of ["javascript:alert(1)","http://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/public/df-news-images/cover.jpg","https://other.example.com/cover.jpg","https://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/private/df-news-images/cover.jpg"])assert.equal(safeEditorialCover(unsafe),null);
+ assert.equal(articleSourceLabel({source_channel:"보도자료"}),"공식 보도자료");
+ assert.equal(articleSourceLabel({source_channel:null}),"자료 출처 확인");
+});
+test("Bottom-nav active destinations stay in sync with property and region pages",async()=>{
+ const prop=await read("../app/my/properties/page.js"),region=await read("../app/focus/region/page.js"),home=await read("../app/focus/page.js");
+ assert.match(prop,/DFBottomNav active="land"/);
+ assert.match(region,/DFBottomNav active="news"/);
+ assert.doesNotMatch(home,/dfRegionHome/);
+ assert.match(home,/safeEditorialCover\(lead\.hero_image_url\)/);
+ assert.match(home,/is_top_focus/);
+});
