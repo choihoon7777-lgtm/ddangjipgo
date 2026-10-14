@@ -2,10 +2,11 @@
 import{useEffect,useState}from"react";
 import{dfSupabase}from"../../lib/df-browser";
 import{DFSubHeader,DFBottomNav,DFSectionTitle}from"../../components/df-shell";
+import{guestProperties,guestSaved,guestRecent,guestUnread}from"../../lib/df-guest-trial";
 export default function My(){
  const[user,setUser]=useState(null),[isAdmin,setIsAdmin]=useState(false),[counts,setCounts]=useState({properties:0,saved:0,alerts:0,recent:0}),[emailAlert,setEmailAlert]=useState(false),[alertBusy,setAlertBusy]=useState(false),[alertMsg,setAlertMsg]=useState("");
  async function load(){
-  const{data:{user:u}}=await dfSupabase.auth.getUser();setUser(u||null);if(!u)return;
+  const{data:{user:u}}=await dfSupabase.auth.getUser();setUser(u||null);if(!u){setIsAdmin(false);setCounts({properties:guestProperties().filter(x=>x.is_active).length,saved:guestSaved().length,alerts:guestUnread(),recent:guestRecent().length});return;}
   const[role,p,s,a,r,pref]=await Promise.all([
    dfSupabase.from("df_admin_roles").select("role,is_active").eq("profile_id",u.id).eq("is_active",true).maybeSingle(),
    dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("profile_id",u.id).eq("is_active",true),
@@ -27,14 +28,14 @@ export default function My(){
  async function logout(){await dfSupabase.auth.signOut();location.replace("/focus")}
  return <main className="focusShell dfHigh"><DFSubHeader title="MY" kicker="PERSONAL"/>
  <section className="dfMyHero"><small>PERSONAL FOCUS</small><h1>내가 보는 개발정보만<br/>한곳에 모읍니다.</h1><p>관심 부동산·지역·기사·알림을 개발포커스와 땅짚고 데이터로 연결합니다.</p></section>
- <section className="focusBlock"><DFSectionTitle eyebrow="ACCOUNT" title={user?"내 계정":"로그인"}/>{user?<div className="dfAccountCard"><div><b>{user.email}</b><span>관심부동산과 기사 기록이 이 계정에 저장됩니다.</span></div><button onClick={logout}>로그아웃</button></div>:<a className="dfAdminEntry" href="/login"><div><small>MY FOCUS</small><b>로그인하고 개인화 기능 사용</b><span>관심부동산 · 알림 · 저장기사 · 최근 본 기사</span></div><strong>›</strong></a>}</section>
- {isAdmin&&<section className="focusBlock"><DFSectionTitle eyebrow="OPERATIONS" title="운영센터"/><a className="dfAdminEntry" href="/focus-admin"><div><small>DEVELOPMENT FOCUS OPS</small><b>개발포커스 운영센터</b><span>기사·공지·광고·정정·통계·시스템을 한곳에서 관리</span></div><strong>›</strong></a></section>}
+ <section className="focusBlock"><DFSectionTitle eyebrow="ACCOUNT" title={user?"내 계정":"로그인 없는 체험 모드"}/>{user?<div className="dfAccountCard"><div><b>{user.email}</b><span>관심부동산과 기사 기록이 이 계정에 저장됩니다.</span></div><button onClick={logout}>로그아웃</button></div>:<div className="dfAccountCard"><div><b>로그인 없이 바로 이용 중</b><span>관심부동산·알림·저장기사·최근 열람기록은 이 기기에만 보관됩니다. 다른 기기로 자동 동기화되거나 서버 알림이 발송되지는 않습니다.</span></div><a className="dfGuestLoginOptional" href="/login">계정 연결 (선택)</a></div>}</section>
+ {<section className="focusBlock"><DFSectionTitle eyebrow="OPERATIONS" title="운영센터"/><a className="dfAdminEntry" href="/focus-admin"><div><small>DEVELOPMENT FOCUS OPS</small><b>개발포커스 운영센터</b><span>{isAdmin?"기사·공지·광고·정정·통계·시스템을 한곳에서 관리":"로그인 없이 관리자 전체 화면을 체험"}</span></div><strong>›</strong></a></section>}
  <section className="focusBlock"><DFSectionTitle eyebrow="MY PROPERTY" title="부동산 인텔리전스"/><a className="dfMyCard" href="/search"><div><b>부동산 분석 시작</b><span>주소·지번을 기준으로 토지정보와 주변 개발변화를 확인하고 저장합니다.</span></div><strong>›</strong></a></section>
  <section className="focusBlock"><DFSectionTitle eyebrow="WATCH" title="관심정보"/><div className="dfMyGrid">
-  <a href={user?"/my/properties":"/login?next=/my/properties"}><b>관심부동산 <em>{counts.properties}</em></b><span>등록한 토지·건물</span></a>
-  <a href={user?"/my/saved":"/login?next=/my/saved"}><b>저장기사 <em>{counts.saved}</em></b><span>나중에 다시 볼 기사</span></a>
-  <a href={user?"/alerts":"/login?next=/alerts"}><b>알림 <em>{counts.alerts}</em></b><span>관심부동산 변화</span></a>
-  <a href={user?"/my/recent":"/login?next=/my/recent"}><b>최근 본 기사 <em>{counts.recent}</em></b><span>최근 열람 기록</span></a>
+  <a href="/my/properties"><b>관심부동산 <em>{counts.properties}</em></b><span>등록한 토지·건물</span></a>
+  <a href="/my/saved"><b>저장기사 <em>{counts.saved}</em></b><span>나중에 다시 볼 기사</span></a>
+  <a href="/alerts"><b>알림 <em>{counts.alerts}</em></b><span>관심부동산 변화</span></a>
+  <a href="/my/recent"><b>최근 본 기사 <em>{counts.recent}</em></b><span>최근 열람 기록</span></a>
  </div></section>
  {user&&<section className="focusBlock"><DFSectionTitle eyebrow="NOTIFICATIONS" title="이메일 알림"/><div className="dfNotificationSetting"><div><b>관심부동산 새 개발정보</b><span>{user.email||"계정 이메일"}로 새 알림을 받을 수 있습니다.</span>{alertMsg&&<em>{alertMsg}</em>}</div><button className={emailAlert?"on":""} disabled={alertBusy||!user.email} onClick={toggleEmailAlert}>{alertBusy?"저장 중…":emailAlert?"알림 ON":"알림 OFF"}</button></div></section>}
  <section className="focusBlock"><DFSectionTitle eyebrow="REGION" title="지역 FOCUS"/><a className="dfMyCard" href="/focus/region"><div><b>관심지역 둘러보기</b><span>전국 17개 시·도 개발뉴스를 지역 기준으로 확인합니다.</span></div><strong>›</strong></a></section>
