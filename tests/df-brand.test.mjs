@@ -15,7 +15,8 @@ test("Citymaek brand appears in title, public header, admin and app install mani
  assert.match(manifest,/dosimaek-icon-192\.png/);
  assert.match(manifest,/dosimaek-icon-512\.png/);
  assert.match(home,/dfCityLeadMotto/);
- assert.match(admin,/도시맥/);
+ assert.match(admin,/DFAdminHeader/);
+ assert.match(head,/title="도시맥 운영센터"/);
  assert.doesNotMatch(head,/development-focus-logo\.jpg/);
 });
 test("Citymaek vector and PNG assets are structurally correct",async()=>{
