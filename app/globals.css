@@ -871,3 +871,16 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfRegionNewsSection .focusNews h3{font-size:15px}
 .dfRegionPicker .regionGrid a{height:43px;font-size:12px}
 .dfRegionPicker .focusTitle h2{font-size:20px}
+
+
+/* Actual regional collector health: source failures must not look like a lack of new policy. */
+.dfRegionCollectorCard{border:1px solid #dae5ee;background:#f8fafc;border-radius:13px;padding:12px 13px;margin:9px 0 14px;line-height:1.6}
+.dfRegionCollectorCard>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dfRegionCollectorCard strong{font-size:12px;color:#143450}
+.dfRegionCollectorCard a{font-size:11px;color:#476a84;text-decoration:underline;white-space:nowrap}
+.dfRegionCollectorCard p{font-size:12px;color:#18384f;margin:8px 0 5px;font-weight:750}
+.dfRegionCollectorCard small{font-size:11px;color:#687c8d;display:block;line-height:1.55}
+.dfRegionCollectorErrors{padding:4px 10px}
+.dfRegionCollectorErrors p{display:flex;gap:10px;justify-content:space-between;align-items:center;border-bottom:1px solid #e7ecf0;padding:10px 0;margin:0;font-size:11px}
+.dfRegionCollectorErrors b{font-size:11px;color:#2b4255}
+.dfRegionCollectorErrors span{font-size:10px;color:#a65a35;overflow-wrap:anywhere}
