@@ -41,9 +41,9 @@ export default function Admin(){
   dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("is_active",true)
  ]);if(live)setStats({queue:q.count??null,published:p.count??null,claims:c.count??null,ads:a.count??null,watchlists:w.count??null})})();return()=>{live=false}},[]);
  return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
-  <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 공식기관 신규자료를 실제 수집하고 공개자료를 확인할 수 있습니다. 임의 자료 수정은 제한됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
-  {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>로그인 없는 실제 업데이트</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
-   <p className="adminDataNote">공식기관 신규자료 수집과 원문 검증은 실제 서버·DB에서 실행됩니다. 자료 삭제·수동 승인 등 변경 작업은 관리자 인증이 필요합니다.</p>
+  <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 모든 관리자 메뉴를 열어 화면·업무 흐름을 검수합니다. 실제 데이터 변경·비공개 열람은 보호됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
+  {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>로그인 없이 전체 관리자 메뉴 체험</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
+   <p className="adminDataNote">전체 운영 메뉴를 모두 열 수 있습니다. 공개 공식자료만 실제 조회하고, 비공개 기사·회원정보 및 발행·승인·삭제 기능은 체험 화면으로 제공됩니다.</p>
    <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
   </section>}
 
@@ -52,13 +52,13 @@ export default function Admin(){
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
    <a href="/focus-admin/radar"><b>개발레이더 검수</b><span>공식 고시·공고 위치근거 확인</span></a>
    <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
-   {!guest&&<a href="/focus-admin/media"><b>언론 모니터링 공장</b><span>3개 언론사 · 7개 채널 · 시간별 기사 후보</span></a>}
+   <a href="/focus-admin/media"><b>언론 모니터링 공장</b><span>{guest?"로그인 없이 모니터링 흐름 시험":"3개 언론사 · 7개 채널 · 시간별 기사 후보"}</span></a>
    <a href="/focus-admin/blog-import"><b>투자GO 블로그 이식</b><span>네이버 50건 목록 · 중복 검토 · 원본 보존</span></a>
-   <a href={guest?"/focus-admin/updates":"/focus-admin/ai-test"}><b>AI 기사작성</b><span>{guest?"관리자 로그인 후 기사 작성":"공식자료 → 기사"}</span></a>
-   <a href={guest?"/focus-admin/updates":"/focus-admin/write"}><b>직접 기사 작성</b><span>{guest?"관리자 로그인 후 실제 작성":"초안 작성"}</span></a>
-   <a href={guest?"/focus-admin/updates":"/focus-admin/publish"}><b>검토·발행</b><span>{guest?"관리자 로그인 후 기사 발행":(stats.queue??"—")+"건 대기"}</span></a>
+   <a href="/focus-admin/ai-test"><b>AI 기사작성</b><span>{guest?"원고 작성 흐름 체험":"공식자료 → 기사"}</span></a>
+   <a href="/focus-admin/write"><b>직접 기사 작성</b><span>{guest?"로그인 없이 시범 원고 작성":"초안 작성"}</span></a>
+   <a href="/focus-admin/publish"><b>검토·발행</b><span>{guest?"발행 검토 체크리스트 체험":(stats.queue??"—")+"건 대기"}</span></a>
   </div></section>
-  {!guest&&<details className="dfAdminAllMenu"><summary><span><small>ALL OPERATIONS</small><b>전체 운영 메뉴</b></span><strong>펼치기</strong></summary><div className="dfAdminGroups">{groups.map(g=><section className="dfAdminGroup" key={g.title}><div className="dfAdminGroupHead"><small>{g.kicker}</small><h2>{g.title}</h2></div><div className="adminMenu">{g.items.map(([a,b,h])=><a href={h} key={a}><div><b>{a}</b><span>{b}</span></div><strong>›</strong></a>)}</div></section>)}</div></details>}
+  {<details className="dfAdminAllMenu" open={!!guest}><summary><span><small>ALL OPERATIONS</small><b>전체 운영 메뉴</b></span><strong>펼치기</strong></summary><div className="dfAdminGroups">{groups.map(g=><section className="dfAdminGroup" key={g.title}><div className="dfAdminGroupHead"><small>{g.kicker}</small><h2>{g.title}</h2></div><div className="adminMenu">{g.items.map(([a,b,h])=><a href={h} key={a}><div><b>{a}</b><span>{b}</span></div><strong>›</strong></a>)}</div></section>)}</div></details>}
   <DFAdminBottomNav active="home"/>
  </main>
 }
