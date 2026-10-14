@@ -1187,3 +1187,8 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfPremiumHome .dfPremiumEdition{font-size:10px}
 .dfPremiumCover .dfHomeLeadVisual .dfCityLeadMotto{font-size:20px!important}
 }
+
+
+/* DOSIMAEK identity in property/search subheaders; preserve back/search targets. */
+.dfArticleTop .dfSubTitle>b{display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.4;min-width:0}
+.dfArticleTop .dfCitySubMark{display:block;flex:0 0 18px;width:18px;height:18px;border-radius:5px}

@@ -33,7 +33,7 @@ export function DFBrandHeader(){
  </div>
 }
 export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
- return <header className="dfArticleTop"><a href={back}>←</a><div className="dfSubTitle"><b>{title}</b>{kicker&&<small>{kicker}</small>}</div>{right?<a href={right}>⌕</a>:<span></span>}</header>
+ return <header className="dfArticleTop"><a href={back}>←</a><div className="dfSubTitle"><b><img className="dfCitySubMark" src="/dosimaek-mark.svg" alt="" width="18" height="18"/>{title}</b>{kicker&&<small>{kicker}</small>}</div>{right?<a href={right}>⌕</a>:<span></span>}</header>
 }
 function DFNavIcon({id}){return <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{id==="home"?<><path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/></>:id==="news"?<><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></>:id==="policy"?<><path d="M3 10h18L12 4 3 10ZM5 20h14M7 12v6M12 12v6M17 12v6"/></>:id==="land"?<><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></>:<><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></>}</svg>;}
 export function DFBottomNav({active=""}){const items=[["home","홈","/focus"],["news","뉴스","/focus/live"],["policy","정책","/focus/policy"],["land","내 부동산","/my/properties"],["my","내 정보","/my"]];return <nav className="focusBottom dfPremiumBottom" aria-label="주요 메뉴">{items.map(([id,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><DFNavIcon id={id}/><b>{label}</b></a>)}</nav>;}

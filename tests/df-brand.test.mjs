@@ -26,3 +26,18 @@ test("Citymaek vector and PNG assets are structurally correct",async()=>{
  const files=[["../public/dosimaek-icon-192.png",192,192],["../public/dosimaek-icon-512.png",512,512],["../public/dosimaek-apple-icon.png",180,180],["../public/dosimaek-og.png",1200,630]];
  for(const[path,w,h]of files){const bytes=await read(path);assert.equal(bytes.subarray(0,8).toString("hex"),"89504e470d0a1a0a");assert.equal(bytes.readUInt32BE(16),w);assert.equal(bytes.readUInt32BE(20),h)}
 });
+
+test("Branding uses preview deployment URL for its preview OG images",async()=>{
+ const content=await txt("../lib/df-site.js");
+ const {getSiteUrl}=await import("data:text/javascript;base64,"+Buffer.from(content).toString("base64"));
+ const old=Object.fromEntries(["VERCEL_ENV","VERCEL_URL","NEXT_PUBLIC_SITE_URL"].map(x=>[x,process.env[x]]));
+ try{
+  process.env.VERCEL_ENV="preview";
+  process.env.VERCEL_URL="test-preview.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL="https://example.com";
+  assert.equal(getSiteUrl(),"https://test-preview.vercel.app");
+ }finally{
+  for(const[k,v]of Object.entries(old))if(v===undefined)delete process.env[k];else process.env[k]=v;
+ }
+ const shell=await txt("../components/df-shell.js");assert.match(shell,/dfCitySubMark/);
+});
