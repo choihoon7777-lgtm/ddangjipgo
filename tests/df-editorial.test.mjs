@@ -1,0 +1,35 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const source=await readFile(new URL("../lib/df-editorial-format.js",import.meta.url),"utf8");
+const {parseEditorialBody,safeOriginalUrl}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+
+test("Official headings and bullets display as structured paragraphs without dropped facts",()=>{
+ const blocks=parseEditorialBody("■ 사업 개요\n실제 착공한 사업은 14곳이다.\n남은 사업은 11곳이다.\n\n① 사업일정\n② 공사비 검토\n\n※ 이 기사는 공식 자료를 기준으로 작성했다.");
+ assert.equal(blocks[0].kind,"heading");
+ assert.ok(blocks.some(x=>x.kind==="bullet"&&x.text.includes("사업일정")));
+ assert.ok(blocks.some(x=>x.kind==="note"&&x.text.includes("공식 자료")));
+ assert.match(blocks.map(x=>x.text).join(" "),/14곳이다/);
+ assert.match(blocks.map(x=>x.text).join(" "),/11곳이다/);
+});
+
+test("No excerpt cap: all 28k+ characters survive formatting",()=>{
+ const long=Array.from({length:170},(_,i)=>"2026년 사업계획 세부항목 "+(i+1)+"번은 공식 검증된 조항이다.").join("\n\n");
+ assert.ok(long.length>5000);
+ const blocks=parseEditorialBody(long);
+ assert.equal(blocks.map(x=>x.text).join("\n\n"),long);
+ assert.match(blocks.at(-1).text,/170번/);
+});
+
+test("Deduplicate only exact substantial paragraphs and preserve other passages",()=>{
+ const intro="서울시는 정비사업 연내 착공을 추진하기 위해 조합과 시공사, 자치구의 협력을 강화하고 공정 지연 요소를 점검하겠다고 발표했다.";
+ const blocks=parseEditorialBody("■ 핵심 내용\n"+intro+"\n\n■ 공식 문서 내용\n"+intro+"\n\n사업비 숫자 15,000호와 16,117호는 다르다.");
+ assert.equal(blocks.filter(x=>x.text===intro).length,1);
+ assert.ok(blocks.some(x=>x.text.includes("16,117호")));
+});
+
+test("Source links accept HTTPS only",()=>{
+ assert.equal(safeOriginalUrl("javascript:alert(1)"),null);
+ assert.equal(safeOriginalUrl("http://notsecure.example.com"),null);
+ assert.equal(safeOriginalUrl("https://www.molit.go.kr/abc"),"https://www.molit.go.kr/abc");
+});
