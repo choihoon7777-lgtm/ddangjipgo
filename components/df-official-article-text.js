@@ -5,7 +5,21 @@ import{parseEditorialBody}from"../lib/df-editorial-format";
 // Shared renderer for official documents, investment articles and news stories.
 // Never interpret the upstream text as HTML and never fabricate missing text.
 export default function OfficialArticleText({content,partial=false,kind="article"}){
- const blocks=useMemo(()=>parseEditorialBody(content),[content]);
+ const blocks=useMemo(()=>{
+  const original=parseEditorialBody(content);
+  if(kind!=="insight")return original;
+  // Many imported blog paragraphs consist of a single short sentence.
+  // Join adjacent short sentences into ordinary newspaper paragraphs without
+  // changing a word or touching numbers, headings, lists, or source notes.
+  const result=[];
+  for(const b of original){
+   const prev=result[result.length-1];
+   if(b.kind==="paragraph"&&prev?.kind==="paragraph"&&b.text.length<=130&&prev.text.length+b.text.length<340&&!/[?!？!]$/.test(prev.text)){
+    prev.text+=" "+b.text;
+   }else result.push({...b});
+  }
+  return result;
+ },[content,kind]);
  const sections=useMemo(()=>{
   const out=[];for(const b of blocks){
    if(b.kind==="bullet"&&out[out.length-1]?.kind==="list"){out[out.length-1].items.push(b.text)}
