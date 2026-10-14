@@ -67,7 +67,7 @@ function ArticleInner(){
   <article className="dfNewsArticle">
    <div className="dfArticleMeta"><span>{isBlog?"인사이트":a.category||"최신뉴스"}</span>{a.region_code&&<em>{a.region_code}</em>}{a.status==="corrected"&&<em>정정</em>}</div>
    <h1>{a.title}</h1>
-   {a.subtitle&&<p className="dfNewsLead">{a.subtitle}</p>}
+   {a.subtitle&&!(isBlog&&summaries.length>0&&a.subtitle.includes(summaries[0]))&&<p className="dfNewsLead">{a.subtitle}</p>}
    <p className="dfTime">발행 {new Date(a.original_source_published_at||a.published_at).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"})}{modified&&<> · <b>수정 {new Date(a.updated_at).toLocaleString("ko-KR")}</b></>}</p>
    {isBlog&&<p className="dfInsightDateNotice">본문의 통계·일정·시세는 작성 당시 기준입니다.</p>}
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
