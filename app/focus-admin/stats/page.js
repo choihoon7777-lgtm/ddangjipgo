@@ -31,6 +31,6 @@ export default function Stats(){
  </section>
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>CONTENT</small><h2>인기 기사</h2></div><span>{days}일</span></div>{top.length?<div className="dfStatsRank">{top.map((x,i)=><a href={"/focus/article?id="+x.id} key={x.id}><b>{i+1}</b><span>{x.title}</span><strong>{x.views.toLocaleString()}뷰</strong></a>)}</div>:<div className="adminEmpty"><b>아직 조회 데이터가 없습니다.</b><span>기사 공개 후 실제 열람이 발생하면 자동 집계됩니다.</span></div>}</section>
  <section className="adminPanel"><div className="adminSectionTitle"><div><small>BUSINESS</small><h2>광고·운영</h2></div></div><div className="adminStats"><div><b>{ads.impressions.toLocaleString()}</b><span>광고 노출</span></div><div><b>{ads.clicks.toLocaleString()}</b><span>광고 클릭</span></div><div><b>{counts.claims??0}</b><span>정정 처리중</span></div><div><b>{collectedDays}</b><span>집계일수</span></div></div></section>
- <p className="adminDataNote">조회수와 광고 노출·클릭은 개발포커스 내부 이벤트 기준 실제 집계값입니다. 외부 분석도구 수치는 별도 연동하지 않습니다.</p>
+ <p className="adminDataNote">조회수와 광고 노출·클릭은 도시맥 내부 이벤트 기준 실제 집계값입니다. 외부 분석도구 수치는 별도 연동하지 않습니다.</p>
  <DFAdminBottomNav active="stats"/></main>
 }

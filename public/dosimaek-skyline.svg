@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 280" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#102D49"/><stop offset=".65" stop-color="#1B496C"/><stop offset="1" stop-color="#325B73"/></linearGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2=".6"><stop stop-color="#F3D9AF"/><stop offset="1" stop-color="#BD7C37"/></linearGradient></defs>
+<rect width="1100" height="280" fill="url(#bg)"/>
+<g opacity=".14" stroke="#BFD0D8" stroke-width="1"><path d="M0 68h1100M0 138h1100M0 208h1100"/><path d="M90 0v280M250 0v280M410 0v280M570 0v280M730 0v280M890 0v280"/></g>
+<g fill="#C9DCE5" opacity=".22"><path d="M570 240V153h35v87M610 240V103h50v137M666 240V166h38v74M710 240V73h51v167M771 240V125h36v115M817 240V56h55v184M881 240V94h42v146M933 240V143h43v97M986 240V75h55v165" /></g>
+<g fill="#F6F3E9" opacity=".60"><path d="M647 229V123l18-6v112M678 229V78l22-9v160M710 229V105l15-5v129M745 229V38l24-8v199M785 229V94l17-6v141M825 229V63l22-5v171M861 229V109l22-10v130M895 229V138l21-8v99"/></g>
+<path d="M514 252c68-32 117-37 165-20s86 17 131-10 92-75 166-95" fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round" opacity=".85"/>
+<path d="M968 115l14 10-15 13" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".88"/>
+</svg>

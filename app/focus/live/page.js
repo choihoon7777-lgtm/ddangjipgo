@@ -15,7 +15,7 @@ export default function Live(){
  function hrefForFilter(nextChannel=channel,nextTopic=topic){const p=new URLSearchParams();p.set("category","정책·고시");if(nextChannel!=="전체")p.set("channel",nextChannel);if(nextTopic!=="전체")p.set("topic",nextTopic);return"/focus/live?"+p.toString()}
  const isPolicy=category==="정책·고시";
  return <main className="focusShell dfHigh"><DFBrandHeader/>
- <section className="dfLiveHero"><small>DEVELOPMENT FOCUS</small><h1>{isPolicy?"개발정책":category==="인사이트"?"전문 인사이트":"개발뉴스"}</h1><p>{isPolicy?"전국 지자체와 정부의 보도자료·고시공고·입법예고·조례를 한곳에서 확인합니다.":category==="인사이트"?"도시개발·부동산 시장을 다룬 전문 분석 기사입니다.":"공식 정책 자료와 전문 분석 기사를 구분해 제공합니다."}</p></section>
+ <section className="dfLiveHero"><small>DOSIMAEK</small><h1>{isPolicy?"정책·고시":category==="인사이트"?"시장 분석":"최신 뉴스"}</h1><p>{isPolicy?"전국 지자체와 정부의 보도자료·고시공고·입법예고·조례를 한곳에서 확인합니다.":category==="인사이트"?"도시개발·부동산 시장을 다룬 전문 분석 기사입니다.":"공식 정책 자료와 전문 분석 기사를 구분해 제공합니다."}</p></section>
  <div className="dfNewsFilters">{cats.map(x=><a key={x} className={x===category?"on":""} href={x==="전체"?"/focus/live":x==="정책·고시"?"/focus/policy":"/focus/live?category="+encodeURIComponent(x)}>{x==="정책·고시"?"개발정책":x}</a>)}</div>
  {isPolicy&&<section className="dfPolicyFilters">
   <div><small>자료유형</small><div>{channelFilters.map(x=><a key={x} className={channel===x?"on":""} href={hrefForFilter(x,topic)}>{x}</a>)}</div></div>

@@ -49,7 +49,7 @@ export default function DFAdminGuestPreview({path}){
  const filtered=useMemo(()=>official.filter(d=>(!query||[d.title,d.source_name,d.key_content].join(" ").includes(query))).slice(0,15),[official,query]);
  const filteredArticles=useMemo(()=>articles.filter(a=>!query||a.title.includes(query)).slice(0,12),[articles,query]);
  const confirmDemo=()=>{setNotice("체험 모드에서 화면 흐름만 확인했습니다. 실제 데이터는 변경하지 않았습니다.");setShowPreview(true)};
- const reviewTitle=articles[0]?.title||"개발포커스 검토 시뮬레이션";
+ const reviewTitle=articles[0]?.title||"도시맥 검토 시뮬레이션";
  return <main className="adminShell dfAdminUnified dfAdminGuestMode">
   <DFAdminHeader title={current[1]} kicker="ADMIN GUEST PREVIEW" back="/focus-admin"/>
   <section className="adminPanel dfGuestAdminBanner"><small>TEST MODE · NO LOGIN</small><h1>{current[1]}</h1><p>{current[2]} · 로그인 없이 모든 화면을 검수할 수 있습니다.</p><div className="dfGuestAdminMessage"><b>비로그인 체험</b><span>공개된 공식자료만 실제로 조회합니다. 비공개 기사 초안·회원정보는 표시하지 않으며, 발행·삭제·수정 버튼은 시뮬레이션입니다.</span></div></section>
@@ -66,7 +66,7 @@ export default function DFAdminGuestPreview({path}){
   {["sources","radar","media"].includes(slug)&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>OFFICIAL EVIDENCE</small><h2>공개 공식자료 검색</h2></div><span>{loading?"조회 중":official.length+"건 조회"}</span></div>
    {slug==="media"&&<p className="adminDataNote">언론사 비공개 모니터링 후보 DB는 노출하지 않습니다. 공개 공식자료를 대조하는 절차를 검수할 수 있습니다.</p>}
    <label className="dfGuestAdminLabel">지역·사업·기관 검색<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="예: 대전, 정비사업, 도시계획"/></label>
-   {filtered.length?<div className="dfGuestAdminArticles">{filtered.map(d=><article key={d.id}><span>{d.source_name||"공식기관"} · {officialDate(d.published_at)}</span><b>{d.title}</b><p>{d.key_content?.slice(0,300)||"검증된 요약을 확인할 수 없습니다."}</p><a href={"/focus/policy?id="+d.id}>개발포커스 본문보기 →</a>{safeUrl(d.source_url)&&<a href={d.source_url} target="_blank" rel="noreferrer noopener">공식 원문 ↗</a>}</article>)}</div>:<p className="adminDataNote">해당 검색어의 공개 공식자료가 없습니다.</p>}
+   {filtered.length?<div className="dfGuestAdminArticles">{filtered.map(d=><article key={d.id}><span>{d.source_name||"공식기관"} · {officialDate(d.published_at)}</span><b>{d.title}</b><p>{d.key_content?.slice(0,300)||"검증된 요약을 확인할 수 없습니다."}</p><a href={"/focus/policy?id="+d.id}>도시맥 본문보기 →</a>{safeUrl(d.source_url)&&<a href={d.source_url} target="_blank" rel="noreferrer noopener">공식 원문 ↗</a>}</article>)}</div>:<p className="adminDataNote">해당 검색어의 공개 공식자료가 없습니다.</p>}
   </section>}
 
   {["write","ai-test","notices","ads","claims"].includes(slug)&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>WORKFLOW SIMULATOR</small><h2>{current[1]} 입력·검수 체험</h2></div></div>

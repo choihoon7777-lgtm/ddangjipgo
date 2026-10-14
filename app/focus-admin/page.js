@@ -41,7 +41,7 @@ export default function Admin(){
   dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("is_active",true)
  ]);if(live)setStats({queue:q.count??null,published:p.count??null,claims:c.count??null,ads:a.count??null,watchlists:w.count??null})})();return()=>{live=false}},[]);
  return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
-  <section className="dfAdminHero dfAdminHeroCompact"><small>DEVELOPMENT FOCUS OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 모든 관리자 메뉴를 열어 화면·업무 흐름을 검수합니다. 실제 데이터 변경·비공개 열람은 보호됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
+  <section className="dfAdminHero dfAdminHeroCompact"><small>DOSIMAEK OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 모든 관리자 메뉴를 열어 화면·업무 흐름을 검수합니다. 실제 데이터 변경·비공개 열람은 보호됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
   {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>로그인 없이 전체 관리자 메뉴 체험</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
    <p className="adminDataNote">전체 운영 메뉴를 모두 열 수 있습니다. 공개 공식자료만 실제 조회하고, 비공개 기사·회원정보 및 발행·승인·삭제 기능은 체험 화면으로 제공됩니다.</p>
    <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>

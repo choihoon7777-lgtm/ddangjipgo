@@ -9,6 +9,6 @@ export async function generateMetadata({searchParams}){
  if(!a)return{title:"기사",description:SITE_DESCRIPTION};
  const summary=Array.isArray(a.summary_3line)?a.summary_3line.filter(Boolean).join(" "):"";
  const description=(a.subtitle||summary||a.title||SITE_DESCRIPTION).slice(0,170),canonical="/focus/article?id="+encodeURIComponent(id);
- return{title:a.title,description,alternates:{canonical:a.source_channel==="investgo"&&a.original_source_url?a.original_source_url:canonical},openGraph:{type:"article",title:a.title,description,url:canonical,siteName:"개발포커스",images:[{url:"/development-focus-logo.jpg",alt:"개발포커스"}]},twitter:{card:"summary_large_image",title:a.title,description,images:["/development-focus-logo.jpg"]}};
+ return{title:a.title,description,alternates:{canonical:a.source_channel==="investgo"&&a.original_source_url?a.original_source_url:canonical},openGraph:{type:"article",title:a.title,description,url:canonical,siteName:"도시맥",images:[{url:"/dosimaek-og.png",alt:"도시맥"}]},twitter:{card:"summary_large_image",title:a.title,description,images:["/dosimaek-og.png"]}};
 }
 export default function ArticlePage(){return <ArticleClient/>}

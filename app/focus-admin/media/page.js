@@ -36,7 +36,7 @@ export default function MediaMonitor(){
  return <main className="adminShell dfAdminUnified dfMediaMonitor">
   <DFAdminHeader title="언론 모니터링" kicker="MEDIA RESEARCH FACTORY"/>
   <section className="adminPanel dfMediaIntro"><small>HOURLY MONITORING</small><h1>개발·부동산 뉴스 탐색</h1>
-   <p>공개 RSS에서 관련 보도를 자동 발견합니다. 기사 전문·사진을 복제하지 않으며, 공식 1차 자료로 확인한 뒤 개발포커스 자체 기사를 작성합니다.</p>
+   <p>공개 RSS에서 관련 보도를 자동 발견합니다. 기사 전문·사진을 복제하지 않으며, 공식 1차 자료로 확인한 뒤 도시맥 자체 기사를 작성합니다.</p>
    <div className="dfMediaNumbers"><div><b>{feeds.length}</b><span>뉴스 채널</span></div><div><b>{leads.length}</b><span>수집 후보</span></div><div><b>{counts.verified}</b><span>공식 근거 확인</span></div></div>
    <p className="dfMediaPolicy">매시 07분 RSS 수집 · 매시 10분 선별 · 자동 기사 발행 없음</p>
   </section>

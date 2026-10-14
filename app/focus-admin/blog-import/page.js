@@ -37,8 +37,8 @@ export default async function NaverImportInventory({searchParams}){
  const perPage=10;const pageCount=Math.max(1,Math.ceil(filtered.length/perPage));const currentPage=Math.min(page,pageCount);
  const visible=filtered.slice((currentPage-1)*perPage,currentPage*perPage);
  return <main className="adminShell dfAdminUnified dfNaverImport">
-  <header className="dfAdminUnifiedHead"><Link className="dfAdminBack" href="/focus-admin">←</Link><div><small>INVESTGO · NAVER RSS</small><b>블로그 이식 관리</b></div><Link className="dfAdminPublic" href="/focus">개발포커스</Link></header>
-  <section className="dfNaverHero"><small>콘텐츠 이전 · 1단계</small><h1>투자GO 기사 이식 현황</h1><p>네이버 원본을 유지하면서 개발포커스에 맞는 전문 글만 선별합니다. 원문 전체를 확보한 전문 글을 개발포커스 <strong>투자GO 인사이트 기사</strong>로 연결합니다.</p>
+  <header className="dfAdminUnifiedHead"><Link className="dfAdminBack" href="/focus-admin">←</Link><div><small>INVESTGO · NAVER RSS</small><b>블로그 이식 관리</b></div><Link className="dfAdminPublic" href="/focus">도시맥</Link></header>
+  <section className="dfNaverHero"><small>콘텐츠 이전 · 1단계</small><h1>투자GO 기사 이식 현황</h1><p>네이버 원본을 유지하면서 도시맥에 맞는 전문 글만 선별합니다. 원문 전체를 확보한 전문 글을 도시맥 <strong>투자GO 인사이트 기사</strong>로 연결합니다.</p>
    <div className="dfNaverStats"><div><strong>{counters.all}</strong><span>수집 목록</span></div><div><strong>{counters.candidate}</strong><span>이식 후보</span></div><div><strong>{counters.out_of_scope}</strong><span>주제 제외</span></div></div>
    <a className="dfNaverOriginalLink" href="https://blog.naver.com/devel10-01" target="_blank" rel="noopener noreferrer">네이버 투자GO 원본 블로그 <span>↗</span></a>
   </section>
@@ -53,11 +53,11 @@ export default async function NaverImportInventory({searchParams}){
     <div className="dfNaverEntryTop"><span>{x.target_category||x.original_category||"주제 검토"}</span><time>{visibleDate(x.original_published_at)}</time></div>
     <h3>{x.original_title}</h3>
     {x.rss_excerpt&&<p>{x.rss_excerpt}</p>}
-    <div className="dfNaverEntryFooter"><span className={x.eligibility==="candidate"?"dfNaverStateCandidate":"dfNaverStateExcluded"}>{x.migrated_article_id?"개발포커스 기사 연결 완료":x.eligibility==="candidate"?(x.extraction_status==="complete"?"본문 확보 · 기사 연결 대기":"이식 후보 · 원문 대기"):"주제 제외 · 원본 유지"}</span>{x.migrated_article_id&&<a href={"/focus/article?id="+x.migrated_article_id}>기사 보기 →</a>}<a href={x.original_url} target="_blank" rel="noopener noreferrer">네이버 원문 ↗</a></div>
+    <div className="dfNaverEntryFooter"><span className={x.eligibility==="candidate"?"dfNaverStateCandidate":"dfNaverStateExcluded"}>{x.migrated_article_id?"도시맥 기사 연결 완료":x.eligibility==="candidate"?(x.extraction_status==="complete"?"본문 확보 · 기사 연결 대기":"이식 후보 · 원문 대기"):"주제 제외 · 원본 유지"}</span>{x.migrated_article_id&&<a href={"/focus/article?id="+x.migrated_article_id}>기사 보기 →</a>}<a href={x.original_url} target="_blank" rel="noopener noreferrer">네이버 원문 ↗</a></div>
    </article>)}</div>
    {pageCount>1&&<nav aria-label="목록 페이지" className="dfNaverPager">{currentPage>1&&<Link href={href(scope,category,q,currentPage-1)}>← 이전</Link>}<span>{currentPage} / {pageCount}</span>{currentPage<pageCount&&<Link href={href(scope,category,q,currentPage+1)}>다음 →</Link>}</nav>}
   </section>
   <section className="dfNaverNotice"><b>원본 보존과 중복 방지</b><p>네이버 게시물 번호로 중복을 확인합니다. 제목·본문 원본은 수정하지 않습니다. 실제 글의 전문을 가져와 기사로 연결하며, 원래 작성일과 출처를 표시합니다. 원본 이미지는 링크로만 보존하며 자체 저장소로 복제한 것은 아닙니다.</p><p>RSS 최신 50건 이외의 과거 글은 별도의 원본 내보내기 또는 추가 확보가 필요합니다.</p></section>
-  <nav className="dfNaverFooter"><Link href="/focus-admin">운영센터</Link><Link href="/focus">개발포커스 홈</Link></nav>
+  <nav className="dfNaverFooter"><Link href="/focus-admin">운영센터</Link><Link href="/focus">도시맥 홈</Link></nav>
  </main>;
 }

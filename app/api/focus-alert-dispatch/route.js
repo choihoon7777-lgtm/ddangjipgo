@@ -24,7 +24,7 @@ export async function GET(req){
   const property=a.df_land_watchlists?.label||a.df_land_watchlists?.address_text||"관심부동산";
   const link=a.article_id?site+"/focus/article?id="+encodeURIComponent(a.article_id):site+"/alerts";
   try{
-   const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+resend,"Content-Type":"application/json"},body:JSON.stringify({from,to:[pref.email_address],subject:"[개발포커스] "+a.title,html:`<div style="font-family:Arial,sans-serif;line-height:1.7;color:#10233c"><b style="color:#f47721">DEVELOPMENT FOCUS</b><h2>${esc(a.title)}</h2><p>${esc(property)}과 관련된 새 개발정보가 확인됐습니다.</p><p><a href="${esc(link)}">개발포커스에서 확인하기</a></p><small>이메일 알림은 MY에서 언제든 끌 수 있습니다.</small></div>`})});
+   const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+resend,"Content-Type":"application/json"},body:JSON.stringify({from,to:[pref.email_address],subject:"[도시맥] "+a.title,html:`<div style="font-family:Arial,sans-serif;line-height:1.7;color:#10233c"><b style="color:#f47721">DOSIMAEK</b><h2>${esc(a.title)}</h2><p>${esc(property)}과 관련된 새 개발정보가 확인됐습니다.</p><p><a href="${esc(link)}">도시맥에서 확인하기</a></p><small>이메일 알림은 MY에서 언제든 끌 수 있습니다.</small></div>`})});
    if(!r.ok)throw new Error("email provider "+r.status);
    const{error:u}=await sb.from("df_land_alerts").update({status:"sent"}).eq("id",a.id).eq("status","pending");if(u)throw u;sent++;
   }catch{failed++}

@@ -48,7 +48,7 @@ function ArticleInner(){
  }
  async function shareArticle(){
   if(!a)return;setShareMsg("");
-  const url=location.href,payload={title:a.title,text:a.subtitle||"개발포커스 기사",url};
+  const url=location.href,payload={title:a.title,text:a.subtitle||"도시맥 기사",url};
   try{
    if(navigator.share){await navigator.share(payload);setShareMsg("공유했습니다.");}
    else if(navigator.clipboard){await navigator.clipboard.writeText(url);setShareMsg("기사 링크를 복사했습니다.");}
@@ -80,7 +80,7 @@ function ArticleInner(){
    {body?<section className="dfOfficialNewsFullText dfUnifiedArticleText"><h2>{isBlog?"전문 분석":"기사 본문"}</h2><OfficialArticleText content={body} kind={isBlog?"insight":"article"}/></section>:<p className="dfOfficialEmpty">기사 본문이 준비되지 않았습니다.</p>}
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
-   <section className="dfArticleTrust"><b>DEVELOPMENT FOCUS</b><span>{isBlog?"도시개발·부동산 시장을 해석하는 전문 인사이트입니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
+   <section className="dfArticleTrust"><b>DOSIMAEK</b><span>{isBlog?"도시개발·부동산 시장을 해석하는 전문 인사이트입니다.":"공식자료를 기준으로 사실·숫자·날짜를 검증해 전달합니다."}</span></section>
    {(sources.length>0||officialOriginal)&&<section className="dfPublicSources"><small>ORIGINAL SOURCES</small><h2>원문·출처 확인</h2><p className="dfEditorialSourceIntro">{isBlog?"작성 당시 원문과 자료를 확인할 수 있습니다.":"기사에 사용한 공식자료의 원문을 확인할 수 있습니다."}</p>{sources.map(s=>{const content=<><div><b>{s.source_name||s.document_title}</b><span>{s.document_title}</span>{s.source_published_at&&<em>{new Date(s.source_published_at).toLocaleString("ko-KR")}</em>}</div><strong>{s.source_url?"↗":"확인"}</strong></>;return s.source_url?<a key={s.document_id} href={s.source_url} target="_blank" rel="noopener noreferrer">{content}</a>:<div className="dfPublicSourceStatic" key={s.document_id}>{content}</div>})}{officialOriginal&&!hasSameSource&&<a href={officialOriginal} target="_blank" rel="noopener noreferrer"><div><b>{isBlog?"투자GO 원문":"원본 발표 자료"}</b><span>{isBlog?"원래 게시물 보기":"원문 보기"}</span></div><strong>↗</strong></a>}</section>}
   </article><DFBottomNav active="news"/>
  </main>

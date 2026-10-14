@@ -1,7 +1,7 @@
 "use client";
 import {useEffect} from "react";
 export default function UpdateError({error,reset}){
- useEffect(()=>{console.error("Development Focus: update-screen render failed",error)},[error]);
+ useEffect(()=>{console.error("Dosimaek: update-screen render failed",error)},[error]);
  const diagnostic=String(error?.digest||error?.message||"RENDER_ERROR").slice(0,160);
  return <main className="adminShell dfAdminUnified"><section className="adminPanel" style={{padding:22,marginTop:24}}>
   <small style={{color:"#ab672c",fontWeight:800}}>화면 연결 오류</small>

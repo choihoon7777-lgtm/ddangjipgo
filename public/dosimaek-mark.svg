@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="도시맥 도시 스카이라인 심볼">
+<defs><linearGradient id="navy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0D2A45"/><stop offset="1" stop-color="#194D72"/></linearGradient><linearGradient id="gold" x1="0" y1="0" x2="1" y2=".5"><stop stop-color="#F0D4A4"/><stop offset="1" stop-color="#C08843"/></linearGradient></defs>
+<rect x="0" y="0" width="128" height="128" rx="27" fill="url(#navy)"/>
+<g fill="#F7F4EA"><path d="M23 81V57l15-6v30z"/><path d="M42 81V39l15-7v49z"/><path d="M61 81V47l15-8v42z"/><path d="M80 81V26l17-6v61z"/></g>
+<path d="M20 91c12-6 22-6 31-2 10 5 17 6 26 1 11-6 20-18 33-19" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
+<path d="m101 68 10 3-3 9" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#B9C7CF" opacity=".45"><rect x="48" y="45" width="3" height="4"/><rect x="67" y="56" width="3" height="4"/><rect x="87" y="34" width="4" height="5"/></g></svg>

@@ -1,8 +1,8 @@
 "use client";
 import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
-const categories=["최신뉴스","개발정책","분양·청약","지역 FOCUS"];
-const hrefFor=(x)=>x==="최신뉴스"?"/focus/live":x==="지역 FOCUS"?"/focus/region":x==="개발사업"?"/focus/projects":x==="개발정책"?"/focus/policy":x==="분양·청약"?"/focus/housing":"/focus/live?category="+encodeURIComponent(x);
+const categories=["최신 뉴스","정책·고시","분양·청약","지역별 정보"];
+const hrefFor=(x)=>x==="최신 뉴스"?"/focus/live":x==="지역별 정보"?"/focus/region":x==="개발사업"?"/focus/projects":x==="정책·고시"?"/focus/policy":x==="분양·청약"?"/focus/housing":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
  const[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false),[unread,setUnread]=useState(0);
@@ -12,16 +12,16 @@ export function DFBrandHeader(){
  const currentCategory=params.get("category");
  const activeFor=x=>{
   if(x==="홈")return currentPath==="/focus";
-  if(x==="최신뉴스")return currentPath==="/focus/live"&&!currentCategory;
-  if(x==="지역 FOCUS")return currentPath==="/focus/region";
+  if(x==="최신 뉴스")return currentPath==="/focus/live"&&!currentCategory;
+  if(x==="지역별 정보")return currentPath==="/focus/region";
   if(x==="개발사업")return currentPath==="/focus/projects"||(currentPath==="/focus/live"&&currentCategory==="개발사업");
-  if(x==="개발정책")return currentPath==="/focus/policy";
+  if(x==="정책·고시")return currentPath==="/focus/policy";
   if(x==="분양·청약")return currentPath==="/focus/housing";
   return currentPath==="/focus/live"&&currentCategory===x;
  };
  return <div className="focusHeaderWrap">
   <header className="focusHeader">
-   <a className="focusBrand" href="/focus" aria-label="개발포커스 홈"><img className="focusBrandLogo" src="/development-focus-logo.jpg" alt="개발포커스 DEVELOPMENT FOCUS"/></a>
+   <a className="focusBrand dfCityBrand" href="/focus" aria-label="도시맥 홈"><img className="dfCityMark" src="/dosimaek-mark.svg" alt="" width="36" height="36"/><span className="dfCityWordmark">도시<span>맥</span></span></a>
    <div className="focusTools">
     <a className="focusTool focusToolIcon dfHeaderBell" href="/alerts" aria-label={"내 부동산 알림"+(unread?" 읽지 않은 알림 "+unread+"건":"")} title="내 부동산 알림"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>{unread>0&&<span className="dfHeaderBellCount">{unread>99?"99+":unread}</span>}</a>
     <a className="focusTool focusToolIcon" href="/focus/search" aria-label="통합검색"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.7"/><path d="m16 16 5 5"/></svg></a>
@@ -29,14 +29,14 @@ export function DFBrandHeader(){
    </div>
   </header>
   {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
-  <nav className="focusTabs" aria-label="개발포커스 뉴스 카테고리">{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
+  <nav className="focusTabs" aria-label="도시맥 뉴스 카테고리">{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
  </div>
 }
 export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
  return <header className="dfArticleTop"><a href={back}>←</a><div className="dfSubTitle"><b>{title}</b>{kicker&&<small>{kicker}</small>}</div>{right?<a href={right}>⌕</a>:<span></span>}</header>
 }
 function DFNavIcon({id}){return <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{id==="home"?<><path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/></>:id==="news"?<><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></>:id==="policy"?<><path d="M3 10h18L12 4 3 10ZM5 20h14M7 12v6M12 12v6M17 12v6"/></>:id==="land"?<><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></>:<><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></>}</svg>;}
-export function DFBottomNav({active=""}){const items=[["home","홈","/focus"],["news","뉴스","/focus/live"],["policy","정책","/focus/policy"],["land","내 부동산","/my/properties"],["my","MY","/my"]];return <nav className="focusBottom dfPremiumBottom" aria-label="주요 메뉴">{items.map(([id,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><DFNavIcon id={id}/><b>{label}</b></a>)}</nav>;}
+export function DFBottomNav({active=""}){const items=[["home","홈","/focus"],["news","뉴스","/focus/live"],["policy","정책","/focus/policy"],["land","내 부동산","/my/properties"],["my","내 정보","/my"]];return <nav className="focusBottom dfPremiumBottom" aria-label="주요 메뉴">{items.map(([id,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><DFNavIcon id={id}/><b>{label}</b></a>)}</nav>;}
 export function DFSectionTitle({eyebrow,title,href,label="전체보기 →"}){
  return <div className="focusTitle"><div>{eyebrow&&<small className="focusEyebrow">{eyebrow}</small>}<h2>{title}</h2></div>{href&&<a href={href}>{label}</a>}</div>
 }
@@ -73,8 +73,8 @@ export function DFLiveAd({placement="home",region=null}){
  return <a className="dfLiveAd" href={item.target_url} target="_blank" rel="noreferrer" onClick={click}>{inner}</a>
 }
 
-export function DFAdminHeader({title="개발포커스 운영센터",kicker="OPERATIONS",back="/focus-admin"}){
- return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">개발포커스</a></header>
+export function DFAdminHeader({title="도시맥 운영센터",kicker="OPERATIONS",back="/focus-admin"}){
+ return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">도시맥</a></header>
 }
 export function DFAdminBottomNav({active="home"}){
  const items=[["home","⌂","운영","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];

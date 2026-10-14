@@ -1,6 +1,6 @@
 *{box-sizing:border-box}body{margin:0;background:#f5f2e9;color:#102b27;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif}a{color:inherit;text-decoration:none}main{max-width:480px;margin:auto;min-height:100vh;padding:24px 20px 110px}header{display:flex;align-items:baseline;gap:9px;margin:8px 0 42px}header b{font-size:25px}header span{font-size:10px;letter-spacing:2px;color:#a58a51}.hero{background:#123b34;color:#fff;padding:30px 24px;border-radius:28px;box-shadow:0 18px 50px #123b3422}.eyebrow{font-size:10px;letter-spacing:2px;color:#d5bc80}.hero h1{font-size:34px;line-height:1.22;margin:12px 0}.hero>p:not(.eyebrow){font-size:14px;line-height:1.7;color:#e6ece9}.search{margin-top:24px;background:#fff;color:#8b938f;border-radius:16px;padding:8px 8px 8px 15px;font-size:13px;display:flex;align-items:center;justify-content:space-between}.search button{border:0;background:#c4a45f;color:#fff;padding:11px 15px;border-radius:11px}.title{display:flex;justify-content:space-between;align-items:flex-end;margin:34px 2px 12px}.title h2{font-size:20px;margin:0}.title small{font-size:9px;color:#9b7d3e}article{display:flex;align-items:center;gap:13px;background:#fff;border-radius:18px;padding:16px;margin:9px 0}article .dot{min-width:38px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#edf2ef;color:#1c5448;font-weight:700}article div:nth-child(2){flex:1}article strong{font-size:13px}article p{font-size:11px;color:#78817d;margin:5px 0}article small{font-size:9px;color:#a18d63}.asset{margin-top:24px;padding:22px;border:1px solid #d9cfb8;border-radius:22px;background:#faf8f2}.asset>p:first-child{font-size:11px;color:#967a42;margin:0}.asset h3{margin:7px 0 20px}.score{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e2dccd;padding-top:15px}.score strong{font-size:25px;color:#b18a3c}.note,.muted{font-size:12px;line-height:1.6;color:#7b817e}.input{width:100%;border:1px solid #d8d2c5;background:white;border-radius:16px;padding:16px;font-size:15px;outline:none;margin:14px 0}.input:focus{border-color:#b79a5d}.result,.empty{display:flex;flex-direction:column;gap:6px;background:#fff;padding:18px;border-radius:18px;margin-top:10px}.result span,.empty{font-size:12px;color:#7b817e}.assetHead{margin:25px 0;background:#123b34;color:#fff;border-radius:26px;padding:26px}.assetHead small{color:#d5bc80}.assetHead h1{font-size:23px;margin:8px 0 14px}.badge{display:inline-block;background:#ffffff18;padding:7px 10px;border-radius:20px;font-size:11px}.bigScore{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #ffffff22;margin-top:22px;padding-top:18px}.bigScore b{font-size:38px;color:#d5bc80}.evidence{border:1px solid #d9cfb8;border-radius:18px;padding:18px;margin-top:20px}.evidence p{font-size:12px;line-height:1.6;color:#68736e}nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 28px));background:#fff;border-radius:24px;padding:12px 14px;display:flex;justify-content:space-around;box-shadow:0 10px 35px #0002}nav span{font-size:20px;text-align:center;color:#68736e}nav i{display:block;font-style:normal;font-size:9px;margin-top:3px}.add{background:#123b34!important;color:white!important;width:48px;height:48px;border-radius:50%;margin-top:-25px;padding-top:7px}.add i{font-size:8px}.primary{display:block;margin-top:12px;background:#123b34;color:#fff;text-align:center;padding:13px;border-radius:12px;font-size:13px}.mapDemo{height:420px;margin-top:18px;border-radius:26px;background:linear-gradient(145deg,#e3e0d4,#f9f7ef);position:relative;padding:24px;overflow:hidden}.mapDemo:before,.mapDemo:after{content:"";position:absolute;background:#fff8;transform:rotate(-18deg)}.mapDemo:before{width:600px;height:30px;left:-100px;top:180px}.mapDemo:after{width:30px;height:600px;left:220px;top:-80px}.mapDemo span{display:block;font-size:11px;color:#8d7a51}.mapDemo .pin{position:absolute;z-index:2;top:180px;left:190px;background:#123b34;color:#d5bc80;width:58px;height:58px;border-radius:50% 50% 50% 10%;transform:rotate(-45deg);display:grid;place-items:center;font-weight:800}.mapDemo .pin::first-line{transform:rotate(45deg)}.mapDemo p{position:absolute;bottom:15px;font-size:10px;color:#8a8f8c}
 
-/* Development Focus integrated mobile */
+/* Dosimaek integrated mobile */
 .focusShell,.focusAdmin{max-width:480px;margin:auto;min-height:100vh;padding:0 0 96px;background:#fff;color:#12233b}.focusHeader,.focusAdminHead{margin:0;padding:16px 17px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #edf0f3;background:#fff;position:sticky;top:0;z-index:10}.focusBrand{display:flex;gap:9px;align-items:center}.focusSymbol{width:34px;height:34px;border:3px solid #102f53;border-radius:10px;display:grid;place-items:center;color:#f47721}.focusBrand strong{font-size:20px;color:#102f53;letter-spacing:-1px}.focusBrand small{display:block;font-size:7px;letter-spacing:1.4px;color:#647386}.focusTools{display:flex;gap:5px}.focusTools button,.focusAdminHead button{border:0;background:#f1f3f6;border-radius:9px;padding:8px;font-size:10px}.focusTabs{display:flex;gap:19px;overflow:auto;white-space:nowrap;padding:12px 17px;border-bottom:1px solid #edf0f3;font-size:11px}.focusTabs b{color:#f47721}.focusHero{padding:23px 17px}.focusHero em,.focusLand>small{font-style:normal;font-size:9px;font-weight:800;letter-spacing:1.4px;color:#f47721}.focusHeroImg{height:180px;margin:10px 0 17px;border-radius:22px;padding:18px;display:flex;align-items:flex-end;background:linear-gradient(145deg,#0c223c,#315675);color:#ffffff2b;font-size:25px;font-weight:900;line-height:.9}.focusHero h1{font-size:30px;line-height:1.12;letter-spacing:-1.6px;margin:0}.focusHero p{font-size:12px;line-height:1.6;color:#6e7b89}.focusBlock{padding:0 17px 22px}.focusTitle{display:flex;justify-content:space-between;align-items:center;margin:18px 0 7px}.focusTitle h2{margin:0;font-size:19px}.focusTitle span{font-size:9px;color:#7b8794}.focusNews{border-radius:0;border-bottom:1px solid #edf0f3;margin:0;padding:14px 0;background:#fff}.focusNews>div:first-child{flex:1}.focusNews small{color:#f47721;font-weight:700}.focusNews h3{font-size:14px;line-height:1.4;margin:5px 0}.focusNews p{font-size:9px;margin:0}.focusThumb{width:72px;height:62px;border-radius:11px;background:#eef1f4;display:grid;place-items:center;color:#a2acb7;font-weight:900}.focusRegions{display:flex;gap:9px;overflow:auto}.focusRegions>div{min-width:122px;height:120px;padding:15px;border-radius:17px;background:#102f53;color:#fff;display:flex;flex-direction:column}.focusRegions b{font-size:19px}.focusRegions span{font-size:9px;letter-spacing:1.3px;color:#f47721}.focusRegions small{margin-top:auto;color:#cad4de;font-size:8px}.focusLand{margin:3px 17px 22px;padding:23px;border-radius:23px;background:#f3f5f7}.focusLand h2{font-size:22px;line-height:1.25;margin:7px 0}.focusLand p{font-size:11px;line-height:1.6;color:#657382}.focusLand a{display:inline-block;background:#102f53;color:#fff;padding:11px 14px;border-radius:10px;font-size:10px}.focusBottom{width:min(452px,calc(100% - 20px));border:1px solid #e6eaf0}.focusBottom span{font-size:15px}.focusBottom b{display:block;font-size:8px;margin-top:3px}.focusAdminHead div b{display:block;font-size:13px}.focusAdminHead div small{font-size:8px;color:#f47721;letter-spacing:1.1px}.deskHero{padding:27px 17px;background:#102f53;color:#fff}.deskHero>small{color:#f6a16a;font-size:9px}.deskHero h1{font-size:29px;line-height:1.14;margin:6px 0 20px}.deskStats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.deskStats div{padding:12px;background:#ffffff10;border:1px solid #ffffff16;border-radius:14px}.deskStats b{display:block;font-size:21px}.deskStats span{font-size:8px;color:#c9d4df}.deskSection{padding:2px 15px 17px;background:#f6f7f9}.deskCard{display:block;margin:9px 0;padding:16px;border-radius:16px;background:#fff}.deskMeta{display:flex;gap:5px}.deskMeta span,.deskMeta em{font-size:8px;padding:5px 6px;border-radius:6px;background:#f0f3f6}.deskMeta em{margin-left:auto;font-style:normal}.deskMeta .green{background:#e8f6ee;color:#16864b}.deskMeta .yellow{background:#fff2dc;color:#a96600}.deskCard h3{font-size:14px;margin:10px 0 5px}.deskCard>p{font-size:9px;color:#778492}.deskChecks{display:flex;gap:4px;flex-wrap:wrap}.deskChecks span{font-size:7px;padding:4px 5px;border-radius:5px;background:#edf7f1;color:#347455}.deskActions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:12px}.deskActions button{border:1px solid #dde3e8;background:#fff;border-radius:8px;padding:9px 2px;font-size:9px}.deskActions .pub{background:#f47721;border-color:#f47721;color:#fff;font-weight:800}.deskGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.deskGrid div{background:#fff;padding:15px;border-radius:14px}.deskGrid b{display:block;font-size:11px}.deskGrid span{font-size:8px;color:#788594}
 
 
@@ -54,7 +54,7 @@
 
 .adminHead p{font-size:8px;color:#c9d4df;margin:7px 0 0}.adminToday{padding:14px}.adminSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:10px}.adminSectionTitle small{font-size:7px;color:#f47721}.adminSectionTitle h2{margin:3px 0 10px}.adminSectionTitle>a,.adminSectionTitle>span{font-size:8px;color:#74818d}.adminToday .adminStats{padding:0;grid-template-columns:repeat(4,1fr)}.adminToday .adminStats div{padding:12px 9px}.adminToday .adminStats b{font-size:18px}.adminDataNote{font-size:8px!important;color:#87929c!important;line-height:1.6}.adminEmpty{padding:18px;background:#f4f6f8;border-radius:12px;display:flex;flex-direction:column;gap:6px}.adminEmpty b{font-size:10px}.adminEmpty span{font-size:8px;color:#7c8994;line-height:1.55}.pipeline{display:flex;align-items:center;gap:5px;overflow-x:auto;padding:8px 0}.pipeline span{white-space:nowrap;background:#eef2f5;border-radius:14px;padding:7px 8px;font-size:7px;font-weight:700}.pipeline i{font-style:normal;color:#a8b0b7}.adminMenu>a>div{display:flex;flex-direction:column;gap:5px}.adminMenu>a span{font-size:8px;line-height:1.4}.adminMenu>a strong{font-size:20px}.adminBottom{position:sticky;bottom:0;margin-top:18px;background:#fff;border-top:1px solid #e3e7eb;display:grid;grid-template-columns:repeat(5,1fr);padding:9px 5px}.adminBottom a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px}.adminBottom b{font-size:7px}.formPanel label{display:block;font-size:9px;font-weight:800;margin-bottom:12px}.formPanel input,.formPanel select,.formPanel textarea{display:block;width:100%;box-sizing:border-box;margin-top:6px;border:1px solid #dce2e7;border-radius:10px;padding:11px;background:#fff}.formPanel textarea{min-height:180px;resize:vertical}.editorGate{background:#fff6ee;border:1px solid #f5d0b3;border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:5px}.editorGate b{font-size:9px}.editorGate span{font-size:8px;line-height:1.5}.adminPrimary{width:100%;margin-top:12px;border:0;border-radius:11px;background:#102f53;color:#fff;padding:13px;font-weight:800}.adminPrimary:disabled{opacity:.35}.miniBtn{border:0;background:#102f53;color:#fff;border-radius:12px;padding:7px 9px;font-size:8px}.statTabs{display:flex;gap:7px;margin-bottom:12px}.statTabs>*{padding:7px 11px;border-radius:14px;background:#f0f3f5;font-size:8px}.statTabs b{background:#102f53;color:#fff}.systemList{display:grid;gap:7px}.systemList div{display:flex;justify-content:space-between;padding:11px;background:#f4f6f8;border-radius:10px}.systemList b{font-size:9px}.systemList span{font-size:8px;color:#73808c}
 
-/* Development Focus signature system v2 */
+/* Dosimaek signature system v2 */
 .dfHigh{--navy:#0b2748;--orange:#f47721;--ink:#10233c;--muted:#718092;--line:#e8edf2;--soft:#f6f8fa;background:#fff;color:var(--ink)}
 .dfHigh .focusHeader{padding:12px 16px;min-height:58px;box-shadow:0 1px 0 var(--line)}
 .dfHigh .focusBrand strong{font-size:19px;font-weight:850;letter-spacing:-1.1px}.dfHigh .focusBrand small{font-size:6.5px;letter-spacing:1.55px;margin-top:1px}
@@ -68,7 +68,7 @@
 .dfHigh .focusBottom{bottom:9px;border-radius:20px;padding:10px 12px;box-shadow:0 8px 28px #0b27481f}.dfHigh .focusBottom a{min-width:50px;text-align:center;font-size:14px;color:#607083}.dfHigh .focusBottom a{color:#607083}.dfHigh .focusBottom a.active{color:var(--orange)}.dfHigh .focusBottom b{font-size:8px;margin-top:2px}
 @media(max-width:360px){.focusLandFeatures{grid-template-columns:1fr 1fr}.dfHigh .focusTabs{gap:17px}.dfHigh .leadNews h3{font-size:16px}}
 
-/* Development Focus signature system v3: article / region / land */
+/* Dosimaek signature system v3: article / region / land */
 .dfArticleTop{height:56px;padding:0 16px;display:grid;grid-template-columns:36px 1fr 90px;align-items:center;border-bottom:1px solid #e8edf2;background:#fff;position:sticky;top:0;z-index:15}.dfArticleTop>a:first-child{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f4f6f8;font-size:16px;color:#0b2748}.dfArticleTop>b{text-align:center;font-size:15px;letter-spacing:-.5px;color:#0b2748}.dfArticleTop>a:last-child{justify-self:end;width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f4f6f8;color:#0b2748}.dfArticleTop>span{justify-self:end;font-size:6.5px;letter-spacing:1.2px;color:#f47721}
 .dfNewsArticle{display:block!important;padding:24px 18px 40px!important;margin:0!important;border-radius:0!important;background:#fff!important}.dfArticleMeta{display:flex;align-items:center;gap:7px}.dfArticleMeta span{font-size:9px;font-weight:850;letter-spacing:.5px;color:#f47721}.dfArticleMeta em{font-style:normal;font-size:8px;padding:4px 7px;border-radius:20px;background:#f1f4f7;color:#647386}.dfNewsArticle h1{font-size:29px;line-height:1.23;letter-spacing:-1.45px;margin:10px 0 12px;color:#10233c}.dfNewsLead{font-size:13px!important;line-height:1.62!important;color:#5f6e7d!important;margin:0 0 12px!important}.dfTime{font-size:8.5px!important;color:#8a96a3!important;margin:0 0 22px!important}.dfTime b{font-weight:700;color:#f47721}.dfKeySummary{margin:0 0 26px;padding:17px 16px;background:#f6f8fa;border-radius:16px;border-top:2px solid #0b2748}.dfKeySummary>small{display:block;font-size:7px;font-weight:850;letter-spacing:1.4px;color:#f47721;margin-bottom:8px}.dfKeySummary p{display:grid;grid-template-columns:26px 1fr;gap:8px;margin:8px 0!important;font-size:11px!important;line-height:1.55!important;color:#263a50!important}.dfKeySummary p b{font-size:8px;color:#f47721}.dfStoryBody{white-space:pre-wrap;font-size:14px;line-height:1.86;letter-spacing:-.2px;color:#25384b}.dfArticleTrust{margin-top:34px;padding:16px 0;border-top:1px solid #e8edf2;border-bottom:1px solid #e8edf2}.dfArticleTrust b{display:block;font-size:8px;letter-spacing:1.2px;color:#0b2748}.dfArticleTrust span{display:block;margin-top:5px;font-size:9px;line-height:1.55;color:#7d8996}.dfArticleState{min-height:55vh;padding:90px 24px;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center;color:#647386;font-size:11px}.dfArticleState b{font-size:15px;color:#10233c}.dfArticleState a{font-size:9px;color:#f47721}
 .dfRegionIntro{padding:27px 18px 24px;background:linear-gradient(145deg,#0b2748,#153c63);color:#fff}.dfRegionIntro small{font-size:7px;font-weight:850;letter-spacing:1.4px;color:#f47721}.dfRegionIntro h1{font-size:28px;line-height:1.18;letter-spacing:-1.3px;margin:7px 0}.dfRegionIntro p{font-size:10.5px;line-height:1.6;color:#cad5df;margin:0}.dfRegionPicker{padding:15px 16px 5px}.dfRegionPicker .focusTitle{margin-top:4px}.dfRegionPicker .regionGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.dfRegionPicker .regionGrid a{height:35px;display:grid;place-items:center;border:1px solid #e3e8ed;border-radius:10px;font-size:9px;color:#647386;background:#fff}.dfRegionPicker .regionGrid a.on{background:#0b2748;border-color:#0b2748;color:#fff;font-weight:800}.dfRegionAction{margin:7px 16px 30px;padding:18px;border-radius:17px;background:#0b2748;color:#fff;display:flex;flex-direction:column}.dfRegionAction small{font-size:7px;letter-spacing:1.3px;color:#f47721}.dfRegionAction b{font-size:15px;margin:5px 0}.dfRegionAction span{font-size:9px;line-height:1.55;color:#cbd5df}.dfRegionAction a{margin-top:13px;align-self:flex-start;padding:9px 11px;border-radius:9px;background:#f47721;color:#fff;font-size:9px;font-weight:800}
@@ -77,7 +77,7 @@
 
 .dfLandResultHero{padding:30px 18px 26px;background:linear-gradient(145deg,#0b2748,#153c63);color:#fff}.dfLandResultHero small{font-size:7px;font-weight:850;letter-spacing:1.35px;color:#f47721}.dfLandResultHero h1{font-size:25px;line-height:1.25;letter-spacing:-1.1px;margin:7px 0 10px;word-break:keep-all}.dfLandResultHero p{margin:0;font-size:10.5px;line-height:1.65;color:#cad5df}.dfLandModules{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.dfLandModules div{min-height:86px;padding:14px;border:1px solid #e6ebef;border-radius:14px;background:#fff}.dfLandModules b{display:block;font-size:11px;color:#10233c}.dfLandModules span{display:block;margin-top:7px;font-size:8.5px;line-height:1.45;color:#748190}.dfLandResultNotice{margin:4px 16px 12px;padding:15px;border-radius:14px;background:#f6f8fa;border-left:3px solid #f47721}.dfLandResultNotice b{display:block;font-size:11px}.dfLandResultNotice span{display:block;margin-top:5px;font-size:8.5px;line-height:1.55;color:#718092}.dfLandBackAction{display:block;margin:0 16px;padding:12px;border-radius:11px;background:#0b2748;color:#fff;text-align:center;font-size:10px;font-weight:800}
 
-/* Development Focus unified IA v4 */
+/* Dosimaek unified IA v4 */
 .dfSubTitle{text-align:center;min-width:0}.dfSubTitle b{display:block;font-size:15px;color:#0b2748;letter-spacing:-.45px}.dfSubTitle small{display:block;margin-top:1px;font-size:6px;letter-spacing:1.1px;color:#f47721}
 .dfHigh .focusBottom a{color:#607083!important}.dfHigh .focusBottom a.active{color:#f47721!important}.dfHigh .focusBottom a span{display:block;font-size:14px;line-height:1}
 .dfLiveHero{padding:28px 18px 24px;background:#0b2748;color:#fff}.dfLiveHero small,.dfProjectHero small,.dfMyHero small{font-size:7px;font-weight:850;letter-spacing:1.35px;color:#f47721}.dfLiveHero h1,.dfProjectHero h1,.dfMyHero h1{font-size:28px;line-height:1.18;letter-spacing:-1.3px;margin:7px 0 9px}.dfLiveHero p,.dfProjectHero p,.dfMyHero p{font-size:10.5px;line-height:1.62;color:#cad5df;margin:0}
@@ -89,7 +89,7 @@
 
 .dfHomeLead{padding-top:14px!important}.dfLandCompact{padding-top:4px!important}.dfLandCompact .focusLandBox{padding:18px}.dfLandCompact .focusLandTagline{margin-top:14px!important}.dfLandCompact .focusLandFeatures{display:none}.dfLandCompact .focusHeroActions{margin-top:14px}
 
-/* Development Focus unified admin */
+/* Dosimaek unified admin */
 .dfAdminUnified{max-width:480px;margin:auto;min-height:100vh;padding:0 0 94px;background:#f6f8fa;color:#10233c}.dfAdminUnifiedHead{height:58px;margin:0;padding:0 14px;display:grid;grid-template-columns:38px 1fr 74px;align-items:center;background:#fff;border-bottom:1px solid #e8edf2;position:sticky;top:0;z-index:18}.dfAdminBack{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f4f6f8;color:#0b2748;font-size:16px}.dfAdminUnifiedHead>div{text-align:center}.dfAdminUnifiedHead small{display:block;font-size:6px;letter-spacing:1.1px;color:#f47721}.dfAdminUnifiedHead b{display:block;font-size:14px;letter-spacing:-.45px}.dfAdminPublic{justify-self:end;font-size:8px;color:#0b2748;padding:8px 9px;border-radius:9px;background:#f4f6f8}
 .dfAdminHero,.dfAdminLoginHero{padding:28px 18px 25px;background:linear-gradient(145deg,#0b2748,#153c63);color:#fff}.dfAdminHero small,.dfAdminLoginHero small{font-size:7px;font-weight:850;letter-spacing:1.35px;color:#f47721}.dfAdminHero h1,.dfAdminLoginHero h1{font-size:27px;line-height:1.18;letter-spacing:-1.2px;margin:7px 0 9px}.dfAdminHero p,.dfAdminLoginHero p{font-size:10.5px;line-height:1.6;color:#cad5df;margin:0}.dfAdminPriority{display:flex;align-items:center;justify-content:space-between;padding:15px;border-radius:14px;background:#0b2748;color:#fff}.dfAdminPriority b{display:block;font-size:12px}.dfAdminPriority span{display:block;margin-top:4px;font-size:8.5px;line-height:1.45;color:#cad5df}.dfAdminPriority strong{font-size:22px;color:#f47721}
 .dfAdminEntry{display:flex;align-items:center;justify-content:space-between;padding:17px;border-radius:16px;background:linear-gradient(145deg,#0b2748,#153c63);color:#fff;box-shadow:0 12px 28px #0b274812}.dfAdminEntry small{display:block;font-size:7px;letter-spacing:1.2px;color:#f47721}.dfAdminEntry b{display:block;margin-top:4px;font-size:14px}.dfAdminEntry span{display:block;margin-top:5px;font-size:8.5px;color:#cad5df}.dfAdminEntry strong{font-size:24px;color:#f47721}
@@ -110,7 +110,7 @@
 
 .dfLoginMode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;padding:4px;border-radius:12px;background:#f1f4f7}.dfLoginMode button{height:38px;border:0;border-radius:9px;background:transparent;color:#748190;font-size:9px;font-weight:800}.dfLoginMode button.on{background:#0b2748;color:#fff;box-shadow:0 4px 12px #0b274814}
 
-/* Development Focus operational modules */
+/* Dosimaek operational modules */
 .dfLiveNotice{margin:10px 16px 0;padding:12px 14px;border:1px solid #f1dfcf;border-radius:13px;background:#fff9f4;display:grid;gap:4px}.dfLiveNotice small{font-size:7px;font-weight:900;letter-spacing:1.2px;color:#f47721}.dfLiveNotice b{font-size:11px;color:#10233c}.dfLiveNotice span{font-size:8.8px;line-height:1.5;color:#6f7d8b}.dfLiveNotice.urgent{background:#fff3ee;border-color:#ffcdb7}
 .dfLiveAd{display:block;margin:12px 16px;padding:10px 12px;border:1px solid #e5eaf0;border-radius:14px;background:#fff}.dfLiveAd small{display:block;font-size:6.8px;color:#98a2ad}.dfLiveAd img{display:block;width:100%;max-height:116px;object-fit:cover;border-radius:9px;margin:7px 0}.dfLiveAd b{display:block;margin:5px 0;font-size:12px;color:#10233c}.dfLiveAd span{font-size:8px;color:#f47721;font-weight:800}
 .dfArticleActions{display:flex;gap:7px;margin:10px 0 16px}.dfArticleActions button,.dfArticleActions a{border:1px solid #e3e8ed;border-radius:9px;background:#fff;padding:8px 10px;font-size:8.5px;font-weight:800;color:#34485e}
@@ -133,14 +133,14 @@
 
 .parcelManual{margin-top:10px;padding:12px;border:1px solid #e6ebef;border-radius:12px;background:#fff}.parcelManual b{display:block;font-size:9px;color:#10233c}.parcelManual span{display:block;margin-top:3px;font-size:7.5px;line-height:1.45;color:#8794a1}.parcelManual input{width:100%;height:42px;margin-top:8px;padding:0 11px;border:1px solid #dfe5ea;border-radius:10px;background:#f9fbfc;font-size:10px;color:#10233c;outline:0}
 
-/* Official Development Focus CI */
+/* Official Dosimaek CI */
 .focusHeader{padding:10px 14px;min-height:68px}
 .focusBrand{display:flex;align-items:center;min-width:0;line-height:1}
 .focusBrandLogo{display:block;width:196px;max-width:52vw;height:auto;object-fit:contain}
 @media(max-width:390px){.focusHeader{padding:9px 12px;min-height:64px}.focusBrandLogo{width:174px;max-width:50vw}.focusTools{gap:3px}}
 
 
-/* Development Focus production header v2 */
+/* Dosimaek production header v2 */
 .focusHeaderWrap{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #edf0f3}
 .focusHeaderWrap .focusHeader{position:relative;top:auto;z-index:auto;margin:0;padding:10px 12px 8px;min-height:72px;border:0;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .focusHeaderWrap .focusBrand{display:flex;align-items:center;min-width:0;flex:1;overflow:hidden;line-height:1}
@@ -191,7 +191,7 @@
 }
 
 
-/* Development Focus home newsroom v2 */
+/* Dosimaek home newsroom v2 */
 .dfHomeLead{padding:18px 16px 16px!important}
 .dfHomeLead .focusTitle{margin:0 0 12px}
 .dfHomeLeadCard{display:block;border:1px solid #e5eaf0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 10px 28px #102f530a}
@@ -244,7 +244,7 @@
 }
 
 
-/* Development Focus article + personal flows final */
+/* Dosimaek article + personal flows final */
 .dfArticleCrumb{height:38px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f3;background:#fff}
 .dfArticleCrumb a{font-size:8.5px;font-weight:800;color:#0b2748}
 .dfArticleCrumb span{font-size:6.5px;letter-spacing:1.1px;color:#f47721}
@@ -272,7 +272,7 @@
 }
 
 
-/* Unified Development Focus operations center */
+/* Unified Dosimaek operations center */
 .dfAdminGroups{padding:0 12px 8px;display:grid;gap:10px}
 .dfAdminGroup{padding:15px;border:1px solid #edf0f3;border-radius:16px;background:#fff}
 .dfAdminGroupHead{margin-bottom:7px}
@@ -364,7 +364,7 @@
 .focusTabs{overscroll-behavior-x:contain}
 
 
-/* Development Focus Design System v3 — stage 1 */
+/* Dosimaek Design System v3 — stage 1 */
 :root{
  --df-navy:#0b2748;
  --df-navy-2:#14385d;
@@ -605,7 +605,7 @@ article.dfPolicyDetail .dfPolicySource{
 
 .dfPolicyBodyText{font-size:15px;line-height:1.85;overflow-wrap:anywhere;white-space:pre-wrap}.dfPolicyBodyText p{margin:0 0 16px}.dfPolicyBodyText summary{cursor:pointer;min-height:44px;color:#102f53;font-weight:700;padding:10px 0;white-space:normal}.dfPolicyBodyText details{border-top:1px solid #e3e9ee}
 
-/* Development Focus reader progressive disclosure */
+/* Dosimaek reader progressive disclosure */
 .dfPolicyBodyDisclosure{width:100%;margin:0}
 .dfPolicyBodyDisclosure summary{display:flex;justify-content:space-between;align-items:center;gap:12px;list-style:none;cursor:pointer;min-height:48px;padding:12px 0;color:#102f53;font-weight:850;font-size:14px}
 .dfPolicyBodyDisclosure summary::-webkit-details-marker{display:none}
@@ -621,7 +621,7 @@ article.dfPolicyDetail .dfPolicySource{
 .dfPolicyFreshness{margin:0 0 18px;padding:13px 14px;border:1px solid #efdfcf;border-left:3px solid #f47721;border-radius:11px;background:#fffaf4;color:#6f5136;font-size:13px;line-height:1.65;font-weight:650;overflow-wrap:anywhere}
 
 
-/* Development Focus · real official updates: responsive, scannable mobile control room */
+/* Dosimaek · real official updates: responsive, scannable mobile control room */
 .dfAdminUnified.dfUpdateView{overflow-x:hidden;padding-bottom:104px;background:#f4f6f8}
 .dfUpdateView *, .dfUpdateView *::before,.dfUpdateView *::after{box-sizing:border-box}
 .dfUpdateView .dfAdminUnifiedHead small{font-size:9px;letter-spacing:.5px}
@@ -701,7 +701,7 @@ article.dfPolicyDetail .dfPolicySource{
 .dfAdminUnified .dfSourceList article>div:first-child>p{font-size:11px;line-height:1.6}
 
 
-/* InvestGO -> Development Focus: source-preserving editorial staging inventory */
+/* InvestGO -> Dosimaek: source-preserving editorial staging inventory */
 .dfAdminUnified.dfNaverImport{overflow-x:hidden;background:#f4f6f8;padding-bottom:76px;min-height:100vh}
 .dfNaverImport *, .dfNaverImport *::before,.dfNaverImport *::after{box-sizing:border-box}
 .dfNaverImport .dfAdminUnifiedHead b{font-size:16px}
@@ -749,7 +749,7 @@ article.dfPolicyDetail .dfPolicySource{
 .dfAdminUnified.dfNaverImport .dfNaverEmpty{color:#718293;font-size:13px;text-align:center;line-height:1.6;padding:22px 0}
 @media(max-width:370px){.dfNaverHero,.dfNaverContent,.dfNaverNotice{margin-left:8px;margin-right:8px;padding:15px 12px}.dfNaverEntry h3{font-size:14px}.dfNaverTabs a{font-size:11px;padding:8px 9px}}
 
-/* First-party InvestGO columns inside actual Development Focus articles */
+/* First-party InvestGO columns inside actual Dosimaek articles */
 .dfInvestgoDisclosure{margin:16px 0 22px;border:1px solid #e2e9f1;background:#f6f8fb;border-radius:13px;padding:15px 16px}
 .dfInvestgoDisclosure b{display:block;color:#1c4065;font-size:13px;line-height:1.4;margin-bottom:7px}
 .dfInvestgoDisclosure p{margin:0;color:#64748b;font-size:12px;line-height:1.68;word-break:keep-all}
@@ -758,7 +758,7 @@ article.dfPolicyDetail .dfPolicySource{
 .dfInvestgoHomeNotice{font-size:12px;line-height:1.6;color:#63778e;margin:4px 0 13px}
 .dfInvestgoArticleImage{display:block;margin:16px auto;max-width:100%;width:auto;max-height:430px;object-fit:contain;border-radius:12px}
 
-/* Imported in-article images are hosted by Development Focus, not blurred Naver CDN previews. */
+/* Imported in-article images are hosted by Dosimaek, not blurred Naver CDN previews. */
 .dfInvestgoArticleFigure{margin:18px 0 22px;text-align:center;overflow:hidden}
 .dfInvestgoArticleFigure .dfInvestgoArticleImage{display:block;width:100%;height:auto;max-height:480px;object-fit:contain;margin:0 auto;border-radius:12px;background:#f4f6f8}
 .dfInvestgoArticleFigure figcaption{color:#8290a2;font-size:11px;margin-top:9px;line-height:1.5}
@@ -775,7 +775,7 @@ article.dfPolicyDetail .dfPolicySource{
 .dfUpdateFactoryFooter a{font-size:12px;color:#244e79;font-weight:800;text-decoration:none;white-space:nowrap}
 .dfUpdateFactoryHelp{font-size:11px;line-height:1.6;color:#8290a1;margin:12px 0 0;word-break:keep-all}
 
-/* Read-first Development Focus: present every verified official paragraph before source link */
+/* Read-first Dosimaek: present every verified official paragraph before source link */
 article.dfPolicyDetail .dfPolicyFullReader{padding:20px 17px;background:#fff;border:1px solid #e4e9ef;border-radius:14px;margin-top:18px}
 .dfPolicyFullReader .dfPolicySectionHead{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid #e6edf3;padding-bottom:12px;margin-bottom:17px}
 .dfPolicyFullReader .dfPolicySectionHead small{font-size:16px;font-weight:850;letter-spacing:-.4px;color:#183553}
@@ -1075,7 +1075,7 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 @media(max-width:390px){.dfGuestLoginOptional{min-width:0;white-space:normal}.dfGuestSkipBox{padding:15px 13px}}
 
 
-/* DEVELOPMENT FOCUS premium editorial design – 2026-10, news-first home. */
+/* DOSIMAEK premium editorial design – 2026-10, news-first home. */
 .dfPremiumHome{background:#fff;color:#183650}
 .dfPremiumHome .focusBlock{padding:4px 18px 27px}
 .dfPremiumEdition{margin:0 18px 23px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #e6edf2;padding:11px 0 13px;color:#425d74;font-size:10px;font-weight:780;letter-spacing:.35px}
@@ -1166,3 +1166,24 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfHigh .focusNews p{font-size:12px!important}
 .dfPolicyDetail .dfPolicySource>div small{font-size:12px!important}
 @media(max-width:360px){.dfPremiumHome .dfHomeSecondaries span{font-size:11.5px!important}}
+
+
+/* DOSIMAEK / 도시맥 — public-brand visual system. */
+.focusHeaderWrap .dfCityBrand{display:flex!important;align-items:center!important;gap:8px!important;overflow:visible!important;flex:0 1 auto!important;min-width:0;text-decoration:none}
+.focusHeaderWrap .dfCityMark{display:block!important;width:36px!important;height:36px!important;max-width:none!important;object-fit:contain;flex-shrink:0;border-radius:9px}
+.focusHeaderWrap .dfCityWordmark{display:block;color:#143551!important;line-height:1.1;font-size:27px;font-weight:900;letter-spacing:-1.3px;white-space:nowrap}
+.focusHeaderWrap .dfCityWordmark>span{color:#b97f40!important}
+.dfPremiumHome .dfPremiumEdition{color:#1a405d;font-size:11px;font-weight:850;letter-spacing:1px}
+.dfPremiumCover .dfHomeLeadVisual{min-height:126px!important;background:#123455 url("/dosimaek-skyline.svg") center center/cover no-repeat!important}
+.dfPremiumCover .dfHomeLeadVisual:after{opacity:.25}
+.dfPremiumCover .dfHomeLeadVisual .dfCityLeadMotto{display:block;font-size:22px!important;line-height:1.36!important;letter-spacing:-.7px!important;font-weight:850!important;color:#f8f4ec!important;text-shadow:0 2px 12px #102c4e7e}
+.dfPremiumCover .dfHomeLeadVisual small{font-size:11px!important;font-weight:750;color:#edd8bd!important}
+.dfPremiumHome .dfPremiumDirectoryGrid>a:hover{border-color:#c2d3e0;background:#f5f9fb}
+.dfPremiumHome .dfPremiumDirectoryGrid>a:focus-visible{outline:2px solid #bd874a;outline-offset:3px}
+@media(max-width:380px){
+.focusHeaderWrap .dfCityMark{width:32px!important;height:32px!important}
+.focusHeaderWrap .dfCityBrand{gap:6px!important}
+.focusHeaderWrap .dfCityWordmark{font-size:24px!important}
+.dfPremiumHome .dfPremiumEdition{font-size:10px}
+.dfPremiumCover .dfHomeLeadVisual .dfCityLeadMotto{font-size:20px!important}
+}

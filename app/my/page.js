@@ -27,9 +27,9 @@ export default function My(){
  }
  async function logout(){await dfSupabase.auth.signOut();location.replace("/focus")}
  return <main className="focusShell dfHigh"><DFSubHeader title="MY" kicker="PERSONAL"/>
- <section className="dfMyHero"><small>PERSONAL FOCUS</small><h1>내가 보는 개발정보만<br/>한곳에 모읍니다.</h1><p>관심 부동산·지역·기사·알림을 개발포커스와 땅짚고 데이터로 연결합니다.</p></section>
+ <section className="dfMyHero"><small>PERSONAL FOCUS</small><h1>내가 보는 개발정보만<br/>한곳에 모읍니다.</h1><p>관심 부동산·지역·기사·알림을 도시맥와 땅짚고 데이터로 연결합니다.</p></section>
  <section className="focusBlock"><DFSectionTitle eyebrow="ACCOUNT" title={user?"내 계정":"로그인 없는 체험 모드"}/>{user?<div className="dfAccountCard"><div><b>{user.email}</b><span>관심부동산과 기사 기록이 이 계정에 저장됩니다.</span></div><button onClick={logout}>로그아웃</button></div>:<div className="dfAccountCard"><div><b>로그인 없이 바로 이용 중</b><span>관심부동산·알림·저장기사·최근 열람기록은 이 기기에만 보관됩니다. 다른 기기로 자동 동기화되거나 서버 알림이 발송되지는 않습니다.</span></div><a className="dfGuestLoginOptional" href="/login">계정 연결 (선택)</a></div>}</section>
- {<section className="focusBlock"><DFSectionTitle eyebrow="OPERATIONS" title="운영센터"/><a className="dfAdminEntry" href="/focus-admin"><div><small>DEVELOPMENT FOCUS OPS</small><b>개발포커스 운영센터</b><span>{isAdmin?"기사·공지·광고·정정·통계·시스템을 한곳에서 관리":"로그인 없이 관리자 전체 화면을 체험"}</span></div><strong>›</strong></a></section>}
+ {<section className="focusBlock"><DFSectionTitle eyebrow="OPERATIONS" title="운영센터"/><a className="dfAdminEntry" href="/focus-admin"><div><small>DOSIMAEK OPS</small><b>도시맥 운영센터</b><span>{isAdmin?"기사·공지·광고·정정·통계·시스템을 한곳에서 관리":"로그인 없이 관리자 전체 화면을 체험"}</span></div><strong>›</strong></a></section>}
  <section className="focusBlock"><DFSectionTitle eyebrow="MY PROPERTY" title="부동산 인텔리전스"/><a className="dfMyCard" href="/search"><div><b>부동산 분석 시작</b><span>주소·지번을 기준으로 토지정보와 주변 개발변화를 확인하고 저장합니다.</span></div><strong>›</strong></a></section>
  <section className="focusBlock"><DFSectionTitle eyebrow="WATCH" title="관심정보"/><div className="dfMyGrid">
   <a href="/my/properties"><b>관심부동산 <em>{counts.properties}</em></b><span>등록한 토지·건물</span></a>
@@ -38,7 +38,7 @@ export default function My(){
   <a href="/my/recent"><b>최근 본 기사 <em>{counts.recent}</em></b><span>최근 열람 기록</span></a>
  </div></section>
  {user&&<section className="focusBlock"><DFSectionTitle eyebrow="NOTIFICATIONS" title="이메일 알림"/><div className="dfNotificationSetting"><div><b>관심부동산 새 개발정보</b><span>{user.email||"계정 이메일"}로 새 알림을 받을 수 있습니다.</span>{alertMsg&&<em>{alertMsg}</em>}</div><button className={emailAlert?"on":""} disabled={alertBusy||!user.email} onClick={toggleEmailAlert}>{alertBusy?"저장 중…":emailAlert?"알림 ON":"알림 OFF"}</button></div></section>}
- <section className="focusBlock"><DFSectionTitle eyebrow="REGION" title="지역 FOCUS"/><a className="dfMyCard" href="/focus/region"><div><b>관심지역 둘러보기</b><span>전국 17개 시·도 개발뉴스를 지역 기준으로 확인합니다.</span></div><strong>›</strong></a></section>
+ <section className="focusBlock"><DFSectionTitle eyebrow="REGION" title="지역별 정보"/><a className="dfMyCard" href="/focus/region"><div><b>관심지역 둘러보기</b><span>전국 17개 시·도 개발뉴스를 지역 기준으로 확인합니다.</span></div><strong>›</strong></a></section>
  <section className="focusBlock"><DFSectionTitle eyebrow="TRUST" title="데이터 원칙"/><div className="dfMyTrust"><b>공식자료와 AI 분석을 구분합니다.</b><span>출처·기준일·수정이력을 확인할 수 있는 구조로 운영합니다.</span></div></section>
  <DFBottomNav active="my"/></main>
 }

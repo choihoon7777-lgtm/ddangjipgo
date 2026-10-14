@@ -67,7 +67,7 @@ export default function Region(){
   </section>
   <section className="dfRegionOfficial">
    <div className="focusTitle"><div><small className="focusEyebrow">OFFICIAL UPDATE</small><h2>{name==="전국"?"전국":name} 정책·고시·보도자료</h2></div><button type="button" className="dfRegionRefresh" onClick={()=>setReload(v=>v+1)} disabled={loading}>{loading?"조회 중":"새로고침 ↻"}</button></div>
-   <p className="dfRegionExplanation">정부·지자체가 발표한 공식자료를 발표일 순서로 제공합니다. 상세 내용은 개발포커스에서 읽고, 원문은 해당 기관으로 연결됩니다.</p>
+   <p className="dfRegionExplanation">정부·지자체가 발표한 공식자료를 발표일 순서로 제공합니다. 상세 내용은 도시맥에서 읽고, 원문은 해당 기관으로 연결됩니다.</p>
    <div className="dfRegionCollectorCard" role="status">
     <div><strong>공식기관 자동 수집 상태</strong><a href="/focus-admin/updates">기관별 현황 ↗</a></div>
     {sourceHealth?.regional?<><p>{name==="전국"?"전국 수집처":name+" 지역 수집처"} {sourceHealth.regional.total}곳 · 최근 성공 {sourceHealth.regional.success} · 오류 {sourceHealth.regional.failed+sourceHealth.regional.partial}{sourceHealth.regional.pending?" · 미점검 "+sourceHealth.regional.pending:""}</p>
