@@ -13,10 +13,12 @@ export default function OfficialArticleText({content,partial=false,kind="article
    else out.push(b);
   }return out;
  },[blocks]);
+ const outline=sections.map((x,i)=>({...x,index:i})).filter(x=>x.kind==="heading").slice(0,9);
  if(!sections.length)return <p className="dfOfficialEmpty">공개할 문서 본문이 아직 확보되지 않았습니다.</p>;
  return <div className={"dfOfficialArticleText dfEditorialProse dfEditorial-"+kind} aria-label={partial?"공식자료에서 확보한 본문":"기사 본문 전체"}>
+  {outline.length>=4&&kind!=="official"&&<nav className="dfEditorialOutline" aria-label="기사 차례"><b>이 글의 주요 내용</b>{outline.map(x=><a key={x.index} href={"#df-article-section-"+x.index}>{x.text}<span>↘</span></a>)}</nav>}
   {sections.map((b,i)=>{
-   if(b.kind==="heading")return <h3 className="dfEditorialHeading" key={i}>{b.text}</h3>;
+   if(b.kind==="heading")return <h3 className="dfEditorialHeading" id={"df-article-section-"+i} key={i}>{b.text}</h3>;
    if(b.kind==="list")return <ul className="dfEditorialList" key={i}>{b.items.map((x,j)=><li key={j}>{x}</li>)}</ul>;
    if(b.kind==="quote")return <blockquote className="dfEditorialQuote" key={i}>{b.text}</blockquote>;
    if(b.kind==="note")return <p className="dfEditorialFootnote" key={i}>{b.text}</p>;
