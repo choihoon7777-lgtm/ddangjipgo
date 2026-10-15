@@ -1,12 +1,13 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 import {DFAdminHeader,DFAdminBottomNav} from "./df-shell";
+import {dfSupabase} from "../lib/df-browser";
 
 const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-update";
 const time=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미점검";
 const date=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"공개일 미확인";
 export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
- const [status,setStatus]=useState(initialStatus),[records,setRecords]=useState(Array.isArray(initialRecords)?initialRecords:[]),[loading,setLoading]=useState(!initialStatus&&!initialRecords?.length),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6),[issuesOnly,setIssuesOnly]=useState(false);
+ const [status,setStatus]=useState(initialStatus),[records,setRecords]=useState(Array.isArray(initialRecords)?initialRecords:[]),[loading,setLoading]=useState(!initialStatus&&!initialRecords?.length),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6),[issuesOnly,setIssuesOnly]=useState(false),[isOperator,setIsOperator]=useState(false),[authChecked,setAuthChecked]=useState(false);
  async function load(){
   setLoading(true);
   try{
@@ -23,8 +24,16 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
   }finally{setLoading(false)}
  }
  useEffect(()=>{load()},[]);
+ useEffect(()=>{let active=true;(async()=>{try{
+  const{data:{user},error}=await dfSupabase.auth.getUser();
+  if(error||!user){if(active)setIsOperator(false);return}
+  const{data:role,error:roleError}=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
+  if(active)setIsOperator(!roleError&&!!role);
+ }catch{if(active)setIsOperator(false)}finally{if(active)setAuthChecked(true)}})();return()=>{active=false}},[]);
  async function callBatch(i){
-  const response=await fetch("/api/focus-public-updates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({batch:i}),cache:"no-store"});
+  const{data:{session}}=await dfSupabase.auth.getSession();
+  if(!isOperator||!session?.access_token)throw new Error("실제 자료 갱신은 관리자 로그인 후 가능합니다.");
+  const response=await fetch("/api/focus-public-updates",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({batch:i}),cache:"no-store"});
   const data=await response.json().catch(()=>({error:"서버 응답 오류"}));
   if(!response.ok&&response.status!==429)throw Error(data.error||"실제 수집 실행 실패");
   return data;
@@ -32,6 +41,7 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
 
  async function run(all){
   if(busy)return;
+  if(!isOperator){setMessage("읽기 전용 검수입니다. 실제 갱신은 관리자 로그인 후 실행할 수 있습니다.");return}
   setBusy(true);setMessage("");setProgress("");setResults([]);
   const sourceList=status?.sources||[];
   const batches=all?Array.from({length:10},(_,i)=>i):[Array.from({length:10},(_,i)=>({batch:i,last:Math.max(0,...sourceList.slice(i*3,i*3+3).map(s=>Date.parse(s.last_attempt_at||"")||0))})).sort((a,b)=>a.last-b.last)[0].batch];
@@ -76,9 +86,10 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
     <div><strong>{status?.ready??"—"}</strong><span>핵심 내용 확보</span></div>
     <div><strong>{pendingCount}</strong><span>원문 확인 대기</span></div>
    </div>
-   <button className="dfUpdateMainButton" disabled={busy||loading} onClick={()=>run(true)}>{busy?"공식자료 수집 중…":"전국 29개 기관 신규자료 수집"}<span aria-hidden="true">↗</span></button>
+   <p className="dfUpdateSecurityNotice" role="status">{!authChecked?"관리자 권한 확인 중…":isOperator?"관리자 권한 확인됨 · 자료 갱신 실행 가능":"읽기 전용 검수 · 자료 갱신은 운영자 로그인 후 가능합니다."}{!isOperator&&<a href="/focus-admin/login">운영자 로그인 →</a>}</p>
+   <button className="dfUpdateMainButton" disabled={busy||loading||!isOperator} onClick={()=>run(true)}>{busy?"공식자료 수집 중…":"전국 29개 기관 신규자료 수집"}<span aria-hidden="true">↗</span></button>
    <div className="dfUpdateToolbar">
-    <button disabled={busy||loading} onClick={()=>run(false)}>가장 오래된 3개 기관 재점검</button>
+    <button disabled={busy||loading||!isOperator} onClick={()=>run(false)}>가장 오래된 3개 기관 재점검</button>
     <button disabled={busy} onClick={load}>현황 새로고침 <span aria-hidden="true">↻</span></button>
    </div>
    {progress&&<p className="dfUpdateProgress" role="status">{progress}</p>}
@@ -126,7 +137,7 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
    {!loading&&!sorted.length&&<p className="dfUpdateLoading">현재 해당 조건의 공개자료가 없습니다.</p>}
    {shown.length<sorted.length&&<button className="dfUpdateMore" onClick={()=>setShownCount(c=>c+6)}>자료 더 보기 <span>{sorted.length-shown.length}건 남음</span><span aria-hidden="true">↓</span></button>}
   </section>
-  <p className="dfUpdateSecurityNote">신규자료 실제 수집은 로그인 없이 가능하며, 문서 수정·삭제와 수동 공개승인은 관리자 권한이 필요합니다. <a href="/focus-admin/login">관리자 로그인</a></p>
+  <p className="dfUpdateSecurityNote">공식자료 열람과 상태 확인은 로그인 없이 가능합니다. 수동 갱신·문서 수정·공개승인·삭제는 관리자 권한이 필요합니다. <a href="/focus-admin/login">관리자 로그인</a></p>
   <DFAdminBottomNav active="updates"/>
  </main>;
 }

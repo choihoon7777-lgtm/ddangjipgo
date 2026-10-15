@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:official-fallback && npm run test:no-public-sources && npm run test:public-language && npm run test:unified-ux && npm run test:housing-live && npm run test:admin-v2 && next build",
+    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:official-fallback && npm run test:no-public-sources && npm run test:public-language && npm run test:unified-ux && npm run test:housing-live && npm run test:admin-v2 && npm run test:admin-security && next build",
     "start": "next start",
     "test:radar": "node --test tests/df-radar.test.mjs",
     "test:housing": "node --test tests/df-housing*.test.mjs",
@@ -19,7 +19,8 @@
     "test:public-language": "node --test tests/df-public-language.test.mjs",
     "test:unified-ux": "node --test tests/df-unified-ux.test.mjs",
     "test:housing-live": "node --test tests/df-housing-live.test.mjs",
-    "test:admin-v2": "node --test tests/df-admin-v2.test.mjs"
+    "test:admin-v2": "node --test tests/df-admin-v2.test.mjs",
+    "test:admin-security": "node --test tests/df-admin-security.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
