@@ -1,0 +1,2 @@
+import test from "node:test";import assert from "node:assert/strict";import{readFile}from"node:fs/promises";const read=p=>readFile(new URL(p,import.meta.url),"utf8");
+test("Public-facing policy and region screens avoid auto collection wording",async()=>{for(const file of ["../app/focus/policy/page.js","../app/focus/region/page.js"]){const s=await read(file);assert.doesNotMatch(s,/자동 수집 상태|자동 게시|자동 공개/);assert.match(s,/공식자료|정책·고시/)}const region=await read("../app/focus/region/page.js");assert.match(region,/replace\(\/\\s\*자동/);});

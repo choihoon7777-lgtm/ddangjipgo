@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:official-fallback && npm run test:no-public-sources && next build",
+    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:official-fallback && npm run test:no-public-sources && npm run test:public-language && next build",
     "start": "next start",
     "test:radar": "node --test tests/df-radar.test.mjs",
     "test:housing": "node --test tests/df-housing*.test.mjs",
@@ -15,7 +15,8 @@
     "test:publish-flow": "node --test tests/df-publish-flow.test.mjs",
     "test:policy-simple": "node --test tests/df-policy-simple.test.mjs",
     "test:official-fallback": "node --test tests/df-official-fallback.test.mjs",
-    "test:no-public-sources": "node --test tests/df-no-public-sources.test.mjs"
+    "test:no-public-sources": "node --test tests/df-no-public-sources.test.mjs",
+    "test:public-language": "node --test tests/df-public-language.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

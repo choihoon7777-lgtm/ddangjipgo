@@ -49,7 +49,7 @@ export default function Policy(){
    </section>
   </article><DFBottomNav active="policy"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>공식자료 · 자동 게시</small><h1>정책·고시</h1><p>정부·지자체 공식자료는 별도 편집 승인 없이 수집 후 자동 공개됩니다. 원문과 확인된 내용을 함께 제공합니다.</p><div><b>공식자료 자동 게시</b><span>수집된 문서를 직접 보여주며, AI 해석 기사는 별도 검증 후 발행합니다.</span></div></section>
+  <section className="dfPolicyHero"><small>전국 정책·고시</small><h1>정책·고시</h1><p>정부·지자체가 발표한 도시개발 정책과 고시·공고, 보도자료의 핵심 내용을 전합니다.</p><div><b>핵심 내용 한눈에</b><span>중요한 내용을 쉽고 명확하게 확인하세요.</span></div></section>
   <section className="dfPolicyFilters">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>

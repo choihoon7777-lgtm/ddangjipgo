@@ -67,18 +67,18 @@ export default function Region(){
   </section>
   <section className="dfRegionOfficial">
    <div className="focusTitle"><div><small className="focusEyebrow">OFFICIAL UPDATE</small><h2>{name==="전국"?"전국":name} 정책·고시·보도자료</h2></div><button type="button" className="dfRegionRefresh" onClick={()=>setReload(v=>v+1)} disabled={loading}>{loading?"조회 중":"새로고침 ↻"}</button></div>
-   <p className="dfRegionExplanation">정부·지자체가 발표한 공식자료를 발표일 순서로 제공합니다. 상세 내용은 도시맥에서 읽고, 원문은 해당 기관으로 연결됩니다.</p>
+   <p className="dfRegionExplanation">정부·지자체가 발표한 공식자료를 발표일 순서로 제공합니다. 상세 내용은 도시맥에서 확인할 수 있습니다.</p>
    <div className="dfRegionCollectorCard" role="status">
-    <div><strong>공식기관 자동 수집 상태</strong><a href="/focus-admin/updates">기관별 현황 ↗</a></div>
+    <div><strong>공식자료 업데이트 현황</strong><a href="/focus-admin/updates">기관별 현황 ↗</a></div>
     {sourceHealth?.regional?<><p>{name==="전국"?"전국 수집처":name+" 지역 수집처"} {sourceHealth.regional.total}곳 · 최근 성공 {sourceHealth.regional.success} · 오류 {sourceHealth.regional.failed+sourceHealth.regional.partial}{sourceHealth.regional.pending?" · 미점검 "+sourceHealth.regional.pending:""}</p>
-    <small>{sourceHealth.regional.status==="partial"?"일부 공식기관에서 오류가 발생해 최신 자료가 누락될 수 있습니다.":sourceHealth.regional.status==="healthy"?"최근 수집 시도 정상 · 모든 신규자료 수집을 보장하지 않습니다.":sourceHealth.regional.status==="no-source"?"해당 지역의 개별 수집처가 없어 전국 자료를 확인해야 합니다.":"최근 수집 상태 확인이 필요합니다."}{sourceHealth.regional.lastAttempt?" · 최근 점검 "+new Date(sourceHealth.regional.lastAttempt).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):""}</small></>:<p>실시간 수집 상태 확인 전 · 수집 완료 여부는 관제 페이지에서 확인하세요.</p>}
+    <small>{sourceHealth.regional.status==="partial"?"일부 공식기관에서 오류가 발생해 최신 자료가 누락될 수 있습니다.":sourceHealth.regional.status==="healthy"?"최근 수집 시도 정상 · 모든 신규자료 수집을 보장하지 않습니다.":sourceHealth.regional.status==="no-source"?"해당 지역의 개별 수집처가 없어 전국 자료를 확인해야 합니다.":"최근 수집 상태 확인이 필요합니다."}{sourceHealth.regional.lastAttempt?" · 최근 점검 "+new Date(sourceHealth.regional.lastAttempt).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):""}</small></>:<p>최신 자료 반영 현황을 확인하고 있습니다.</p>}
    </div>
    <div className="dfRegionChannels" aria-label="공식자료 유형 선택">{OFFICIAL_CHANNELS.map(x=><a key={x} className={x===channel?"on":""} href={linkFor(name,x)} aria-current={channel===x?"page":undefined}>{x}</a>)}</div>
    {stale&&<p className="dfRegionStale" role="status">마지막 공식자료 수집 확인: {officialDate(lastFetch)} · 최신 발표의 수집 여부는 확인이 필요합니다.</p>}
    {error&&<div className="dfRegionStale" role="alert">{error}</div>}
    <div className="dfRegionResultsBar"><span>{loading?"공식자료 확인 중…":"확인된 공식자료 "+official.length+"건"}</span><span>{refreshed?"화면 확인 "+officialDate(refreshed):"공식 원문 기준"}</span></div>
    {loading?<div className="focusEmpty"><b>지역별 정책·고시·보도자료를 불러오는 중입니다.</b></div>:shown.length?<div className="dfRegionOfficialList">{shown.map(x=><a href={"/focus/policy?id="+x.id+"&from=region&name="+encodeURIComponent(name)} className="dfRegionOfficialRow" key={x.id}>
-    <div className="dfRegionOfficialMeta"><span>{officialChannel(x)}</span><em>{x.source_name||"공식기관"}</em>{officialRegion(x)&&<i>{officialRegion(x)}</i>}{x.changed&&<b>원문 수정</b>}</div>
+    <div className="dfRegionOfficialMeta"><span>{officialChannel(x)}</span><em>{(x.source_name||"공식기관").replace(/\s*자동\s*수집\s*$/,"")}</em>{officialRegion(x)&&<i>{officialRegion(x)}</i>}{x.changed&&<b>원문 수정</b>}</div>
     <h3>{x.title}</h3>
     <p className="dfRegionSummary">{x.key_extract_status==="ready"&&x.key_content?x.key_content:"공식 상세 내용은 아직 검증 중입니다. 제목과 공개자료 기준으로 안내합니다."}</p>
     <div className="dfRegionOfficialFoot"><span>{officialDate(x.published_at||x.fetched_at)} · {x.topic_code||"개발정책"}</span><strong>내용 확인 →</strong></div>
