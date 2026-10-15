@@ -1,7 +1,7 @@
 
 import {NextResponse} from "next/server";
 import {createClient} from "@supabase/supabase-js";
-import {housingKey,fetchHousingPage,koreaToday} from "../../../lib/df-housing-upstream.mjs";
+import {housingKey,fetchHousingPage} from "../../../lib/df-housing-upstream.mjs";
 import {HOUSING_KINDS,cleanHousingNotice} from "../../../lib/df-housing.mjs";
 export const dynamic="force-dynamic";
 export const revalidate=0;
@@ -12,16 +12,16 @@ let liveCache={at:0,items:null,lastError:null};
 async function liveOfficialHousing(){
  if(liveCache.items&&Date.now()-liveCache.at<3*60*1000)return liveCache.items;
  const key=housingKey();if(!key)return null;
- const recent=koreaToday(-90);
  const outcomes=await Promise.allSettled(Object.entries(HOUSING_KINDS).map(async([kind,endpoints])=>{
-  const r=await fetchHousingPage(endpoints[0],key,{filters:[["RCRIT_PBLANC_DE","GTE",recent]],page:1,perPage:100,retries:0});
+  const r=await fetchHousingPage(endpoints[0],key,{page:1,perPage:100,retries:0});
   return r.data.map(raw=>cleanHousingNotice(raw,kind,[])).filter(Boolean).map(({source_json,models_json,...safe})=>({...safe,models_json:[]}));
  }));
  const successful=outcomes.filter(x=>x.status==="fulfilled");
  if(!successful.length){liveCache.lastError=outcomes.filter(x=>x.status==="rejected").map(x=>String(x.reason?.code||x.reason?.message||"OFFICIAL_API_UNAVAILABLE")).slice(0,3).join(",")||"OFFICIAL_API_UNAVAILABLE";return null;}
  const dedup=new Map();for(const group of successful)for(const row of group.value)dedup.set(row.offer_key,row);
+ if(!dedup.size)liveCache.lastError="API_ZERO_VALID_ROWS";
  const items=[...dedup.values()].sort((a,b)=>String(b.published_date||"").localeCompare(String(a.published_date||""))).slice(0,120);
- liveCache={at:Date.now(),items,lastError:null};return items;
+ liveCache={at:Date.now(),items,lastError:items.length?null:liveCache.lastError};return items;
 }
 
 export async function GET(request){
