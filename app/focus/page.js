@@ -6,17 +6,18 @@ import{mergeHomeStories,safeEditorialCover,articleSourceLabel}from"../../lib/df-
 const dateLabel=x=>{if(!x)return"";const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{month:"2-digit",day:"2-digit"}).format(d)};
 const originalIssueDate=x=>{if(!x)return"";const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
 export default function FocusHome(){
- const[news,setNews]=useState([]),[insights,setInsights]=useState([]),[loading,setLoading]=useState(true);
- useEffect(()=>{let live=true;(async()=>{setLoading(true);const [pinned,top,blog]=await Promise.all([
+ const[news,setNews]=useState([]),[insights,setInsights]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[reload,setReload]=useState(0);
+ useEffect(()=>{let live=true;(async()=>{setLoading(true);setError("");try{const [pinned,top,blog]=await Promise.all([
   dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at,source_channel,is_top_focus,hero_image_url,hero_image_kind").in("status",["published","corrected"]).eq("is_top_focus",true).or("source_channel.is.null,source_channel.neq.investgo").order("published_at",{ascending:false}).limit(3),
   dfSupabase.from("df_articles").select("id,title,subtitle,category,region_code,published_at,updated_at,source_channel,is_top_focus,hero_image_url,hero_image_kind").in("status",["published","corrected"]).or("source_channel.is.null,source_channel.neq.investgo").order("published_at",{ascending:false}).limit(10),
   dfSupabase.from("df_articles").select("id,title,subtitle,category,published_at,original_source_published_at,hero_image_url").in("status",["published","corrected"]).eq("source_channel","investgo").order("published_at",{ascending:false}).limit(5)
- ]);if(live){setNews(mergeHomeStories(pinned.data||[],top.data||[]));setInsights(blog.data||[]);setLoading(false)}})();return()=>{live=false}},[]);
+ ]);if(top.error&&pinned.error)throw top.error;if(blog.error&&!top.data?.length&&!pinned.data?.length)throw blog.error;if(live){setNews(mergeHomeStories(pinned.data||[],top.data||[]));setInsights(blog.data||[]);}}catch(e){if(live)setError("최신 뉴스를 불러오지 못했습니다. 다시 시도해 주세요.")}finally{if(live)setLoading(false)}})();return()=>{live=false}},[reload]);
  const lead=news[0],seconds=news.slice(1,3),latest=news.slice(3,8);
  return <main className="focusShell dfHigh dfPremiumHome"><DFBrandHeader/>
   <DFLiveNotice placement="home"/>
 <div className="dfPremiumEdition"><span><i aria-hidden="true"></i> DOSIMAEK <em>공식자료와 개발정보</em></span><a href="/focus/region">전국 지역별 보기 →</a></div>
 
+  {error&&<section className="dfHomeError" role="alert"><b>{error}</b><button type="button" onClick={()=>setReload(x=>x+1)}>다시 시도</button></section>}
   {loading?<section className="focusBlock dfHomeLead dfPremiumCover"><div className="dfHomeSkeleton"><span></span><span></span><span></span><span></span></div></section>:lead?<section className="focusBlock dfHomeLead dfPremiumCover">
    <DFSectionTitle eyebrow="TOP STORIES" title="주요 뉴스" href="/focus/live"/>
    <>

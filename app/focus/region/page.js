@@ -25,7 +25,7 @@ export default function Region(){
     // The public RPC already applies its publication/visibility policy. Page through
     // verified/public sources rather than reading the protected document table.
     const docs=[];let reachedEnd=false,scanned=0;
-    for(let offset=0;offset<800;offset+=100){
+    for(let offset=0;offset<500;offset+=100){
      const{data,error:rpcError}=await dfSupabase.rpc("df_public_development_policy",{
       p_channel:null,p_topic:null,p_limit:100,p_offset:offset
      });
@@ -44,7 +44,7 @@ export default function Region(){
     if(!live)return;
     setSourceHealth(collection?.ok?collection:null);
     setOfficial(selectedDocs);setArticles(articleResult.data||[]);
-    setPartial(!reachedEnd&&scanned>=800);
+    setPartial(!reachedEnd&&scanned>=500);
     setLastFetch(docs.reduce((n,x)=>Math.max(n,Date.parse(x.fetched_at||"")||0),0));
     setRefreshed(new Date().toISOString());setError(articleResult.error?"지역 개발기사를 일부 불러오지 못했습니다.":"");
    }catch(e){if(live)setError(e?.message||"지역 자료 업데이트를 확인하지 못했습니다.")}
