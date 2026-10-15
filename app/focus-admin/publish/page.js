@@ -14,7 +14,7 @@ const checks=[
 ];
 
 export default function Publish(){
- const[items,setItems]=useState([]),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
+ const[items,setItems]=useState([]),[queueFilter,setQueueFilter]=useState("all"),[search,setSearch]=useState(""),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
  async function load(){
   const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at,scheduled_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
   if(error){setMsg(error.message);return}setItems(data||[]);
@@ -116,14 +116,22 @@ export default function Publish(){
   finally{await load();setBusy("")}
  }
  function publish(x){setConfirmTask({title:"지금 기사 발행",body:"검증을 마친 기사가 즉시 공개됩니다.",label:"지금 발행",run:()=>doPublish(x)})}
+ const checklist=x=>checks.filter(([f])=>x[f]!==true).map(([,label])=>label);
+ const ready=x=>x.df_articles?.risk_level==="green"&&x.legal_check_status==="passed"&&checklist(x).length===0;
+ const blocked=x=>x.df_articles?.risk_level==="red"||x.legal_check_status==="blocked";
+ const legalWait=x=>!blocked(x)&&x.legal_check_status!=="passed";
+ const counts={all:items.length,ready:items.filter(ready).length,legal:items.filter(legalWait).length,blocked:items.filter(blocked).length};
+ const visibleItems=items.filter(x=>(!focusId||x.article_id===focusId)&&(queueFilter==="all"||queueFilter==="ready"&&ready(x)||queueFilter==="legal"&&legalWait(x)||queueFilter==="blocked"&&blocked(x))&&(!search.trim()||String(x.df_articles?.title||"").toLocaleLowerCase("ko-KR").includes(search.trim().toLocaleLowerCase("ko-KR"))));
+
  return <main className="adminShell dfAdminUnified"><DFAdminHeader title="기사 검토·발행" kicker="PUBLISH QUEUE"/>
  <section className="adminPanel"><div className="dfQuickPublishGuide"><b>검토요청 → 자동발행</b><span>검토요청을 누르면 기존 검증 결과를 즉시 확인하고, 전부 통과한 기사만 자동 발행합니다. 확인되지 않은 기사는 보류 사유를 알려드립니다.</span><div><a href="/focus-admin/write">+ 새 기사 작성</a><a href="/focus/live">도시맥 공개 기사 보기 ↗</a></div></div><h2>기사 검증·발행</h2><p>각 항목은 실제 근거를 확인한 뒤 개별 승인합니다. RED는 발행 차단, YELLOW는 추가 확인이 필요합니다.</p>{publishedArticle&&<div className="dfQuickSaved" role="status"><b>✓ {publishedArticle.title}</b><span>발행 완료 · 도시맥에서 바로 읽을 수 있습니다.</span><a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">실제 발행 기사 확인 ↗</a><a href="/focus/live">최신 뉴스에서 확인 →</a></div>}{focusId&&<div className="dfQuickFocusInfo"><b>방금 작성한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 검토 대기열 보기</button></div>}
- <div className="riskLegend"><span>GREEN · 발행검토 가능</span><span>YELLOW · 추가 확인</span><span>RED · 발행 차단</span></div>
+ <div className="dfV2EditorFilters" aria-label="검토 상태 필터">{[["all","전체",counts.all],["legal","법적 검토",counts.legal],["ready","발행 가능",counts.ready],["blocked","차단",counts.blocked]].map(([k,label,n])=><button type="button" key={k} className={queueFilter===k?"active":""} aria-pressed={queueFilter===k} onClick={()=>setQueueFilter(k)}>{label} <b>{n}</b></button>)}</div><label className="dfV2EditorSearch">기사 제목 검색<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="기사 제목으로 찾기"/></label><p className="dfV2EditorPolicy">출처·사실·숫자·날짜·중복·법적 검토를 모두 마친 기사만 발행됩니다. 보류된 원고를 일괄 승인하지 않습니다.</p>
  
- {items.length===0?<div className="emptyFocus">현재 실제 기사 후보 0건</div>:(focusId?items.filter(x=>x.article_id===focusId):items).map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
+ {visibleItems.length===0?<div className="emptyFocus">{items.length===0?"현재 검토 대기 기사가 없습니다.":"선택한 조건의 기사가 없습니다. 필터를 변경해 주세요."}</div>:visibleItems.map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
  return <article className="adminPanel dfReviewCard" key={x.id}>
   <small>{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {articleStatus[a.status]||a.status||"검토중"}</small>
   <h3>{a.title}</h3>
+  <div className="dfV2EditorReadiness"><b className={ready(x)?"ready":blocked(x)?"blocked":"pending"}>{ready(x)?"발행 검증 완료":blocked(x)?"발행 차단":"추가 검토 필요"}</b><span>{checklist(x).length?"미확인: "+checklist(x).join(" · "):"기본 검증 항목 확인됨"} · 법적검토 {legalStatus[x.legal_check_status]||x.legal_check_status||"미확인"}</span></div>
   <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
   <div className="dfCheckGrid">{checks.map(([field,label])=><button key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
   <div className="editorGate"><span>법적검토 · {legalStatus[x.legal_check_status]||x.legal_check_status}</span></div>

@@ -1266,3 +1266,15 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfV2Admin a:focus-visible,.dfV2Admin button:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
 @media(max-width:680px){.dfV2StatGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.dfV2Hero{margin:10px 12px 19px;padding:20px 16px}.dfV2Admin .dfV2Summary,.dfV2Admin .dfV2Priority,.dfV2Admin .dfV2Actions,.dfV2Admin .dfV2Services{padding:0 12px}.dfV2AllMenu{margin:0 12px 24px}}
 @media(max-width:350px){.dfV2Hero h1{font-size:21px}.dfV2Hero{flex-direction:column}.dfV2Hero button{align-self:flex-end}.dfV2ActionGrid>a{padding:13px 4px}.dfV2ActionGrid strong{font-size:12px}}
+
+
+/* Admin v2 editorial triage - compact filters with non-bypassable verified gates */
+.dfV2EditorFilters{display:flex;gap:8px;overflow-x:auto;padding:7px 0 14px;-webkit-overflow-scrolling:touch}
+.dfV2EditorFilters button{border:1px solid #cbdbe6;background:#fff;border-radius:25px;min-height:42px;padding:9px 15px;white-space:nowrap;color:#163f5c;font-size:13px;font-weight:700}
+.dfV2EditorFilters button.active{background:#173c58;border-color:#173c58;color:#fff}
+.dfV2EditorFilters button b{margin-left:7px;color:#c58a48}.dfV2EditorFilters button:focus-visible,.dfV2EditorSearch input:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
+.dfV2EditorSearch{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#5b7184;font-weight:700;margin:0 0 12px}
+.dfV2EditorSearch input{border:1px solid #cfdce5;border-radius:10px;min-height:46px;padding:10px 12px;font:inherit;font-size:15px;color:#183c59;background:#fff;max-width:100%}
+.dfV2EditorPolicy{font-size:12px;line-height:1.7;color:#758696;margin:12px 0 20px}
+.dfV2EditorReadiness{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:12px 0;padding:11px 12px;border:1px solid #e1e9ee;border-radius:10px;background:#f8fafc}
+.dfV2EditorReadiness b{font-size:12px;white-space:nowrap}.dfV2EditorReadiness b.ready{color:#166146}.dfV2EditorReadiness b.pending{color:#9b6226}.dfV2EditorReadiness b.blocked{color:#aa4038}.dfV2EditorReadiness span{font-size:12px;color:#5f7284;line-height:1.55}
