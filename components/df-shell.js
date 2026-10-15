@@ -77,7 +77,7 @@ export function DFAdminHeader({title="도시맥 운영센터",kicker="OPERATIONS
  return <header className="dfAdminUnifiedHead"><a className="dfAdminBack" href={back}>←</a><div><small>{kicker}</small><b>{title}</b></div><a className="dfAdminPublic" href="/focus">도시맥</a></header>
 }
 export function DFAdminBottomNav({active="home"}){
- const items=[["home","⌂","운영","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["ads","◇","광고","/focus-admin/ads"],["stats","▥","통계","/focus-admin/stats"],["system","☰","관리","/focus-admin/system"]];
+ const items=[["home","⌂","홈","/focus-admin"],["editor","▤","기사","/focus-admin/publish"],["updates","▥","자료","/focus-admin/updates"],["housing","◇","부동산","/focus-admin/housing"],["system","☰","운영","/focus-admin/system"]];
  return <nav className="adminBottom dfAdminBottom" aria-label="운영센터 메뉴">{items.map(([id,icon,label,href])=><a className={active===id?"active":""} aria-current={active===id?"page":undefined} href={href} key={id}><span aria-hidden="true">{icon}</span><b>{label}</b></a>)}</nav>
 }
 

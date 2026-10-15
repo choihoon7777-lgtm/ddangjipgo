@@ -1235,3 +1235,34 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfAdminNewsroomNote{font-size:12px;color:#61778a;line-height:1.7;margin:14px 2px 0}
 .dfAdminNewsroomGrid>a:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
 @media(max-width:430px){.dfAdminNewsroomGrid{grid-template-columns:1fr;gap:8px}.dfAdminNewsroomGrid>a{min-height:80px;padding:12px 14px;gap:3px}.dfAdminNewsroomGrid b{margin-top:2px}.dfAdminNewsroom .adminSectionTitle{gap:10px;flex-wrap:wrap}}
+
+
+/* DOSIMAEK editorial command centre v2 */
+.dfV2Admin{padding-bottom:calc(95px + env(safe-area-inset-bottom,0px))}
+.dfV2Hero{padding:22px 20px;margin:12px 14px 20px;background:#102f4b;color:#fff;border-radius:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
+.dfV2Hero small{color:#d6ae70;font-size:11px;letter-spacing:.13em;font-weight:700}.dfV2Hero h1{font-size:24px;line-height:1.35;letter-spacing:-.04em;margin:9px 0}.dfV2Hero p{font-size:13px;line-height:1.65;color:#dce5ed}.dfV2Hero button{flex-shrink:0;border:1px solid #7692ab;color:#fff;background:transparent;padding:10px 11px;border-radius:9px;min-height:44px;font-size:12px}
+.dfV2Admin .dfV2Summary,.dfV2Admin .dfV2Priority,.dfV2Admin .dfV2Actions,.dfV2Admin .dfV2Services{padding:0 16px;margin-bottom:23px}
+.dfV2SectionHead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.dfV2SectionHead h2{font-size:18px;font-weight:800;color:#19364e;letter-spacing:-.03em;margin:0}
+.dfV2SectionHead>span{color:#738597;font-size:11px}
+.dfV2StatGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.dfV2StatGrid>a{border:1px solid #dce6ed;background:#fff;border-radius:12px;padding:15px 11px;display:flex;flex-direction:column;text-decoration:none;min-height:108px}
+.dfV2StatGrid small{font-size:12px;color:#587086}.dfV2StatGrid strong{margin:12px 0 9px;font-size:28px;color:#173b5c;font-weight:800;letter-spacing:-.03em}.dfV2StatGrid strong em{font-size:11px;font-style:normal;font-weight:500;margin-left:3px}.dfV2StatGrid span{font-size:11px;color:#8c6b47}
+.dfV2Priority{display:flex;flex-direction:column}.dfV2Priority>a{background:#fff;display:flex;align-items:center;gap:12px;padding:15px 13px;border-bottom:1px solid #e9eef1;text-decoration:none;color:#153c5c;min-height:78px}
+.dfV2Priority>a:first-of-type{border-radius:12px 12px 0 0}.dfV2Priority>a:last-child{border-radius:0 0 12px 12px;border-bottom:0}
+.dfV2Priority>a>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.dfV2Priority a b{font-size:14px}.dfV2Priority a small{font-size:12px;color:#6e8293;line-height:1.45}
+.dfV2Priority a strong{font-size:22px;color:#7891a5}.dfV2PriorityIcon{width:36px;height:36px;border-radius:10px;background:#eaf1f6;color:#18456a;display:grid;place-items:center;font-size:20px}
+.dfV2Priority a.needsAttention .dfV2PriorityIcon{background:#fff0ea;color:#b85236}
+.dfV2ActionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dfV2ActionGrid>a{padding:19px 8px;min-height:125px;text-align:center;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:7px;background:#fff;border:1px solid #dbe5ed;border-radius:13px;color:#173b5b;text-decoration:none}
+.dfV2ActionGrid>a:first-child{background:#143a57;color:#fff;border-color:#143a57}
+.dfV2ActionGrid b{font-size:24px;font-weight:500;color:#c58a48}.dfV2ActionGrid strong{font-size:14px}.dfV2ActionGrid small{font-size:11px;color:inherit;opacity:.7}
+.dfV2ServiceLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.dfV2ServiceLinks>a{padding:14px 16px;border:1px solid #dae6ee;border-radius:10px;color:#173b5b;background:#fff;text-decoration:none;font-size:13px;font-weight:700}
+.dfV2Guest{margin:0 16px 20px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff8ef;border:1px solid #ebdabf;border-radius:12px}
+.dfV2Guest b{font-size:14px;color:#634b30}.dfV2Guest p{font-size:12px;color:#73604a;line-height:1.65;margin:6px 0 0}.dfV2Guest a{flex-shrink:0;font-size:12px;color:#173c5b}
+.dfV2AllMenu{margin:0 16px 24px}
+.dfV2Admin a:focus-visible,.dfV2Admin button:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
+@media(max-width:680px){.dfV2StatGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.dfV2Hero{margin:10px 12px 19px;padding:20px 16px}.dfV2Admin .dfV2Summary,.dfV2Admin .dfV2Priority,.dfV2Admin .dfV2Actions,.dfV2Admin .dfV2Services{padding:0 12px}.dfV2AllMenu{margin:0 12px 24px}}
+@media(max-width:350px){.dfV2Hero h1{font-size:21px}.dfV2Hero{flex-direction:column}.dfV2Hero button{align-self:flex-end}.dfV2ActionGrid>a{padding:13px 4px}.dfV2ActionGrid strong{font-size:12px}}

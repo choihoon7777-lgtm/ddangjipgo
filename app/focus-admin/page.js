@@ -4,69 +4,79 @@ import{dfSupabase}from"../../lib/df-browser";
 import{DFAdminHeader,DFAdminBottomNav}from"../../components/df-shell";
 
 const groups=[
- {kicker:"EDITORIAL",title:"기사·편집국",items:[
-  ["신규자료 업데이트","전국 수집·원문 추출·기관별 오류·검토 승인·공개를 관리합니다.","/focus-admin/updates"],
-  ["언론 모니터링","언론 RSS 7개 채널 · 관련 보도 후보 · 공식자료 대조","/focus-admin/media"],
-  ["공식자료 직접 수집","공식 URL 등록 및 기사화를 관리합니다.","/focus-admin/sources"],
-  ["AI 기사작성","공식자료를 FACT → 기자 → 데스크 → 검증 순서로 기사화합니다.","/focus-admin/ai-test"],
-  ["직접 기사 작성","직접 기사 초안을 작성하고 검증 대기열로 보냅니다.","/focus-admin/write"],
-  ["해석 기사 검토·발행","공식자료 자동 게시와 별도입니다. 기사 해석·원고는 검증 후 발행합니다.","/focus-admin/publish"]
- ]},
- {kicker:"CONTENT",title:"콘텐츠 운영",items:[
-  ["공지 관리","공지 작성·예약·고정·종료를 관리합니다.","/focus-admin/notices"],
-  ["정정·신고","독자 정정 요청과 기사 수정 이력을 처리합니다.","/focus-admin/claims"]
- ]},
- {kicker:"BUSINESS",title:"사업 운영",items:[
-  ["광고 관리","광고 신청·승인·결제·게시·종료 상태를 관리합니다.","/focus-admin/ads"]
- ]},
- {kicker:"DATA & SYSTEM",title:"데이터·시스템",items:[
-  ["운영 통계","기사 조회·광고·정정·운영 데이터를 확인합니다.","/focus-admin/stats"],
-  ["관심부지 개발레이더","공식 고시·공고에 기재된 필지와 변경 후보를 검수합니다.","/focus-admin/radar"],
-  ["분양·청약 수집현황","공식 모집공고 건수·분양가·자동수집 설정을 검수합니다.","/focus-admin/housing"],
-  ["시스템 상태","수집기·API·DB·AI 연결 상태를 확인합니다.","/focus-admin/system"]
- ]}
+ {name:"콘텐츠·편집",items:[["언론 모니터링","기사 후보와 공식자료 대조","/focus-admin/media"],["공식자료 등록","공식 URL과 문서 관리","/focus-admin/sources"],["AI 원고 작성","검증을 거치는 원고 제작","/focus-admin/ai-test"],["투자GO 글 관리","블로그 이식·중복 검토","/focus-admin/blog-import"],["정정·신고","독자 요청과 정정 이력","/focus-admin/claims"]]},
+ {name:"부동산 정보",items:[["분양·청약","청약 데이터와 API 연결 상태","/focus-admin/housing"],["개발레이더","관심부지 개발정보 확인","/focus-admin/radar"]]},
+ {name:"운영·분석",items:[["운영 통계","기사 조회와 방문 흐름","/focus-admin/stats"],["광고 운영","광고 신청·진행 상태","/focus-admin/ads"],["공지 관리","공지 작성·예약","/focus-admin/notices"],["서비스 상태","DB·공식기관·외부 API 점검","/focus-admin/system"]]}
 ];
+const countOrDash=x=>Number.isInteger(x)?x.toLocaleString("ko-KR"):"—";
+const latestTime=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"미확인";
 
 export default function Admin(){
- const[stats,setStats]=useState({queue:null,published:null,claims:null,ads:null,watchlists:null}),[guest,setGuest]=useState(null),[publicCount,setPublicCount]=useState(null);
- useEffect(()=>{let live=true;(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(!user){if(live)setGuest(true);const r=await dfSupabase.rpc("df_public_development_policy",{p_channel:null,p_topic:null,p_limit:100,p_offset:0});if(live)setPublicCount(r.error?null:(r.data||[]).length);return}
- const role=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
- if(!role.data){if(live)setGuest(true);return}
- if(live)setGuest(false);
- const [q,p,c,a,w]=await Promise.all([
-  dfSupabase.from("df_editorial_queue").select("id",{count:"exact",head:true}).is("reviewed_at",null),
-  dfSupabase.from("df_articles").select("id",{count:"exact",head:true}).in("status",["published","corrected"]),
-  dfSupabase.from("df_claims").select("id",{count:"exact",head:true}).in("status",["open","reviewing"]),
-  dfSupabase.from("df_ad_campaigns").select("id",{count:"exact",head:true}).eq("status","active"),
-  dfSupabase.from("df_land_watchlists").select("id",{count:"exact",head:true}).eq("is_active",true)
- ]);if(live)setStats({queue:q.count??null,published:p.count??null,claims:c.count??null,ads:a.count??null,watchlists:w.count??null})})();return()=>{live=false}},[]);
- return <main className="adminShell dfAdminUnified"><DFAdminHeader back="/focus"/>
-  <section className="dfAdminHero dfAdminHeroCompact"><small>DOSIMAEK OPERATIONS</small><h1>운영센터</h1><p>{guest?"로그인 없이 모든 관리자 메뉴를 열어 화면·업무 흐름을 검수합니다. 실제 데이터 변경·비공개 열람은 보호됩니다.":"오늘 필요한 업무부터 빠르게 처리합니다."}</p></section>
-  {guest&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>GUEST PREVIEW · READ ONLY</small><h2>로그인 없이 전체 관리자 메뉴 체험</h2></div><a className="adminSecondary" href="/focus-admin/login">운영자 로그인</a></div>
-   <p className="adminDataNote">전체 운영 메뉴를 모두 열 수 있습니다. 공개 공식자료만 실제 조회하고, 비공개 기사·회원정보 및 발행·승인·삭제 기능은 체험 화면으로 제공됩니다.</p>
-   <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
-  </section>}
-
-  <section className="adminPanel dfAdminNewsroom"><div className="adminSectionTitle"><div><small>오늘의 핵심 업무</small><h2>운영 바로가기</h2></div><a href="/focus/live" className="adminSecondary">공개 뉴스 확인 ↗</a></div>
-   <div className="dfAdminNewsroomGrid">
-    <a href="/focus-admin/write"><strong>기사 작성</strong><span>원고 저장·검토 요청</span><b>작성하기 →</b></a>
-    <a href="/focus-admin/publish"><strong>검토·발행</strong><span>대기 원고·검증 결과 확인</span><b>검토하기 →</b></a>
-    <a href="/focus-admin/updates"><strong>공식자료 현황</strong><span>최신 자료·오류 상태 확인</span><b>현황 보기 →</b></a>
+ const[guest,setGuest]=useState(null),[reload,setReload]=useState(0);
+ const[stats,setStats]=useState({queue:null,published:null,today:null,claims:null,ads:null});
+ const[systems,setSystems]=useState({official:null,housing:null});
+ useEffect(()=>{
+  let active=true;
+  (async()=>{
+   try{
+    const{data:{user},error:authError}=await dfSupabase.auth.getUser();
+    if(authError||!user){if(active)setGuest(true);return}
+    const role=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
+    if(role.error||!role.data){if(active)setGuest(true);return}
+    if(active)setGuest(false);
+    const today=new Date(Date.now()+9*3600000).toISOString().slice(0,10)+"T00:00:00+09:00";
+    const [q,p,t,c,a]=await Promise.all([
+     dfSupabase.from("df_editorial_queue").select("id",{count:"exact",head:true}).is("reviewed_at",null),
+     dfSupabase.from("df_articles").select("id",{count:"exact",head:true}).in("status",["published","corrected"]),
+     dfSupabase.from("df_articles").select("id",{count:"exact",head:true}).in("status",["published","corrected"]).gte("published_at",today),
+     dfSupabase.from("df_claims").select("id",{count:"exact",head:true}).in("status",["open","reviewing"]),
+     dfSupabase.from("df_ad_campaigns").select("id",{count:"exact",head:true}).eq("status","active")
+    ]);
+    if(active)setStats({queue:q.error?null:q.count,published:p.error?null:p.count,today:t.error?null:t.count,claims:c.error?null:c.count,ads:a.error?null:a.count});
+   }catch{if(active)setGuest(true)}
+  })();
+  (async()=>{
+   const result=await Promise.allSettled([
+    fetch("/api/health/official",{cache:"no-store"}).then(r=>r.ok?r.json():null),
+    fetch("/api/focus-housing-health",{cache:"no-store"}).then(r=>r.ok?r.json():null)
+   ]);
+   if(active)setSystems({official:result[0].status==="fulfilled"&&result[0].value?.ok?result[0].value:null,housing:result[1].status==="fulfilled"&&result[1].value?.ok?result[1].value:null});
+  })();
+  return()=>{active=false}
+ },[reload]);
+ const sources=systems.official?.national;
+ const failed=sources?Number(sources.failed||0)+Number(sources.partial||0):null;
+ const housing=systems.housing;
+ const housingIssue=!!housing&&(!housing.counts?.notices||!housing.officialKeyConfigured||!housing.pipelineConfigured||housing.stale);
+ return <main className="adminShell dfAdminUnified dfV2Admin"><DFAdminHeader title="편집국 운영센터" back="/focus"/>
+  <section className="dfV2Hero"><div><small>DOSIMAEK · NEWSROOM</small><h1>편집국 운영센터</h1><p>검토부터 발행, 공식자료와 부동산 운영까지 한눈에 확인합니다.</p></div><button type="button" onClick={()=>setReload(n=>n+1)} aria-label="운영 현황 새로고침">새로고침 ↻</button></section>
+  {guest===null&&<p className="adminDataNote" role="status">운영자 권한을 확인하고 있습니다.</p>}
+  {guest===true&&<section className="dfV2Guest" aria-label="관리자 체험 안내"><div><b>읽기 전용 검수</b><p>로그인 없이 메뉴와 공개 자료를 확인할 수 있습니다. 원고 승인·수정·발행·삭제는 관리자 인증 후 가능합니다.</p></div><a href="/focus-admin/login">운영자 로그인 →</a></section>}
+  <section className="dfV2Summary" aria-label="운영 현황">
+   <div className="dfV2SectionHead"><h2>운영 현황</h2><span>{guest===false?"운영 DB 실시간 조회":"관리자 로그인 시 내부 지표 표시"}</span></div>
+   <div className="dfV2StatGrid">
+    <a href="/focus-admin/publish"><small>검토 대기</small><strong>{guest===false?countOrDash(stats.queue):"—"}<em>건</em></strong><span>기사 확인 →</span></a>
+    <a href="/focus/live"><small>오늘 발행</small><strong>{guest===false?countOrDash(stats.today):"—"}<em>건</em></strong><span>발행 목록 →</span></a>
+    <a href="/focus/live"><small>전체 발행</small><strong>{guest===false?countOrDash(stats.published):"—"}<em>건</em></strong><span>누적 기준</span></a>
+    <a href="/focus-admin/claims"><small>정정 요청</small><strong>{guest===false?countOrDash(stats.claims):"—"}<em>건</em></strong><span>처리 확인 →</span></a>
    </div>
-   <p className="dfAdminNewsroomNote">{guest?"비로그인 체험에서는 실제 저장·발행을 할 수 없습니다. 운영자 인증이 필요합니다.":"공식자료는 별도의 편집 허락 없이 게시되며, 해석 기사는 검증을 통과해야 발행됩니다."}</p>
   </section>
-  {!guest&&<section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>}
-
-  <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">
-   <a href="/focus-admin/radar"><b>개발레이더 검수</b><span>공식 고시·공고 위치근거 확인</span></a>
-   <a href="/focus-admin/updates"><b>신규자료 업데이트</b><span>전국 수집 · 원문 검증 · 공개관리</span></a>
-   <a href="/focus-admin/media"><b>언론 모니터링 공장</b><span>{guest?"로그인 없이 모니터링 흐름 시험":"3개 언론사 · 7개 채널 · 시간별 기사 후보"}</span></a>
-   <a href="/focus-admin/blog-import"><b>투자GO 블로그 이식</b><span>네이버 50건 목록 · 중복 검토 · 원본 보존</span></a>
-   <a href="/focus-admin/ai-test"><b>AI 기사작성</b><span>{guest?"원고 작성 흐름 체험":"공식자료 → 기사"}</span></a>
-   <a href="/focus-admin/write"><b>직접 기사 작성</b><span>{guest?"로그인 없이 시범 원고 작성":"초안 작성"}</span></a>
-   <a href="/focus-admin/publish"><b>검토·발행</b><span>{guest?"발행 검토 체크리스트 체험":(stats.queue??"—")+"건 대기"}</span></a>
-  </div></section>
-  {<details className="dfAdminAllMenu" open={!!guest}><summary><span><small>ALL OPERATIONS</small><b>전체 운영 메뉴</b></span><strong>펼치기</strong></summary><div className="dfAdminGroups">{groups.map(g=><section className="dfAdminGroup" key={g.title}><div className="dfAdminGroupHead"><small>{g.kicker}</small><h2>{g.title}</h2></div><div className="adminMenu">{g.items.map(([a,b,h])=><a href={h} key={a}><div><b>{a}</b><span>{b}</span></div><strong>›</strong></a>)}</div></section>)}</div></details>}
+  <section className="dfV2Priority" aria-label="우선 처리 업무">
+   <div className="dfV2SectionHead"><h2>우선 처리할 업무</h2><span>문제 발생 시 먼저 확인하세요</span></div>
+   <a href="/focus-admin/publish"><span className="dfV2PriorityIcon" aria-hidden="true">▤</span><span><b>기사 검토·발행</b><small>{guest===false&&stats.queue!==null?stats.queue+"건 검토 대기 · 미통과 항목 확인":"검증 완료 여부와 보류 사유 확인"}</small></span><strong>›</strong></a>
+   <a href="/focus-admin/updates"><span className="dfV2PriorityIcon" aria-hidden="true">◈</span><span><b>공식기관 업데이트</b><small>{failed===null?"기관별 최근 상태 확인 중":failed>0?failed+"곳 실패·부분 오류 · 원인 확인":"최근 기관 점검 결과 정상 · 자료 누락 가능성 별도 확인"}{sources?.lastAttempt?" · "+latestTime(sources.lastAttempt):""}</small></span><strong>›</strong></a>
+   <a href="/focus-admin/housing" className={housingIssue?"needsAttention":""}><span className="dfV2PriorityIcon" aria-hidden="true">⌂</span><span><b>분양·청약 데이터</b><small>{!housing?"데이터 연결 상태 확인 중":housingIssue?"자료 또는 인증·정기 수집 점검 필요":housing.counts.notices+"건 확보 · 최근 상태 정상"}</small></span><strong>›</strong></a>
+  </section>
+  <section className="dfV2Actions">
+   <div className="dfV2SectionHead"><h2>빠른 실행</h2><span>자주 쓰는 업무</span></div>
+   <div className="dfV2ActionGrid">
+    <a href="/focus-admin/write"><b>＋</b><strong>기사 작성</strong><small>초안 작성·저장</small></a>
+    <a href="/focus-admin/publish"><b>✓</b><strong>검토·발행</strong><small>검증 결과·예약</small></a>
+    <a href="/focus-admin/updates"><b>⌕</b><strong>공식자료</strong><small>기관 상태·오류</small></a>
+   </div>
+  </section>
+  <section className="dfV2Services"><div className="dfV2SectionHead"><h2>서비스 바로가기</h2></div><div className="dfV2ServiceLinks"><a href="/focus-admin/housing">분양·청약 →</a><a href="/focus-admin/radar">개발레이더 →</a><a href="/focus-admin/stats">운영 통계 →</a><a href="/focus-admin/system">서비스 상태 →</a></div></section>
+  <details className="dfAdminAllMenu dfV2AllMenu" open={guest===true}><summary><span><small>ALL OPERATIONS</small><b>전체 운영 메뉴</b></span><strong>펼치기</strong></summary><div className="dfAdminGroups">{groups.map(g=><section className="dfAdminGroup" key={g.name}><div className="dfAdminGroupHead"><h2>{g.name}</h2></div><div className="adminMenu">{g.items.map(([name,desc,href])=><a href={href} key={href}><div><b>{name}</b><span>{desc}</span></div><strong>›</strong></a>)}</div></section>)}</div></details>
   <DFAdminBottomNav active="home"/>
  </main>
 }
