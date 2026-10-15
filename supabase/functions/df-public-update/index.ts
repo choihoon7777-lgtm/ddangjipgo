@@ -428,6 +428,25 @@ Deno.serve(async(req)=>{
   const batch=data?.batch;
   if(!Number.isInteger(batch)||batch<0||batch>9||Object.keys(data).some(x=>x!=="batch"))return respond(req,400,{error:"ONLY_FIXED_BATCH_ALLOWED"});
   if(!SUPABASE_ENDPOINT||!SECRET)return respond(req,503,{error:"SERVER_CONFIG_MISSING"});
+  // Accept only single-use pg_cron credentials or a verified active admin.
+  // Supabase auth is NOT inferred from CORS, origin or a public anon key.
+  const runToken=req.headers.get("x-df-collector-token")||"";
+  let authorized=false;
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(runToken)){
+   const {data:valid,error:claimError}=await db.rpc("df_claim_ingest_token",{p_token:runToken,p_batch:batch});
+   authorized=!claimError&&valid===true;
+  }
+  if(!authorized){
+   const bearer=req.headers.get("authorization")||"";
+   if(bearer.startsWith("Bearer ")&&bearer.length>20&&bearer.length<=8192){
+    const {data:{user},error:authError}=await db.auth.getUser(bearer.slice(7));
+    if(!authError&&user){
+     const {data:role,error:roleError}=await db.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
+     authorized=!roleError&&!!role;
+    }
+   }
+  }
+  if(!authorized)return respond(req,403,{error:"ADMIN_OR_SCHEDULER_AUTH_REQUIRED"});
   const result=await runBatch(batch);
   return respond(req,result.busy?429:200,result);
  }catch(e){return respond(req,500,{error:String(e instanceof Error?e.message:e).slice(0,240)})}
