@@ -34,7 +34,7 @@ export async function GET(request){
  else q=q.order("published_date",{ascending:false,nullsFirst:false}).limit(600);
  const {data,error}=await q;
  if(error){console.error("HOUSING_DATABASE_READ_FAILED",error.code||"UNKNOWN");return reply({ok:false,error:"DATABASE_READ_FAILED"},503)}
- if(!data?.length){const direct=await liveOfficialHousing();if(direct?.length){if(id){const item=direct.find(x=>x.offer_key===id)||null;return reply({ok:!!item,item,source:"official_api_live"},item?200:404)}return reply({ok:true,items:direct,updatedAt:new Date().toISOString(),stale:false,source:"official_api_live",pricingIncomplete:true})}}
+ if(!data?.length&&process.env.DF_HOUSING_DIRECT_FALLBACK==="true"){const direct=await liveOfficialHousing();if(direct?.length){if(id){const item=direct.find(x=>x.offer_key===id)||null;return reply({ok:!!item,item,source:"official_api_live"},item?200:404)}return reply({ok:true,items:direct,updatedAt:new Date().toISOString(),stale:false,source:"official_api_live",pricingIncomplete:true})}}
  if(id)return reply({ok:true,item:data?.[0]||null},data?.length?200:404);
  const items=data||[];
  if(!items.length)return reply({ok:false,error:"DATA_NOT_SYNCED",items:[]},503);
