@@ -1317,3 +1317,16 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfUpdateSecurityNotice{margin:10px 0 13px;padding:12px 13px;border:1px solid #d8e4ec;background:#f5f8fb;color:#254b69;border-radius:10px;font-size:12px;line-height:1.7;display:flex;justify-content:space-between;gap:9px;flex-wrap:wrap}
 .dfUpdateSecurityNotice a{color:#19425f;font-weight:800;text-decoration:underline}
 .dfUpdateMainButton:disabled,.dfUpdateToolbar button:disabled{cursor:not-allowed;opacity:.55}
+
+/* One-field password sign-in; legacy invitation setup stays collapsed. */
+.dfAdminPasswordLogin{max-width:720px;margin-inline:auto}
+.dfAdminPasswordPanel{padding:24px}
+.dfAdminPasswordPanel form{display:flex;flex-direction:column;gap:12px}
+.dfAdminPasswordPanel form>label{font-weight:750;font-size:14px}
+.dfAdminPasswordPanel form>input{width:100%;min-height:52px;padding:13px 14px;border:1px solid #b5c2cf;border-radius:12px;font:inherit;background:#fff;color:#10263a}
+.dfAdminPasswordPanel form>button{min-height:50px;margin-top:8px}
+.dfAdminLoginRecovery{margin-top:23px;padding-top:15px;border-top:1px solid #d9e2e9}
+.dfAdminLoginRecovery summary{cursor:pointer;color:#536779;font-size:13px;font-weight:650;padding:7px 0}
+.dfAdminLoginRecovery form{margin-top:18px}
+.dfAdminPasswordLogin>.adminDataNote{padding:12px 20px;text-align:center}
+@media(max-width:430px){.dfAdminPasswordPanel{padding:16px}.dfAdminPasswordPanel form>input{font-size:16px}}
