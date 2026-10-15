@@ -47,8 +47,14 @@ export default function Admin(){
    <div className="dfReviewActions"><a className="adminPrimary" href="/focus-admin/updates">실제 신규자료 업데이트 →</a><a className="adminSecondary" href="/focus/policy">공개 개발정책 보기 ↗</a></div>
   </section>}
 
-  <section className="adminPanel dfAdminAutoOfficial"><div><small>OFFICIAL AUTO POST</small><h2>공식자료는 자동 게시 중</h2><p>정부·지자체 공식 고시·공고·보도자료는 수집 뒤 자동 공개됩니다. 별도 검토요청이나 발행 허락이 필요하지 않습니다. 원문이 누락되거나 수집에 실패한 자료는 오류로 구분합니다.</p></div><div className="dfAdminFastLinks"><a className="adminPrimary" href="/focus/policy">자동 게시 자료 확인 →</a><a className="adminSecondary" href="/focus-admin/updates">수집 현황 보기</a><a className="adminSecondary" href="/focus-admin/publish">기사 검토 대기열</a></div></section>
-  <section className="adminPanel dfAdminFastPublish"><div><small>QUICK PUBLISH</small><h2>기사를 빠르게 발행하세요</h2><p>기사 작성부터 검토·발행, 도시맥 실제 노출 확인까지 바로 이동합니다.</p></div><div className="dfAdminFastLinks"><a className="adminPrimary" href="/focus-admin/write">+ 새 기사 작성</a><a className="adminSecondary" href="/focus-admin/publish">검토·발행</a><a className="adminSecondary" href="/focus/live">발행 기사 확인 ↗</a></div><small>{guest?"비로그인에서는 작성·발행을 체험할 수 있으며 실제 저장·발행은 관리자 로그인이 필요합니다.":"검증된 공식 출처와 최종 승인을 통과한 원고만 공개합니다."}</small></section>
+  <section className="adminPanel dfAdminNewsroom"><div className="adminSectionTitle"><div><small>오늘의 핵심 업무</small><h2>운영 바로가기</h2></div><a href="/focus/live" className="adminSecondary">공개 뉴스 확인 ↗</a></div>
+   <div className="dfAdminNewsroomGrid">
+    <a href="/focus-admin/write"><strong>기사 작성</strong><span>원고 저장·검토 요청</span><b>작성하기 →</b></a>
+    <a href="/focus-admin/publish"><strong>검토·발행</strong><span>대기 원고·검증 결과 확인</span><b>검토하기 →</b></a>
+    <a href="/focus-admin/updates"><strong>공식자료 현황</strong><span>최신 자료·오류 상태 확인</span><b>현황 보기 →</b></a>
+   </div>
+   <p className="dfAdminNewsroomNote">{guest?"비로그인 체험에서는 실제 저장·발행을 할 수 없습니다. 운영자 인증이 필요합니다.":"공식자료는 별도의 편집 허락 없이 게시되며, 해석 기사는 검증을 통과해야 발행됩니다."}</p>
+  </section>
   {!guest&&<section className="adminToday"><div className="adminSectionTitle"><div><small>TODAY</small><h2>오늘의 운영상황</h2></div><span>실데이터</span></div><div className="adminStats dfAdminStatLinks"><a href="/focus-admin/publish"><b>{stats.queue??"—"}</b><span>검토대기</span></a><a href="/focus/live"><b>{stats.published??"—"}</b><span>발행기사</span></a><a href="/focus-admin/ads"><b>{stats.ads??"—"}</b><span>광고진행</span></a><a href="/focus-admin/claims"><b>{stats.claims??"—"}</b><span>정정요청</span></a></div></section>}
 
   <section className="adminPanel"><div className="adminSectionTitle"><div><small>QUICK ACTIONS</small><h2>빠른 실행</h2></div></div><div className="dfAdminQuickGrid">

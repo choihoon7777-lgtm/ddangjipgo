@@ -1223,3 +1223,15 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfOfficialArticleText .dfEditorialHeading{line-height:1.5;letter-spacing:-.03em;overflow-wrap:anywhere}
 .dfPolicyRow h3,.dfLatestRow h3{overflow-wrap:anywhere}
 @media(max-width:430px){.dfRegionPicker .regionGrid{gap:8px}.dfPolicyRow{scroll-margin-top:120px}}
+
+/* Unified admin 3-task newsroom and public region hierarchy. */
+.dfAdminNewsroom{margin-bottom:18px}
+.dfAdminNewsroomGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dfAdminNewsroomGrid>a{display:flex;flex-direction:column;gap:8px;padding:18px 13px;border:1px solid #d6e3ec;border-radius:12px;background:#f6f9fc;color:#193b58;min-height:142px;text-decoration:none}
+.dfAdminNewsroomGrid>a:first-child{background:#153d5d;color:#fff;border-color:#153d5d}
+.dfAdminNewsroomGrid strong{font-size:17px;line-height:1.35}
+.dfAdminNewsroomGrid span{font-size:12px;line-height:1.6;opacity:.82}
+.dfAdminNewsroomGrid b{margin-top:auto;font-size:12px;color:#c58a48}
+.dfAdminNewsroomNote{font-size:12px;color:#61778a;line-height:1.7;margin:14px 2px 0}
+.dfAdminNewsroomGrid>a:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
+@media(max-width:430px){.dfAdminNewsroomGrid{grid-template-columns:1fr;gap:8px}.dfAdminNewsroomGrid>a{min-height:80px;padding:12px 14px;gap:3px}.dfAdminNewsroomGrid b{margin-top:2px}.dfAdminNewsroom .adminSectionTitle{gap:10px;flex-wrap:wrap}}
