@@ -60,7 +60,7 @@ export async function POST(req){
  try{body=await req.json()}catch{return json({error:"잘못된 수집 요청입니다."},400)}
  if(!body||Object.keys(body).length!==1||!Number.isInteger(body.batch)||body.batch<0||body.batch>9)return json({error:"사전에 등록된 기관만 수집할 수 있습니다."},400);
  try{
-  const result=await fetchWithDeadline(upstream,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({batch:body.batch})},57000);
+  const result=await fetchWithDeadline(upstream,{method:"POST",headers:{"Content-Type":"application/json","Authorization":req.headers.get("authorization")||""},body:JSON.stringify({batch:body.batch})},57000);
   const payload=await result.json().catch(()=>({error:"수집기 응답 오류"}));
   return json(payload,result.status);
  }catch{return json({error:"공식기관 서버 응답이 지연됐습니다. 잠시 후 다시 실행해 주세요."},503)}
