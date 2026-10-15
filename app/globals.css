@@ -1287,3 +1287,22 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfV2AgencyTriage button[aria-pressed=true]{background:#173f5c;color:#fff}
 .dfV2AgencyTriage button:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
 @media(max-width:390px){.dfV2AgencyTriage{align-items:stretch;flex-direction:column}.dfV2AgencyTriage button{width:100%}}
+
+
+/* Admin v2 housing / property service control */
+.dfV2HousingStatus{padding:15px;border-radius:11px;background:#eef7f3;color:#185744;margin:18px 0;border:1px solid #cfe6db}
+.dfV2HousingStatus.issue{background:#fff8f1;color:#895424;border-color:#f2ddc4}
+.dfV2HousingStatus strong{font-size:14px}.dfV2HousingStatus p{font-size:12px;line-height:1.65;margin:7px 0 0;color:inherit}
+.dfV2HousingMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 21px}
+.dfV2HousingMetrics>div{padding:15px 12px;border-radius:11px;background:#f3f7fa;display:flex;flex-direction:column;gap:8px}
+.dfV2HousingMetrics small{font-size:11px;color:#647d90}.dfV2HousingMetrics strong{font-size:26px;color:#153b58}.dfV2HousingMetrics em{font-size:11px;font-style:normal;font-weight:500;margin-left:3px}
+.dfV2HousingLine{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 3px;border-bottom:1px solid #e8edf2;font-size:12px}
+.dfV2HousingLine b{color:#254560;flex-shrink:0}.dfV2HousingLine span{color:#60778a;text-align:right;overflow-wrap:anywhere}.dfV2HousingLine span.bad{color:#af573c}
+.dfV2HousingProblem{padding:13px 15px;border:1px solid #f0d1c1;background:#fff8f3;color:#884b31;margin:17px 0;border-radius:10px}
+.dfV2HousingProblem b{font-size:13px}.dfV2HousingProblem p{font-size:12px;line-height:1.7;margin:6px 0}
+.dfV2HousingLinks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:19px 0 5px}
+.dfV2HousingLinks a{border:1px solid #d9e3ec;border-radius:10px;padding:13px 10px;font-size:12px;color:#1c4567;text-decoration:none;font-weight:700;min-height:44px}
+.dfV2HousingRecent>div:not(.adminSectionTitle){display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid #e9eff3;padding:12px 0}
+.dfV2HousingRecent>div>b{font-size:13px;color:#183d59}.dfV2HousingRecent>div>span{font-size:12px;color:#718598}
+.dfV2Housing a:focus-visible,.dfV2Housing button:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
+@media(max-width:385px){.dfV2HousingMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dfV2HousingLine{align-items:flex-start;flex-direction:column;gap:4px}.dfV2HousingLine span{text-align:left}}
