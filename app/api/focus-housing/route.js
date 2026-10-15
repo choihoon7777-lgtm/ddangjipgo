@@ -11,7 +11,7 @@ const reply=(payload,status=200)=>NextResponse.json(payload,{status,headers:{"Ca
 let liveCache={at:0,items:null,lastError:null};
 async function liveOfficialHousing(){
  if(liveCache.items&&Date.now()-liveCache.at<3*60*1000)return liveCache.items;
- const key=housingKey();if(!key)return null;
+ const key=housingKey();if(!key){liveCache.lastError="API_KEY_MISSING";return null;}
  const outcomes=await Promise.allSettled(Object.entries(HOUSING_KINDS).map(async([kind,endpoints])=>{
   const r=await fetchHousingPage(endpoints[0],key,{page:1,perPage:100,retries:0});
   return r.data.map(raw=>cleanHousingNotice(raw,kind,[])).filter(Boolean).map(({source_json,models_json,...safe})=>({...safe,models_json:[]}));
