@@ -1,11 +1,29 @@
 
 import {NextResponse} from "next/server";
 import {createClient} from "@supabase/supabase-js";
+import {housingKey,fetchHousingPage,koreaToday} from "../../../lib/df-housing-upstream.mjs";
+import {HOUSING_KINDS,cleanHousingNotice} from "../../../lib/df-housing.mjs";
 export const dynamic="force-dynamic";
 export const revalidate=0;
 const url="https://svafsvyjjufbqvxzoqee.supabase.co";
 const key="sb_publishable_xdUQguOcbb3TlaMQ7my4Zg_MKT7eeud";
 const reply=(payload,status=200)=>NextResponse.json(payload,{status,headers:{"Cache-Control":"public, s-maxage=120, stale-while-revalidate=300"}});
+let liveCache={at:0,items:null};
+async function liveOfficialHousing(){
+ if(liveCache.items&&Date.now()-liveCache.at<3*60*1000)return liveCache.items;
+ const key=housingKey();if(!key)return null;
+ const recent=koreaToday(-90);
+ const outcomes=await Promise.allSettled(Object.entries(HOUSING_KINDS).map(async([kind,endpoints])=>{
+  const r=await fetchHousingPage(endpoints[0],key,{filters:[["RCRIT_PBLANC_DE","GTE",recent]],page:1,perPage:100,retries:0});
+  return r.data.map(raw=>cleanHousingNotice(raw,kind,[])).filter(Boolean).map(({source_json,models_json,...safe})=>({...safe,models_json:[]}));
+ }));
+ const successful=outcomes.filter(x=>x.status==="fulfilled");
+ if(!successful.length)return null;
+ const dedup=new Map();for(const group of successful)for(const row of group.value)dedup.set(row.offer_key,row);
+ const items=[...dedup.values()].sort((a,b)=>String(b.published_date||"").localeCompare(String(a.published_date||""))).slice(0,120);
+ liveCache={at:Date.now(),items};return items;
+}
+
 export async function GET(request){
  const args=new URL(request.url).searchParams,id=args.get("id")||"";
  if(id&&(!/^(APT|REMAIN|OPTIONAL):\d+:\d+$/.test(id)||id.length>90))return reply({ok:false,error:"INVALID_ID"},400);
@@ -16,6 +34,7 @@ export async function GET(request){
  else q=q.order("published_date",{ascending:false,nullsFirst:false}).limit(600);
  const {data,error}=await q;
  if(error){console.error("HOUSING_DATABASE_READ_FAILED",error.code||"UNKNOWN");return reply({ok:false,error:"DATABASE_READ_FAILED"},503)}
+ if(!data?.length){const direct=await liveOfficialHousing();if(direct?.length){if(id){const item=direct.find(x=>x.offer_key===id)||null;return reply({ok:!!item,item,source:"official_api_live"},item?200:404)}return reply({ok:true,items:direct,updatedAt:new Date().toISOString(),stale:false,source:"official_api_live",pricingIncomplete:true})}}
  if(id)return reply({ok:true,item:data?.[0]||null},data?.length?200:404);
  const items=data||[];
  if(!items.length)return reply({ok:false,error:"DATA_NOT_SYNCED",items:[]},503);
