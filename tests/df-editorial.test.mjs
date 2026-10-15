@@ -51,10 +51,10 @@ test("Source links accept HTTPS only",()=>{
  assert.equal(safeOriginalUrl("https://www.molit.go.kr/abc"),"https://www.molit.go.kr/abc");
 });
 
-test("Article table-of-contents navigation cannot inherit the global fixed bottom nav",async()=>{
+test("Public article renderer has no duplicated contents navigation and keeps real headings",async()=>{
  const component=await readFile(new URL("../components/df-official-article-text.js",import.meta.url),"utf8");
- const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
- assert.match(component,/className="dfEditorialOutlineLinks" role="navigation"/);
- assert.doesNotMatch(component,/<nav\b/);
- assert.match(css,/\.dfEditorialOutline>\.dfEditorialOutlineLinks\{/);
+ assert.doesNotMatch(component,/dfEditorialOutline|이 글의 주요 내용|개 목차|getEditorialOutline/);
+ assert.match(component,/sections\.map\(\(b,i\)=>/);
+ assert.match(component,/className="dfEditorialHeading"/);
+ assert.match(component,/className="dfEditorialParagraph"/);
 });
