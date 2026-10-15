@@ -47,7 +47,6 @@ export default function Policy(){
      <div className="dfPolicyKeySentences">{detail.key_extract_status==="ready"&&detail.key_content?String(detail.key_content).split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>):<p>개별 공식 본문이 아직 확보되지 않았습니다. 목록 정보만으로 변경 내용을 판단하지 않습니다.</p>}</div>
     </div>
    </section>
-   {detail.source_url&&<div className="dfPolicySimpleOriginal"><a href={detail.source_url} target="_blank" rel="noopener noreferrer">원문 보기 ↗</a></div>}
   </article><DFBottomNav active="policy"/></main>;
  return <main className="focusShell dfHigh"><DFBrandHeader/>
   <section className="dfPolicyHero"><small>공식자료 · 자동 게시</small><h1>정책·고시</h1><p>정부·지자체 공식자료는 별도 편집 승인 없이 수집 후 자동 공개됩니다. 원문과 확인된 내용을 함께 제공합니다.</p><div><b>공식자료 자동 게시</b><span>수집된 문서를 직접 보여주며, AI 해석 기사는 별도 검증 후 발행합니다.</span></div></section>
