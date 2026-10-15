@@ -1330,3 +1330,9 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfAdminLoginRecovery form{margin-top:18px}
 .dfAdminPasswordLogin>.adminDataNote{padding:12px 20px;text-align:center}
 @media(max-width:430px){.dfAdminPasswordPanel{padding:16px}.dfAdminPasswordPanel form>input{font-size:16px}}
+
+/* Email-based admin password recovery, without disclosing the saved admin address. */
+.dfAdminPasswordPanel .dfAdminRecoveryButton{display:block;border:0;background:transparent;color:#234a6b;text-decoration:underline;cursor:pointer;margin:10px 0 0;padding:8px 0;font-size:13px;font-weight:750;text-align:left}
+.dfAdminPasswordPanel .dfAdminRecoveryButton:disabled{opacity:.55;cursor:wait}
+.dfAdminRecoveryNotice{margin:9px 0 12px;padding:12px 14px;background:#eef3f7;color:#1c405b;border-radius:10px;font-size:13px;line-height:1.6}
+.dfAdminRecoveryBack{display:block;margin-top:20px;text-align:center}

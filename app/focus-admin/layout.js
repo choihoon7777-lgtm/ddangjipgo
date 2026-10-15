@@ -6,7 +6,7 @@ import DFAdminGuestPreview from"../../components/df-admin-guest-preview";
 // All management screens are available for visual testing without login.
 // Operational pages are never mounted for anonymous or unauthorized visitors.
 // Supabase RLS and privileged server routes retain their existing protections.
-const publicPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/blog-import","/focus-admin/login"]);
+const publicPages=new Set(["/focus-admin","/focus-admin/updates","/focus-admin/blog-import","/focus-admin/login","/focus-admin/reset-password"]);
 export default function FocusAdminLayout({children}){
  const path=usePathname()||"/focus-admin";
  const publicPage=publicPages.has(path);

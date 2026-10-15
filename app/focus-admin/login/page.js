@@ -5,8 +5,9 @@ import{DFAdminHeader}from"../../../components/df-shell";
 
 export default function Login(){
  const[password,setPassword]=useState(""),[busy,setBusy]=useState(false),[msg,setMsg]=useState("");
+ const[mailBusy,setMailBusy]=useState(false),[mailNotice,setMailNotice]=useState("");
  const[advanced,setAdvanced]=useState(false),[email,setEmail]=useState(""),[legacyPassword,setLegacyPassword]=useState(""),[confirm,setConfirm]=useState(""),[mode,setMode]=useState("login"),[legacyBusy,setLegacyBusy]=useState(false);
- useEffect(()=>{let live=true;(async()=>{
+ useEffect(()=>{if(typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("reset")==="ok")setMsg("비밀번호가 변경됐습니다. 새 비밀번호로 로그인하세요.");let live=true;(async()=>{
   const{data:{user}}=await dfSupabase.auth.getUser();
   if(!live||!user)return;
   const{data:role}=await dfSupabase.from("df_admin_roles").select("role").eq("profile_id",user.id).eq("is_active",true).maybeSingle();
@@ -26,6 +27,16 @@ export default function Login(){
    if(error)throw error;
    setPassword("");location.replace("/focus-admin/publish");
   }catch(err){setMsg(err.message||"비밀번호를 확인해 주세요.");setPassword("")}finally{setBusy(false)}
+ }
+ async function sendRecovery(){
+  if(mailBusy)return;
+  setMailBusy(true);setMailNotice("");
+  try{
+   const res=await fetch("/api/focus-admin-recovery",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"});
+   const body=await res.json().catch(()=>({}));
+   if(!res.ok)throw new Error(res.status===429?"재설정 메일을 이미 요청했습니다. 잠시 후 다시 시도하세요.":body.error||"재설정 메일을 보내지 못했습니다.");
+   setMailNotice("관리자 등록 이메일로 비밀번호 재설정 링크를 요청했습니다. 받은편지함과 스팸함을 확인해 주세요.");
+  }catch(err){setMailNotice(err.message||"메일 요청 중 오류가 발생했습니다.")}finally{setMailBusy(false)}
  }
  async function verifyAllowed(normalized){
   const{data:allowed,error}=await dfSupabase.rpc("df_can_request_admin_otp",{p_email:normalized});
@@ -72,6 +83,8 @@ export default function Login(){
     <button type="submit" className="adminPrimary" disabled={busy||password.length<8}>{busy?"확인 중…":"관리자 로그인 →"}</button>
    </form>
    <p className="adminDataNote">이메일 입력은 필요 없습니다. 기존 관리자 계정의 비밀번호를 사용합니다.</p>
+   <button type="button" className="dfAdminRecoveryButton" disabled={mailBusy} onClick={sendRecovery}>{mailBusy?"메일 요청 중…":"비밀번호를 모르겠어요 · 재설정 메일 받기 →"}</button>
+   {mailNotice&&<p className="dfAdminRecoveryNotice" role="status">{mailNotice}</p>}
    {msg&&<div className="editorGate" role="alert"><span>{msg}</span></div>}
    <details className="dfAdminLoginRecovery" open={advanced} onToggle={e=>setAdvanced(e.currentTarget.open)}>
     <summary>처음 설정하거나 다른 관리자 계정으로 로그인</summary>
