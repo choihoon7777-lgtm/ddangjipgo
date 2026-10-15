@@ -6,7 +6,7 @@ const ENDPOINT="https://svafsvyjjufbqvxzoqee.supabase.co/functions/v1/df-public-
 const time=x=>x?new Date(x).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}):"미점검";
 const date=x=>x?new Date(x).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul"}):"공개일 미확인";
 export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
- const [status,setStatus]=useState(initialStatus),[records,setRecords]=useState(Array.isArray(initialRecords)?initialRecords:[]),[loading,setLoading]=useState(!initialStatus&&!initialRecords?.length),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6);
+ const [status,setStatus]=useState(initialStatus),[records,setRecords]=useState(Array.isArray(initialRecords)?initialRecords:[]),[loading,setLoading]=useState(!initialStatus&&!initialRecords?.length),[busy,setBusy]=useState(false),[progress,setProgress]=useState(""),[results,setResults]=useState([]),[message,setMessage]=useState(""),[view,setView]=useState("all"),[shownCount,setShownCount]=useState(6),[issuesOnly,setIssuesOnly]=useState(false);
  async function load(){
   setLoading(true);
   try{
@@ -54,6 +54,8 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
   finally{setBusy(false);await load()}
  }
  const agencies=Array.isArray(status?.sources)?status.sources:[];
+ const badAgencies=agencies.filter(x=>x.last_result==="failed"||x.last_result==="partial");
+ const displayAgencies=issuesOnly?badAgencies:agencies;
  const sorted=useMemo(()=>(Array.isArray(records)?records:[]).filter(d=>d&&typeof d==="object"&&(view==="all"||(view==="verified"&&d.detail_status==="complete")||(view==="partial"&&d.detail_status!=="complete"))),[records,view]);
  const shown=sorted.slice(0,shownCount);
  const completed=agencies.filter(x=>x.last_result==="success").length;
@@ -95,17 +97,19 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
    <div className="dfUpdateFactoryFooter"><span>마지막 기사 공장 실행: {factoryClock(factory?.last_factory_at)}</span><a href="/focus/live?category=정책·고시">발행 기사 확인 →</a></div>
    <p className="dfUpdateFactoryHelp">새 자료가 없거나 원문 확인이 부족하면 발행 건수는 0건일 수 있습니다. AI 창작 기사가 아닌 공식 문서의 검증된 내용으로 작성합니다.</p>
   </section>
-  <section className="adminPanel dfUpdateSourcesPanel">
+  <section className="adminPanel dfUpdateSourcesPanel" id="official-agency-status">
    <div className="dfUpdateSectionHead"><div><small>수집 상태</small><h2>공식기관 현황</h2></div><span className="dfUpdateSectionCount">{agencies.length}개 기관</span></div>
+   <div className="dfV2AgencyTriage"><div><strong>{errors>0?errors+"곳 확인 필요":agencies.length?"최근 기관 오류 없음":"기관별 상태 확인 필요"}</strong><p>{errors>0?"오류·부분 완료 기관의 원인을 먼저 확인하세요. 특정 기관의 자료는 누락될 수 있습니다.":"수집 성공 여부와 실제 신규자료 확보는 다릅니다."}</p></div><button type="button" aria-pressed={issuesOnly} onClick={()=>setIssuesOnly(v=>!v)}>{issuesOnly?"전체 기관 보기":"오류 기관만 보기"}</button></div>
    <div className="dfUpdateHealth">
     <span><i className="dfUpdateDot dfUpdateDotGood"/> 연결 성공 {completed}</span><span>자료 발견 {found}</span><span>관련 자료 없음 {checkedWithoutHits}</span>
     <span><i className="dfUpdateDot dfUpdateDotBad"/> 오류 {errors}</span>
     <span><i className="dfUpdateDot"/> 미점검 {notRun}</span>
    </div>
-   <details className="dfUpdateDisclosure dfUpdateSourceDisclosure">
+   <details className="dfUpdateDisclosure dfUpdateSourceDisclosure" open={issuesOnly}>
     <summary>기관별 수집 현황과 오류 원인 보기</summary>
-    <div className="dfUpdateSourceRows">{agencies.map(src=><div key={String(src.name||"미확인 기관")}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?(Number(src.last_found)>0?"자료 발견":"목록 정상 · 관련 없음"):src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
+    <div className="dfUpdateSourceRows">{displayAgencies.map(src=><div key={String(src.name||"미확인 기관")}><div><strong>{src.name}</strong><span>{src.region_code||"전국"} · {time(src.last_attempt_at)}</span></div><em className={src.last_result==="success"?"good":src.last_result==="failed"||src.last_result==="partial"?"bad":""}>{src.last_result==="success"?(Number(src.last_found)>0?"자료 발견":"목록 정상 · 관련 없음"):src.last_result==="failed"?"오류":src.last_result==="partial"?"부분 완료":"미점검"}</em>{src.last_error&&<p>원인: {src.last_error}</p>}</div>)}</div>
    </details>
+   {issuesOnly&&badAgencies.length===0&&<p className="adminDataNote">현재 표시할 오류 기관이 없습니다.</p>}
   </section>
   <section className="adminPanel dfUpdateFeedPanel">
    <div className="dfUpdateSectionHead"><div><small>검증된 공개자료</small><h2>최근 개발정보</h2></div><span className="dfUpdateSectionCount">{sorted.length}건</span></div>
@@ -123,6 +127,6 @@ export default function GuestUpdates({initialStatus=null,initialRecords=[]}){
    {shown.length<sorted.length&&<button className="dfUpdateMore" onClick={()=>setShownCount(c=>c+6)}>자료 더 보기 <span>{sorted.length-shown.length}건 남음</span><span aria-hidden="true">↓</span></button>}
   </section>
   <p className="dfUpdateSecurityNote">신규자료 실제 수집은 로그인 없이 가능하며, 문서 수정·삭제와 수동 공개승인은 관리자 권한이 필요합니다. <a href="/focus-admin/login">관리자 로그인</a></p>
-  <DFAdminBottomNav active="system"/>
+  <DFAdminBottomNav active="updates"/>
  </main>;
 }
