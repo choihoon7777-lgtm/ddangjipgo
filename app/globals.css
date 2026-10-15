@@ -1306,3 +1306,9 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfV2HousingRecent>div>b{font-size:13px;color:#183d59}.dfV2HousingRecent>div>span{font-size:12px;color:#718598}
 .dfV2Housing a:focus-visible,.dfV2Housing button:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
 @media(max-width:385px){.dfV2HousingMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dfV2HousingLine{align-items:flex-start;flex-direction:column;gap:4px}.dfV2HousingLine span{text-align:left}}
+
+
+/* Guest admin v2 has a compact navigation panel, not 15 menu items above the task */
+.dfV2GuestMenu summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;min-height:48px;color:#1d415f}
+.dfV2GuestMenu summary b{font-size:15px}.dfV2GuestMenu summary span{font-size:12px;color:#718899}.dfV2GuestMenu[open] .dfGuestAdminLinkGrid{margin-top:14px}
+.dfV2GuestMenu summary:focus-visible{outline:3px solid #c58a48;outline-offset:2px}

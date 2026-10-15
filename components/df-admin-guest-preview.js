@@ -36,7 +36,7 @@ export default function DFAdminGuestPreview({path}){
  const slug=path.split("/").filter(Boolean).pop()||"";
  const current=menu.find(x=>x[0]===slug)||["", "운영 메뉴", ""];
  const[official,setOfficial]=useState([]),[articles,setArticles]=useState([]),[health,setHealth]=useState(null);
- const[query,setQuery]=useState(""),[title,setTitle]=useState(""),[body,setBody]=useState(""),[source,setSource]=useState(""),[region,setRegion]=useState("전국"),[checks,setChecks]=useState([]),[notice,setNotice]=useState(""),[showPreview,setShowPreview]=useState(false),[loading,setLoading]=useState(true);
+ const[query,setQuery]=useState(""),[title,setTitle]=useState(""),[body,setBody]=useState(""),[source,setSource]=useState(""),[region,setRegion]=useState("전국"),[checks,setChecks]=useState([]),[notice,setNotice]=useState(""),[showPreview,setShowPreview]=useState(false),[demoFilter,setDemoFilter]=useState("all"),[loading,setLoading]=useState(true);
  useEffect(()=>{let alive=true;setLoading(true);(async()=>{
   const needsOfficial=["radar","sources","publish","preview","media"].includes(slug);
   const needsArticle=["publish","preview","stats"].includes(slug);
@@ -53,7 +53,7 @@ export default function DFAdminGuestPreview({path}){
  return <main className="adminShell dfAdminUnified dfAdminGuestMode">
   <DFAdminHeader title={current[1]} kicker="ADMIN GUEST PREVIEW" back="/focus-admin"/>
   <section className="adminPanel dfGuestAdminBanner"><small>TEST MODE · NO LOGIN</small><h1>{current[1]}</h1><p>{current[2]} · 로그인 없이 모든 화면을 검수할 수 있습니다.</p><div className="dfGuestAdminMessage"><b>비로그인 체험</b><span>공개된 공식자료만 실제로 조회합니다. 비공개 기사 초안·회원정보는 표시하지 않으며, 발행·삭제·수정 버튼은 시뮬레이션입니다.</span></div></section>
-  <section className="adminPanel dfGuestAdminNavigator"><div className="adminSectionTitle"><div><small>ALL OPERATIONS</small><h2>운영 메뉴 전체보기</h2></div><span>{menu.length}개</span></div><div className="dfGuestAdminLinkGrid">{menu.map(([id,name])=><a className={id===slug?"on":""} href={"/focus-admin/"+id} key={id}>{name}<span>›</span></a>)}</div></section>
+  <details className="adminPanel dfGuestAdminNavigator dfV2GuestMenu"><summary><b>전체 운영 메뉴</b><span>{menu.length}개 메뉴 펼치기 ▾</span></summary><div className="dfGuestAdminLinkGrid">{menu.map(([id,name])=><a className={id===slug?"on":""} href={"/focus-admin/"+id} key={id}>{name}<span>›</span></a>)}</div></details>
 
   {(slug==="publish"||slug==="preview")&&<section className="adminPanel">
    <div className="adminSectionTitle"><div><small>PUBLIC ARTICLES</small><h2>공개 기사로 미리보기</h2></div><span>{loading?"조회 중":"공개 "+articles.length+"건"}</span></div>
@@ -61,7 +61,7 @@ export default function DFAdminGuestPreview({path}){
    {articles.length?<div className="dfGuestAdminArticles">{filteredArticles.map(a=><article key={a.id}><span>{a.category||"개발정보"} · {officialDate(a.published_at)}</span><b>{a.title}</b><a href={"/focus/article?id="+a.id}>실제 기사보기 →</a></article>)}</div>:<p className="adminDataNote">공개 기사를 불러오지 못했거나 표시할 기사가 없습니다.</p>}
   </section>}
 
-  {slug==="publish"&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>EDITORIAL REVIEW · DEMO</small><h2>발행 검증 시뮬레이터</h2></div></div><p className="adminDataNote">샘플 검토 카드로 승인 절차를 체험합니다. 실제 대기 기사나 공개 상태는 수정되지 않습니다.</p><h3 className="dfGuestAdminSampleTitle">[체험용] {reviewTitle}</h3><div className="dfGuestAdminChecks">{demoRows.publish.map((label,i)=><label key={label}><input type="checkbox" checked={checks.includes(i)} onChange={e=>setChecks(a=>e.target.checked?[...a,i]:a.filter(v=>v!==i))}/><span>{label}</span></label>)}</div><button className="adminPrimary" disabled={checks.length<6} onClick={confirmDemo}>{checks.length===6?"발행 승인 흐름 시험":"검증 "+checks.length+"/6 — 전부 확인 후 체험"}</button></section>}
+  {slug==="publish"&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>EDITORIAL REVIEW · DEMO</small><h2>발행 검증 시뮬레이터</h2></div></div><p className="adminDataNote">샘플 검토 카드로 승인 절차를 체험합니다. 실제 대기 기사나 공개 상태는 수정되지 않습니다.</p><div className="dfV2EditorFilters" aria-label="체험용 발행 상태 필터">{[["all","전체"],["pending","검증 대기"],["ready","발행 가능"],["blocked","차단"]].map(([k,name])=><button type="button" className={demoFilter===k?"active":""} aria-pressed={demoFilter===k} key={k} onClick={()=>setDemoFilter(k)}>{name} <b>{k==="all"||k==="pending"&&checks.length<6||k==="ready"&&checks.length===6?1:0}</b></button>)}</div><p className="adminDataNote">실제 검토 원고는 비공개입니다. 아래 상태와 체크리스트는 모의 데이터로만 동작합니다.</p>{(demoFilter==="all"||demoFilter==="ready"&&checks.length===6||demoFilter==="pending"&&checks.length<6)?<><h3 className="dfGuestAdminSampleTitle">[체험용] {reviewTitle}</h3><div className="dfGuestAdminChecks">{demoRows.publish.map((label,i)=><label key={label}><input type="checkbox" checked={checks.includes(i)} onChange={e=>setChecks(a=>e.target.checked?[...a,i]:a.filter(v=>v!==i))}/><span>{label}</span></label>)}</div><button className="adminPrimary" disabled={checks.length<6} onClick={confirmDemo}>{checks.length===6?"검증 완료 흐름 체험":"검증 "+checks.length+"/6 — 전부 확인 후 체험"}</button></>:<p className="adminDataNote">해당 조건의 체험용 기사가 없습니다.</p>}</section>}
 
   {["sources","radar","media"].includes(slug)&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>OFFICIAL EVIDENCE</small><h2>공개 공식자료 검색</h2></div><span>{loading?"조회 중":official.length+"건 조회"}</span></div>
    {slug==="media"&&<p className="adminDataNote">언론사 비공개 모니터링 후보 DB는 노출하지 않습니다. 공개 공식자료를 대조하는 절차를 검수할 수 있습니다.</p>}
@@ -83,10 +83,17 @@ export default function DFAdminGuestPreview({path}){
 
   {slug==="stats"&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>PUBLIC SCOPE</small><h2>공개 기사 현황</h2></div></div><div className="adminStats"><div><b>{articles.length}</b><span>최근 공개 기사 조회</span></div><div><b>—</b><span>비공개 조회수</span></div><div><b>—</b><span>광고 성과</span></div></div><p className="adminDataNote">관리자 전체 통계·회원수·매출정보는 로그인 없는 화면에서 노출되지 않습니다.</p><a className="adminSecondary" href="/focus/live">실제 공개 기사 확인 →</a></section>}
 
-  {["system","housing"].includes(slug)&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>PUBLIC SERVICE STATUS</small><h2>공개 상태 확인</h2></div></div>{loading?<p>상태 조회 중입니다.</p>:<p className="adminDataNote">{health?"공개 점검 API에서 응답을 받았습니다. 개인정보와 내부 연결 정보는 비공개입니다.":"공개 API 응답을 확인하지 못했습니다. 실제 운영 상태를 단정할 수 없습니다."}</p>}<div className="dfGuestAdminSteps"><div><em>1</em><span>공식 자료 수집</span></div><div><em>2</em><span>본문 검증</span></div><div><em>3</em><span>기사 검토</span></div><div><em>4</em><span>관리자 승인</span></div></div><a className="adminSecondary" href="/focus-admin/updates">공개 수집 상태 보기 →</a></section>}
+  {slug==="housing"&&<section className="adminPanel dfV2Housing"><div className="adminSectionTitle"><div><small>OFFICIAL HOUSING · READ ONLY</small><h2>분양·청약 연결 현황</h2></div></div>
+   <div className={"dfV2HousingStatus "+(!health?.ok||!health.counts?.notices?"issue":"good")}><strong>{!health?"확인 중":!health.ok?"연결 상태 확인 필요":health.counts?.notices?"저장된 공고 확인됨":"저장된 공식 공고가 없습니다"}</strong><p>실제 운영 DB의 공개 현황만 표시하며 인증키 값은 공개하지 않습니다.</p></div>
+   <div className="dfV2HousingMetrics"><div><small>저장 공고</small><strong>{health?.counts?.notices??"—"}<em>건</em></strong></div><div><small>분양가 확인</small><strong>{health?.counts?.priced??"—"}<em>건</em></strong></div></div>
+   <div className="dfV2HousingDetails"><div className="dfV2HousingLine"><b>공공데이터 인증</b><span>{health?.officialKeyConfigured?"환경 설정 감지됨":"환경 설정 점검 필요"}</span></div><div className="dfV2HousingLine"><b>정기 갱신</b><span>{health?.pipelineConfigured?"서버 연결 설정됨":"인증된 수집 서버 설정 필요"}</span></div></div>
+   <div className="dfV2HousingLinks"><a href="/focus/housing">공개 분양정보 →</a><a href="/focus-admin/radar">개발레이더 →</a></div>
+   <p className="adminDataNote">실제 동기화 실행 및 환경설정 수정은 로그인 후 가능합니다.</p>
+  </section>}
+  {slug==="system"&&<section className="adminPanel"><div className="adminSectionTitle"><div><small>PUBLIC SERVICE STATUS</small><h2>공개 상태 확인</h2></div></div>{loading?<p>상태 조회 중입니다.</p>:<p className="adminDataNote">{health?"공개 점검 API에서 응답을 받았습니다. 개인정보와 내부 연결 정보는 비공개입니다.":"공개 API 응답을 확인하지 못했습니다. 실제 운영 상태를 단정할 수 없습니다."}</p>}<div className="dfGuestAdminSteps"><div><em>1</em><span>공식 자료 수집</span></div><div><em>2</em><span>본문 검증</span></div><div><em>3</em><span>기사 검토</span></div><div><em>4</em><span>관리자 승인</span></div></div><a className="adminSecondary" href="/focus-admin/updates">공개 수집 상태 보기 →</a></section>}
 
   {notice&&<p className="dfGuestAdminNotice" role="status">{notice}</p>}
   <section className="adminPanel"><p className="adminDataNote">이 페이지는 로그인 없이 제공되는 전 화면 테스트입니다. 실제 DB에 접근하거나 편집·발행·광고 승인하는 기능은 활성 관리자 인증 후 사용할 수 있습니다.</p><a className="adminSecondary" href="/focus-admin/login">운영자 로그인 (선택) →</a></section>
-  <DFAdminBottomNav active={["publish","write","preview","ai-test","media","sources"].includes(slug)?"editor":slug==="ads"?"ads":slug==="stats"?"stats":slug==="system"?"system":"home"}/>
+  <DFAdminBottomNav active={["publish","write","preview","ai-test","media"].includes(slug)?"editor":["updates","sources"].includes(slug)?"updates":["housing","radar"].includes(slug)?"housing":"system"}/>
  </main>;
 }
