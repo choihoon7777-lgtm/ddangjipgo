@@ -27,3 +27,5 @@ test("Gyeonggi official newsroom parser strips session IDs and only uses dated f
  assert.match(s,/source\.collector_kind==="local_auto"&&fallback\[source\.name\]/);
  assert.match(s,/found:0/);
 });
+
+// Next candidate government endpoints must be tested end-to-end before activation.
