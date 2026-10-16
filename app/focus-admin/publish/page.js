@@ -165,7 +165,7 @@ export default function Publish(){
       {passed?"검증 완료 · 지금 발행할 수 있습니다.":
        stop?"보류 또는 검토 차단 · 사유 확인 후 처리":
        scheduled(x)?"예약 발행 설정됨 · 예약 확인 가능":
-       missing.length?"확인 필요 "+missing.length+"개: "+missing.join(" · "):
+       missing.length?"미확인: "+missing.length+"개 · "+missing.join(" · "):
        a.risk_level==="yellow"?"위험등급 검토 필요 · 검증 후 발행 가능":"최종 검토 후 발행 가능"}
      </p>
      <div className="dfPublishMainActions">
