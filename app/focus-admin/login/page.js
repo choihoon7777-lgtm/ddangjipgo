@@ -75,7 +75,7 @@ export default function Login(){
   }catch(err){setMsg(err.message||"로그인 오류")}finally{setLegacyBusy(false)}
  }
  return <main className="adminShell dfAdminUnified dfAdminPasswordLogin"><DFAdminHeader title="운영센터 로그인" kicker="DOSIMAEK" back="/focus-admin"/>
-  <section className="dfAdminLoginHero"><small>NEWSROOM ACCESS</small><h1>관리자 로그인</h1><p>기존 관리자 비밀번호를 입력하면 바로 기사 검토·발행 화면으로 이동합니다.</p></section>
+  <section className="dfAdminLoginHero"><small>NEWSROOM ACCESS</small><h1>관리자 로그인</h1><p>비밀번호를 입력하면 실제 발행 대기 기사가 열립니다. 로그인 상태는 유지됩니다.</p></section>
   <section className="adminPanel formPanel dfAdminPasswordPanel">
    <form onSubmit={passwordLogin}>
     <label htmlFor="df-admin-single-password">관리자 비밀번호</label>
@@ -97,6 +97,6 @@ export default function Login(){
     </form>
    </details>
   </section>
-  <p className="adminDataNote">로그인 없이 화면만 확인하려면 <a href="/focus-admin/publish">기사 발행 검수 모드 →</a></p>
+  <p className="adminDataNote"><a href="/focus/live">발행된 기사 보기 →</a></p>
  </main>;
 }

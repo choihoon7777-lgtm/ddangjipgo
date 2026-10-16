@@ -1,6 +1,7 @@
 "use client";
 import{useEffect,useState}from"react";
 import{usePathname}from"next/navigation";
+import AdminLogin from "./login/page";
 import DFAdminGuestPreview from"../../components/df-admin-guest-preview";
 
 // All management screens are available for visual testing without login.
@@ -25,6 +26,7 @@ export default function FocusAdminLayout({children}){
  },[path,publicPage]);
  if(publicPage)return children;
  if(auth==="admin")return children;
+ if(auth==="guest"&&path==="/focus-admin/publish")return <AdminLogin/>;
  if(auth==="guest")return <DFAdminGuestPreview path={path}/>;
  return <main className="adminShell dfAdminUnified"><section className="dfAdminAuthState"><b>관리자 페이지 준비 중</b><span>로그인 없이 모든 메뉴를 검수할 수 있습니다.</span></section></main>;
 }
