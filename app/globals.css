@@ -1515,3 +1515,11 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfPublishEfficient .dfPublishSingleAction>.dfPublishActionPublish,
  .dfPublishEfficient .dfPublishSingleAction>.dfPublishPreviewLink{min-height:46px}
 }
+
+
+/* Extra original pictures are stored locally; the first picture remains the cover. */
+.dfInvestgoArticleGallery{display:flex;flex-direction:column;gap:16px;margin:24px 0 26px;max-width:100%;min-width:0}
+.dfInvestgoArticleGallery h2{margin:0 0 2px;color:#17374f;font-size:17px;line-height:1.5;letter-spacing:-.03em}
+.dfInvestgoArticleGallery figure{margin:0;max-width:100%;width:100%;min-width:0;text-align:center}
+.dfInvestgoArticleGallery img{display:block;width:100%;max-height:540px;object-fit:contain;border-radius:12px;background:#f4f6f8}
+.dfInvestgoArticleGallery figcaption{font-size:11px;color:#75879a;line-height:1.6;margin-top:7px}
