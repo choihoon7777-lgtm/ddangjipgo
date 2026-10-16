@@ -171,9 +171,9 @@ export default function Publish(){
      <div className="dfPublishMainActions">
       {passed?
        <button type="button" className="adminPrimary" disabled={busy!==""} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"즉시 발행"}</button>:
-       <button type="button" className="adminSecondary dfPublishReviewButton" aria-expanded={open} aria-controls={"df-audit-"+x.id} onClick={()=>toggleArticle(x.article_id)}>{open?"검토 닫기":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>}
+       <button type="button" className="adminSecondary dfPublishReviewButton" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"검토 닫기":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>}
       <a className="adminSecondary dfPublishPreviewLink" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
-      {passed&&<button type="button" className="dfPublishMoreButton" aria-expanded={open} aria-controls={"df-audit-"+x.id} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":"예약·상세"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
+      {passed&&<button type="button" className="dfPublishMoreButton" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":"예약·상세"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
      </div>
      {open&&<section className="dfPublishAudit" id={"df-audit-"+x.id} aria-label="기사 검토 상세">
       <div className="dfPublishAuditHead"><b>검증 항목</b><span>{checks.length-missing.length}/{checks.length} 확인</span></div>
