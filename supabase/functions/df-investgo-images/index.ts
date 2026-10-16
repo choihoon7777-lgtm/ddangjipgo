@@ -2,13 +2,15 @@ import {createClient} from "npm:@supabase/supabase-js@2.57.0";
 
 const BASE=Deno.env.get("SUPABASE_URL")||"";
 const KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
-const storage=createClient(BASE,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const db=createClient(BASE,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const BUCKET="df-investgo-images";
-const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"POST,OPTIONS","Access-Control-Allow-Headers":"content-type","Cache-Control":"no-store"}});
+const MAX_GALLERY=10;
+const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"POST,OPTIONS","Access-Control-Allow-Headers":"content-type,authorization,apikey","Cache-Control":"no-store"}});
 const matchesSource=(u:URL)=>u.protocol==="https:"&&/^(?:[a-z0-9-]+\.)*pstatic\.net$/i.test(u.hostname)&&!u.username&&!u.password&&!u.port;
-function options(url:string){
+const isOwned=(value:unknown)=>typeof value==="string"&&value.startsWith(BASE+"/storage/v1/object/public/"+BUCKET+"/");
+function options(raw:string){
  let parsed:URL;
- try{parsed=new URL(url)}catch{return[]}
+ try{parsed=new URL(raw)}catch{return[]}
  if(!matchesSource(parsed))return[];
  const out:string[]=[];
  for(const variant of ["w966","w800","w500"]){
@@ -58,44 +60,64 @@ async function getImage(url:string){
  }finally{clearTimeout(timer)}
 }
 async function copyImage(post:any){
- const urls=Array.isArray(post.original_image_urls)?post.original_image_urls.filter(x=>typeof x==="string"):[];
- // The original RSS image is only a fallback; prefer the full-size original SmartEditor media.
- const candidates=urls.flatMap(options);
- if(post.rss_thumbnail_url)candidates.push(...options(post.rss_thumbnail_url));
- if(!candidates.length)return {id:post.source_post_id,status:"no_image_in_original"};
- let failure="NO_ACCESSIBLE_HIGH_RES_IMAGE";
- for(const source of [...new Set(candidates)]){
-  try{
-   const image=await getImage(source);
-   const location=post.source_post_id+"/lead."+image.ext;
-   const {error}=await storage.storage.from(BUCKET).upload(location,image.bytes,{contentType:image.mime,upsert:true,cacheControl:"31536000"});
-   if(error)throw Error("STORAGE_"+error.message);
-   const publicURL=BASE+"/storage/v1/object/public/"+BUCKET+"/"+location;
-   const {error:updateError}=await storage.from("df_articles").update({hero_image_url:publicURL}).eq("id",post.migrated_article_id).eq("source_channel","investgo");
-   if(updateError)throw updateError;
-   return {id:post.source_post_id,status:"copied",width:image.width,height:image.height,bytes:image.bytes.length,stored:location};
-  }catch(e){failure=String(e instanceof Error?e.message:e).slice(0,130)}
+ if(!/^[0-9]{9,15}$/.test(post.source_post_id))return {id:post.source_post_id,status:"invalid_post"};
+ const urls=Array.isArray(post.original_image_urls)?post.original_image_urls.filter((x:unknown)=>typeof x==="string"&&options(x).length>0).slice(0,MAX_GALLERY):[];
+ if(!urls.length&&post.rss_thumbnail_url&&options(post.rss_thumbnail_url).length)urls.push(post.rss_thumbnail_url);
+ if(!urls.length)return {id:post.source_post_id,status:"no_image_in_original"};
+ const current=post.df_articles as any;
+ const alreadyHero=isOwned(current?.hero_image_url);
+ const existingGallery=Array.isArray(current?.body_image_urls)?current.body_image_urls.filter(isOwned):[];
+ const copied:string[]=[];
+ const failures:string[]=[];
+ // The first original picture is the article's hero. Additional pictures belong in the gallery.
+ if(alreadyHero)copied.push(current.hero_image_url);
+ for(let i=alreadyHero?1:0;i<urls.length;i++){
+  let done=false;
+  for(const candidate of options(urls[i])){
+   try{
+    const image=await getImage(candidate);
+    const location=post.source_post_id+"/"+(i===0?"lead":"body-"+String(i).padStart(2,"0"))+"."+image.ext;
+    const {error}=await db.storage.from(BUCKET).upload(location,image.bytes,{contentType:image.mime,upsert:true,cacheControl:"31536000"});
+    if(error)throw Error("STORAGE_"+error.message);
+    copied.push(BASE+"/storage/v1/object/public/"+BUCKET+"/"+location);
+    done=true;
+    break;
+   }catch(e){failures[i]=String(e instanceof Error?e.message:e).slice(0,120)}
+  }
+  if(!done&&i===0)break; // Never use a secondary picture as a misleading cover.
  }
- return {id:post.source_post_id,status:"failed",error:failure};
+ if(!copied.length)return {id:post.source_post_id,status:"failed",error:failures.filter(Boolean).join("; ").slice(0,200)};
+ const hero=copied[0];
+ const gallery=[...new Set([...existingGallery,...copied.slice(1)])].slice(0,MAX_GALLERY-1);
+ const {error}=await db.from("df_articles").update({hero_image_url:hero,body_image_urls:gallery}).eq("id",post.migrated_article_id).eq("source_channel","investgo").eq("status","published");
+ if(error)return {id:post.source_post_id,status:"failed",error:"DB_UPDATE_"+error.message.slice(0,120)};
+ return {id:post.source_post_id,status:failures.filter(Boolean).length?"partial":"copied",total_images:copied.length,body_images:gallery.length,failed_sources:failures.filter(Boolean).length,hero};
 }
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return json({ok:true});
  if(req.method!=="POST")return json({error:"METHOD_NOT_ALLOWED"},405);
  if(!BASE||!KEY)return json({error:"SERVER_NOT_READY"},503);
- const data=await req.json().catch(()=>null);
- if(!data||Object.keys(data).length!==1||!Number.isInteger(data.batch)||data.batch<0||data.batch>6)return json({error:"INVALID_FIXED_BATCH"},400);
+ const input=await req.json().catch(()=>null);
+ if(!input||Object.keys(input).length!==1||!Number.isInteger(input.batch)||input.batch<0||input.batch>8)return json({error:"INVALID_FIXED_BATCH"},400);
  try{
-  const {data:posts,error}=await storage.from("df_blog_import_posts")
-   .select("source_post_id,rss_thumbnail_url,original_image_urls,migrated_article_id,df_articles!df_blog_import_posts_migrated_article_id_fkey(hero_image_url)")
-   .eq("source_blog_id","devel10-01").eq("eligibility","candidate").not("migrated_article_id","is",null)
-   .order("original_published_at",{ascending:false}).range(data.batch*5,data.batch*5+4);
+  const {data:posts,error}=await db.from("df_blog_import_posts")
+   .select("source_post_id,rss_thumbnail_url,original_image_urls,migrated_article_id,df_articles!df_blog_import_posts_migrated_article_id_fkey(hero_image_url,body_image_urls,status)")
+   .eq("source_blog_id","devel10-01").eq("eligibility","candidate").eq("import_status","published")
+   .not("migrated_article_id","is",null).order("original_published_at",{ascending:false}).range(input.batch*5,input.batch*5+4);
   if(error)throw error;
   const results=[];
   for(const post of posts||[]){
-   const hero=(post.df_articles as any)?.hero_image_url;
-   if(typeof hero==="string"&&hero.includes("/storage/v1/object/public/"+BUCKET+"/")){results.push({id:post.source_post_id,status:"already_stored"});continue}
+   const article=post.df_articles as any;
+   if(article?.status!=="published"){results.push({id:post.source_post_id,status:"not_published"});continue}
+   const images=Array.isArray(post.original_image_urls)?post.original_image_urls.filter((u:string)=>options(u).length>0):[];
+   const cover=article?.hero_image_url;
+   const gallery=Array.isArray(article?.body_image_urls)?article.body_image_urls:[];
+   if(isOwned(cover)&&gallery.length>=Math.max(0,images.length-1)){results.push({id:post.source_post_id,status:"already_stored"});continue}
    results.push(await copyImage(post));
   }
-  return json({ok:true,batch:data.batch,processed:results.length,copied:results.filter(x=>x.status==="copied"||x.status==="already_stored").length,missing:results.filter(x=>x.status==="no_image_in_original").length,failed:results.filter(x=>x.status==="failed").length,results});
+  return json({ok:true,batch:input.batch,processed:results.length,copied:results.filter(x=>["copied","already_stored"].includes(x.status)).length,
+   missing:results.filter(x=>x.status==="no_image_in_original").length,
+   partial:results.filter(x=>x.status==="partial").length,
+   failed:results.filter(x=>x.status==="failed").length,results});
  }catch(e){return json({error:String(e instanceof Error?e.message:e)},500)}
 });
