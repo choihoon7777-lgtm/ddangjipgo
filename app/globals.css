@@ -1480,3 +1480,38 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfPublishEfficient .dfPublishMainActions{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:5px}
  .dfPublishEfficient .dfPublishMainActions>*{padding:9px 5px;font-size:11px}
 }
+
+
+/* One publish decision per article. Missing checks open inline; publish gate remains enforced. */
+.dfPublishEfficient .dfPublishMainActions.dfPublishSingleAction{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,max-content);gap:8px;
+ width:100%;align-items:stretch;min-width:0
+}
+.dfPublishEfficient .dfPublishSingleAction>.dfPublishActionPublish{
+ min-height:49px;font-size:15px;letter-spacing:-.02em;background:#193e5d;color:#fff;
+ border:1px solid #193e5d;cursor:pointer
+}
+.dfPublishEfficient .dfPublishSingleAction>.dfPublishActionPublish:disabled{
+ opacity:.6;cursor:wait
+}
+.dfPublishEfficient .dfPublishSingleAction>.dfPublishPreviewLink{
+ min-height:49px;padding-inline:15px;font-size:13px;background:#f5f8fa;color:#32526a
+}
+.dfPublishEfficient .dfPublishAuxiliaryLink{
+ align-self:flex-end;background:transparent;border:0;padding:5px 2px;margin:-3px 0 0;
+ color:#64798a;font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px;
+ cursor:pointer;min-height:30px;line-height:1.5
+}
+.dfPublishEfficient .dfPublishAuxiliaryLink span{margin-left:3px}
+.dfPublishEfficient .dfPublishAuditWarning{
+ display:block;margin:0 0 13px;padding:12px;border-radius:9px;
+ background:#fff6e8;color:#855521;border:1px solid #f1dfc7;
+ font-size:13px;line-height:1.6;font-weight:650;word-break:keep-all;overflow-wrap:anywhere
+}
+@media(max-width:365px){
+ .dfPublishEfficient .dfPublishMainActions.dfPublishSingleAction{
+   grid-template-columns:minmax(0,1fr) minmax(85px,max-content);gap:7px
+ }
+ .dfPublishEfficient .dfPublishSingleAction>.dfPublishActionPublish,
+ .dfPublishEfficient .dfPublishSingleAction>.dfPublishPreviewLink{min-height:46px}
+}
