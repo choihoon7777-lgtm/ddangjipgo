@@ -46,7 +46,7 @@ test("All article cards use exactly one active publish control, without bypassin
  assert.match(page,/if\(ready\(x\)\)\{requestReviewAndPublish\(x\);return\}/);
  assert.match(page,/setExpandedArticle\(x\.article_id\)/);
  assert.match(page,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
- assert.match(page,/>발행<\/button>/);
+ assert.match(page,/busy===x\.article_id\+"reviewRequest"\?"발행 중…":"발행"/);
  assert.doesNotMatch(page,/발행 대기<\/button>/);
  assert.match(page,/df_publish_article/);
  assert.match(page,/notReady\.length/);
