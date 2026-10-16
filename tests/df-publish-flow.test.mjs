@@ -24,3 +24,18 @@ test("Compact mobile publishing keeps action-first cards without changing protec
  assert.match(css,/\.dfPublishEfficient \.dfPublishMainActions/);
  assert.match(css,/@media\(max-width:365px\)/);
 });
+
+
+test("Mobile publish controls remain in-flow, show locked publish until verified, and never bypass gates",async()=>{
+ const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
+ assert.match(css,/nav\.dfPublishStateTabs\s*\{[^}]*position:static/);
+ assert.match(css,/nav\.dfPublishStateTabs\s*\{[^}]*transform:none/);
+ assert.match(page,/className=\{"adminPrimary dfPublishActionPublish"/);
+ assert.match(page,/disabled=\{busy!==""\|\|!passed\}/);
+ assert.match(page,/passed\?"즉시 발행":"발행 대기"/);
+ assert.match(page,/검토하기/);
+ assert.match(page,/확인 필요 "\+missing\.length/);
+ assert.match(page,/df_publish_article/);
+ assert.match(page,/legal_check_status!=="passed"/);
+ assert.match(page,/risk_level!=="green"/);
+});
