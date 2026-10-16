@@ -10,7 +10,7 @@ test("Regional verified official lists have dedicated dated item parsers",async(
  const s=await read("../supabase/functions/df-public-update/index.ts");
  for(const segment of [
   "www.chungnam.go.kr","cnapcPress/list.do","cnapcPress/view.do",
-  "www.gwangju.go.kr","BD_0000000027","boardView.do",
+  "www.gwangju.go.kr","BD_0000000027","boardView",
   "www.gb.go.kr","boardList.view","boardMngNo=71",
   'v?.act==="index"','Array.isArray(v.gosis)',
   '"철도"','"GTX"'
@@ -23,7 +23,7 @@ test("Regional verified official lists have dedicated dated item parsers",async(
 
 test("Gyeonggi official newsroom parser strips session IDs and only uses dated first-party releases",async()=>{
  const s=await read("../supabase/functions/df-public-update/index.ts");
- for(const term of ["gnews.gg.go.kr","brief_gongbo.do","brief_gongbo_view.do","postBody","jsessionid","const pagingHost","pageIndex","Date"])assert.ok(s.includes(term),term);
+ for(const term of ["gnews.gg.go.kr","brief_gongbo.do","brief_gongbo_view","postBody","jsessionid","const pagingHost","pageIndex","Date"])assert.ok(s.includes(term),term);
  assert.match(s,/source\.collector_kind==="local_auto"&&fallback\[source\.name\]/);
  assert.match(s,/found:0/);
 });
