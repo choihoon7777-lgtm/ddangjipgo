@@ -3,9 +3,9 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 const SUPABASE_ENDPOINT = Deno.env.get("SUPABASE_URL") || "";
 const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}").default||""}catch{return""}})();
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
-const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","철도","GTX","광역급행","교통망","신도시","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
+const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","건설","반도체","철도","GTX","광역급행","교통망","신도시","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
-const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/page/link.do?mn=10109&pageNo=67","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
+const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://gb.go.kr/page/link.do?mn=10109&pageNo=67","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
 const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
@@ -88,6 +88,27 @@ function discover(base:string,raw:string):Item[]{
   return out;
  }
 
+
+
+ // Gyeonggi's first-party newsroom is reachable when its notice homepage
+ // blocks data-center traffic. Select only the dated press rows, never menus.
+ if(new URL(base).hostname==="gnews.gg.go.kr"&&new URL(base).pathname==="/briefing/brief_gongbo.do"){
+  for(const row of raw.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi)){
+   const block=row[0];
+   const a=block.match(/<a\b[^>]*href=["']([^"']*\/briefing\/brief_gongbo_view\.do[^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
+   const date=block.match(/<td\b[^>]*class=["']date["'][^>]*>([\s\S]*?)<\/td>/i);
+   if(!a||!date)continue;
+   const title=text(a[2]),published=parseDate(text(date[1]));
+   const rawLink=officialLink(base,a[1]);
+   if(!rawLink)continue;
+   const u=new URL(rawLink);u.pathname=u.pathname.replace(/;jsessionid=[A-Za-z0-9.]+/,"");
+   const link=officialLink(base,u.toString());
+   if(!relevant(title)||title.length<9||!link||!published||seen.has(link))continue;
+   seen.add(link);out.push({title,link,published,snippet:"",hasAttachments:/class=["']file["']/.test(block)});
+   if(out.length>=8)break;
+  }
+  return out;
+ }
 
  // Chungnam's verified official press desk publishes a dated table with
  // first-party detail URLs. Never use the supplementary HTTP/IP mirror links.
@@ -256,6 +277,7 @@ function channelUrls(base:string,html:string){
 function bodyFrom(raw:string,title:string){
  const candidates:string[]=[];
  const patterns=[
+  /<div\b[^>]*class=["'][^"']*\bpostBody\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
   /<article\b[^>]*>([\s\S]*?)<\/article>/gi,
   /<main\b[^>]*>([\s\S]*?)<\/main>/gi,
   /<(?:div|section)\b[^>]*(?:id|class)=["'][^"']*(?:view[_-]?cont|board[_-]?view|bbs[_-]?view|article[_-]?body|content[_-]?view|view[_-]?body|view_content)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section)>/gi,
