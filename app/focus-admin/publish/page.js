@@ -161,19 +161,17 @@ export default function Publish(){
       <b className={"dfPublishState "+(passed?"ready":stop?"blocked":"pending")}>{stateLabel}</b>
      </div>
      <h3 className="dfPublishArticleTitle">{a.title||"제목 없는 기사"}</h3>
-     <p className="dfPublishReadiness">
-      {passed?"사실·수치·출처 및 법적 검토 완료":
-       stop?"보류 또는 검토 차단 상태입니다. 사유를 확인하세요.":
-       scheduled(x)?"예약 발행이 설정되어 있습니다.":
-       missing.length?"미확인: "+missing.join(" · "):
-       a.risk_level==="yellow"?"위험등급 검토가 필요합니다.":"최종 검토가 필요합니다."}
+     <p className="dfPublishReadiness" id={"df-publish-hint-"+x.id}>
+      {passed?"검증 완료 · 지금 발행할 수 있습니다.":
+       stop?"보류 또는 검토 차단 · 사유 확인 후 처리":
+       scheduled(x)?"예약 발행 설정됨 · 예약 확인 가능":
+       missing.length?"확인 필요 "+missing.length+"개: "+missing.join(" · "):
+       a.risk_level==="yellow"?"위험등급 검토 필요 · 검증 후 발행 가능":"최종 검토 후 발행 가능"}
      </p>
      <div className="dfPublishMainActions">
-      {passed?
-       <button type="button" className="adminPrimary" disabled={busy!==""} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"즉시 발행"}</button>:
-       <button type="button" className="adminSecondary dfPublishReviewButton" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"검토 닫기":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>}
+      <button type="button" className={"adminPrimary dfPublishActionPublish"+(passed?"":" isWaiting")} disabled={busy!==""||!passed} aria-describedby={passed?undefined:"df-publish-hint-"+x.id} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":passed?"즉시 발행":"발행 대기"}</button>
+      <button type="button" className={"adminSecondary dfPublishReviewButton"+(passed?"":" needsReview")} aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":passed?"예약·상세":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>
       <a className="adminSecondary dfPublishPreviewLink" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
-      {passed&&<button type="button" className="dfPublishMoreButton" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":"예약·상세"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
      </div>
      {open&&<section className="dfPublishAudit" id={"df-audit-"+x.id} aria-label="기사 검토 상세">
       <div className="dfPublishAuditHead"><b>검증 항목</b><span>{checks.length-missing.length}/{checks.length} 확인</span></div>
