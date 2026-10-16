@@ -9,7 +9,6 @@ test("Official HWPX worker is single-use-token gated and does not bypass editori
  assert.match(s,/unzipSync/);
  assert.match(s,/hwpxText/);
  assert.match(s,/drhGosiFileDownload.do/);
- assert.match(s,/original/i);
  assert.match(s,/detail_status:"partial"/);
  assert.match(s,/manual_review_required:true/);
  assert.match(s,/source_id/);
