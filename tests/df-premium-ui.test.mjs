@@ -35,3 +35,24 @@ test("Bottom-nav active destinations stay in sync with property and region pages
  assert.match(home,/safeEditorialCover\(lead\.hero_image_url\)/);
  assert.match(home,/is_top_focus/);
 });
+
+
+test("Naver InvestGO original cover and supplementary images stay in owned storage",async()=>{
+ const [article,imageWorker,css,migration]=await Promise.all([
+  read("../app/focus/article/article-client.js"),
+  read("../supabase/functions/df-investgo-images/index.ts"),
+  read("../app/globals.css"),
+  read("../supabase/migrations/20261016_df_investgo_article_gallery.sql")
+ ]);
+ assert.match(article,/hero_image_url,body_image_urls/);
+ assert.match(article,/const gallery=isBlog/);
+ assert.match(article,/dfInvestgoArticleGallery/);
+ assert.match(article,/dfInvestgoArticleFigure/);
+ assert.match(imageWorker,/body_image_urls:gallery/);
+ assert.match(imageWorker,/storage\.from\(BUCKET\)\.upload/);
+ assert.match(imageWorker,/migrated_article_id/);
+ assert.match(imageWorker,/matchesSource/);
+ assert.match(imageWorker,/post\.source_post_id/);
+ assert.match(css,/\.dfInvestgoArticleGallery/);
+ assert.match(migration,/add column if not exists body_image_urls jsonb/);
+});
