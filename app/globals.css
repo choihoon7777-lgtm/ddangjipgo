@@ -1336,3 +1336,38 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfAdminPasswordPanel .dfAdminRecoveryButton:disabled{opacity:.55;cursor:wait}
 .dfAdminRecoveryNotice{margin:9px 0 12px;padding:12px 14px;background:#eef3f7;color:#1c405b;border-radius:10px;font-size:13px;line-height:1.6}
 .dfAdminRecoveryBack{display:block;margin-top:20px;text-align:center}
+
+
+/* Publish queue: narrow-screen, single-column editorial cards. */
+.dfPublishMobile,.dfPublishMobile *{box-sizing:border-box}
+.dfPublishMobile{width:100%;max-width:720px;min-width:0;overflow-x:clip;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.dfPublishMobile>.adminPanel{min-width:0;max-width:100%;margin:12px 14px;padding:16px}
+.dfPublishMobile .dfPublishArticleCard{display:flex;flex-direction:column;align-items:stretch;gap:12px;width:100%;min-width:0;max-width:100%;margin:12px 0;padding:17px;border:1px solid #dfe6ec;border-radius:16px;background:#fff}
+.dfPublishMobile .dfPublishArticleMeta{display:block;font-size:12px;line-height:1.55;color:#64788a;overflow-wrap:anywhere;word-break:keep-all}
+.dfPublishMobile .dfPublishArticleTitle{display:block;width:100%;min-width:0;margin:0;font-size:clamp(18px,4.6vw,23px);line-height:1.45;letter-spacing:-.035em;overflow-wrap:anywhere;word-break:keep-all;white-space:normal}
+.dfPublishMobile .dfV2EditorReadiness{display:flex;flex-direction:column;align-items:flex-start;width:100%;min-width:0;margin:0;padding:12px 13px;gap:7px}
+.dfPublishMobile .dfV2EditorReadiness span{display:block;width:100%;overflow-wrap:anywhere;word-break:keep-all}
+.dfPublishMobile .dfReviewActions{display:flex;flex-wrap:wrap;align-items:stretch;gap:9px;min-width:0;width:100%}
+.dfPublishMobile .dfPublishPrimaryActions{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;margin:0}
+.dfPublishMobile .dfReviewActions button,.dfPublishMobile .dfReviewActions a{min-width:0;max-width:100%;min-height:46px;white-space:normal;overflow-wrap:anywhere;word-break:keep-all;line-height:1.45;text-align:center;display:flex;align-items:center;justify-content:center;padding:11px 13px}
+.dfPublishMobile .dfPublishPrimaryActions>*{width:100%}
+.dfPublishMobile .dfPublishEvidence{min-width:0;width:100%;max-width:100%;border:1px solid #e2e9ef;border-radius:11px;padding:12px}
+.dfPublishMobile .dfPublishEvidence summary{display:block;min-height:28px;font-size:14px;font-weight:700;line-height:1.5;cursor:pointer;overflow-wrap:anywhere;word-break:keep-all}
+.dfPublishMobile .dfPublishEvidence pre{max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.dfPublishMobile .dfCheckGrid{min-width:0;max-width:100%}
+.dfPublishMobile .dfScheduleBox{display:flex;flex-wrap:wrap;gap:8px;min-width:0;max-width:100%}
+.dfPublishMobile .dfScheduleBox input{min-width:0;max-width:100%;width:100%;min-height:44px}
+.dfPublishMobile .dfQuickPublishGuide,.dfPublishMobile .dfV2EditorFilters,.dfPublishMobile .dfV2EditorSearch{min-width:0;max-width:100%}
+.dfPublishMobile .dfQuickPublishGuide a{overflow-wrap:anywhere}
+@media(max-width:600px){
+ .dfPublishMobile>.adminPanel{margin:10px 10px 16px;padding:13px}
+ .dfPublishMobile .dfPublishArticleCard{margin:11px 0;padding:15px 13px;gap:11px}
+ .dfPublishMobile .dfPublishArticleTitle{font-size:20px}
+ .dfPublishMobile .dfReviewActions:not(.dfPublishPrimaryActions)>button{flex:1 1 140px}
+ .dfPublishMobile .dfV2EditorFilters{overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+@media(max-width:360px){
+ .dfPublishMobile>.adminPanel{margin-inline:8px;padding:10px}
+ .dfPublishMobile .dfPublishArticleCard{padding:12px}
+ .dfPublishMobile .dfPublishArticleTitle{font-size:18px}
+}
