@@ -24,7 +24,7 @@ async function download(value:string,timeout=12000){
   if(!allowed(u))throw new Error("OFFICIAL_HOST_REQUIRED");
   const abort=new AbortController();const timer=setTimeout(()=>abort.abort(),timeout);
   try{
-   const res=await fetch(u.toString(),{signal:abort.signal,redirect:"manual",headers:{"User-Agent":"DevelopmentFocus/1.0 (Official-Source-Collector)","Accept":"text/html,application/rss+xml,application/xml;q=0.9,*/*;q=0.5"}});
+   const res=await fetch(u.toString(),{signal:abort.signal,redirect:"manual",headers:{"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36","Accept-Language":"ko-KR,ko;q=0.9,en;q=0.7","Accept":"text/html,application/rss+xml,application/xml;q=0.9,*/*;q=0.5"}});
    if([301,302,303,307,308].includes(res.status)){const location=res.headers.get("location");if(!location)throw new Error("REDIRECT_MISSING");u=new URL(location,u);continue}
    if(!res.ok)throw new Error("HTTP_"+res.status);
    const contentType=res.headers.get("content-type")||"";
@@ -437,6 +437,28 @@ async function runBatch(batch:number){
      if(items.length>=8)break;
     }
     items=items.slice(0,8);
+   }
+   // Bounded lookahead for official feeds whose first screen has no
+   // relevant planning material. Keep the government host, dates and URLs.
+   const pagingHost=new URL(current.url).hostname;
+   if(items.length<8&&(
+     pagingHost==="gnews.gg.go.kr"&&new URL(current.url).pathname==="/briefing/brief_gongbo.do"||
+     pagingHost==="www.jeju.go.kr"&&new URL(current.url).pathname==="/tool/sido/api.jsp"||
+     pagingHost==="www.chungnam.go.kr"&&new URL(current.url).pathname.endsWith("/cnapcPress/list.do")
+   )){
+    const seenPage=new Set(items.map(x=>x.link));
+    for(const pageNo of [2,3]){
+     try{
+      const next=new URL(current.url);
+      next.searchParams.set(pagingHost==="www.chungnam.go.kr"?"pageIndex":"page",String(pageNo));
+      const page=await download(next.href,10000);
+      for(const item of discover(page.url,page.raw)){
+       if(!seenPage.has(item.link)){seenPage.add(item.link);items.push(item)}
+       if(items.length>=8)break;
+      }
+     }catch{/* Optional page must not invalidate a verified first page. */}
+     if(items.length>=8)break;
+    }
    }
    // Valid official RSS with no matching development content is NOT a failed connection.
    const validButFiltered=(new URL(current.url).hostname==="info.daegu.go.kr"&&/mtnkey=articleview/.test(current.raw)&&/class=["']date["']/.test(current.raw))||isValidatedNoRelevantBoard(current.url,current.raw)||
