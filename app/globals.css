@@ -1371,3 +1371,84 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfPublishMobile .dfPublishArticleCard{padding:12px}
  .dfPublishMobile .dfPublishArticleTitle{font-size:18px}
 }
+
+
+/* Efficient editorial queue: one decision per card, details on demand. */
+.dfPublishEfficient{max-width:720px;overflow-x:clip;background:#f4f6f8;color:#152d41}
+.dfPublishEfficient *{box-sizing:border-box}
+.dfPublishEfficient>.dfPublishWorkspace{margin:12px;padding:16px;max-width:calc(100% - 24px);min-width:0;background:transparent;border:0;border-radius:0}
+.dfPublishWorkspaceHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:3px 0 18px;min-width:0}
+.dfPublishWorkspaceHeader>div:first-child{min-width:0}
+.dfPublishWorkspaceHeader small{display:block;font-size:10px;letter-spacing:.14em;font-weight:750;color:#9a764e}
+.dfPublishWorkspaceHeader h2{margin:5px 0 3px;font-size:24px;line-height:1.3;letter-spacing:-.045em;color:#112e48}
+.dfPublishWorkspaceHeader p{margin:0;font-size:12px;line-height:1.6;color:#6d7d8c}
+.dfPublishWorkspaceLinks{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.dfPublishWorkspaceLinks>a,.dfPublishWorkspaceLinks>button{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:8px 11px;border-radius:9px;border:1px solid #d9e1e7;background:#fff;color:#24465f;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+.dfPublishWorkspaceLinks>a{background:#173c59;border-color:#173c59;color:#fff}
+.dfPublishWorkspaceLinks>button:disabled{opacity:.55}
+.dfPublishStateTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.dfPublishStateTabs button{min-width:0;min-height:70px;border:1px solid #dfe6ec;background:#fff;color:#52697b;padding:11px 8px;border-radius:12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:6px;text-align:left;cursor:pointer}
+.dfPublishStateTabs button.active{border-color:#183e5e;background:#edf3f7;box-shadow:inset 0 0 0 1px #183e5e}
+.dfPublishStateTabs button span{font-size:12px;font-weight:700;line-height:1.35;word-break:keep-all}
+.dfPublishStateTabs button strong{font-size:23px;line-height:1.1;font-weight:750;color:#183a55;font-variant-numeric:tabular-nums}
+.dfPublishStateTabs button.active strong{color:#123a5b}
+.dfPublishSearch{display:block;margin:0 0 13px}
+.dfPublishSearch input{width:100%;min-height:43px;border:1px solid #dce5eb;background:#fff;border-radius:11px;font-size:14px;padding:10px 14px;color:#183a55}
+.dfPublishSrOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.dfPublishCardList{display:flex;flex-direction:column;gap:10px;width:100%;min-width:0}
+.dfPublishEfficient .dfPublishArticleCard{display:flex;flex-direction:column;align-items:stretch;min-width:0;width:100%;max-width:100%;margin:0;padding:16px;background:#fff;border:1px solid #dfe7ed;border-radius:15px;gap:9px;box-shadow:0 2px 8px rgba(18,39,57,.025)}
+.dfPublishArticleHeading{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0}
+.dfPublishEfficient .dfPublishArticleMeta{font-size:11px;line-height:1.45;color:#697d8e;min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+.dfPublishState{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:69px;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.25;font-weight:800;white-space:nowrap}
+.dfPublishState.ready{background:#e5f3ec;color:#236246}
+.dfPublishState.pending{background:#fff3e5;color:#93632b}
+.dfPublishState.blocked{background:#f5eae8;color:#994940}
+.dfPublishEfficient .dfPublishArticleTitle{font-size:19px;line-height:1.48;letter-spacing:-.03em;margin:0;color:#182c3f;word-break:keep-all;overflow-wrap:anywhere}
+.dfPublishEfficient .dfPublishReadiness{display:block;font-size:12px;line-height:1.5;color:#6b7b8a;margin:0;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.dfPublishMainActions{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:stretch;margin:4px 0 0;width:100%;min-width:0}
+.dfPublishEfficient .dfPublishMainActions>*{min-width:0;max-width:100%;min-height:43px;padding:10px 11px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;font-size:12px;line-height:1.3;font-weight:750;text-decoration:none}
+.dfPublishEfficient .dfPublishMainActions>.adminPrimary{background:#193e5d;color:#fff;border:1px solid #193e5d}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishReviewButton{background:#193e5d;color:#fff;border:1px solid #193e5d}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishPreviewLink{background:#f5f8fa;border:1px solid #e0e7ed;color:#32526a}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishMoreButton{background:transparent;border:1px solid #e0e7ed;color:#557086}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishMoreButton span{margin-left:4px}
+.dfPublishEfficient .dfPublishAudit{margin-top:7px;padding:15px 0 2px;border-top:1px solid #e5ebef;min-width:0;width:100%}
+.dfPublishAuditHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;color:#1c3e59;font-size:13px}
+.dfPublishAuditHead span{font-size:12px;color:#80909e}
+.dfPublishEfficient .dfPublishAudit .adminDataNote{font-size:12px;line-height:1.6;overflow-wrap:anywhere;white-space:pre-wrap}
+.dfPublishEfficient .dfCheckGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-width:100%}
+.dfPublishEfficient .dfCheckGrid button{min-width:0;min-height:57px;padding:8px 2px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;overflow-wrap:anywhere;word-break:keep-all}
+.dfPublishEfficient .dfCheckGrid button span{font-size:11px}
+.dfPublishSource{width:100%;min-width:0;max-width:100%;margin:12px 0;border:1px solid #e1e8ee;border-radius:10px;padding:12px}
+.dfPublishSource summary{cursor:pointer;font-size:13px;font-weight:700}
+.dfPublishSource pre{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:100%;overflow-x:auto;font-size:11px;line-height:1.5}
+.dfPublishEfficient .dfPublishAuditActions{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.dfPublishEfficient .dfPublishAuditActions>button{flex:1 1 118px;font-size:12px}
+.dfPublishEfficient .dfScheduleBox{display:flex;flex-wrap:wrap;width:100%;gap:7px}
+.dfPublishEfficient .dfScheduleBox input{flex:1 1 180px;max-width:100%;min-width:0}
+.dfPublishEfficient .dfPublishShowMore{display:block;width:100%;min-height:46px;border:1px solid #d4e0e8;background:#fff;color:#254965;border-radius:10px;font-size:13px;font-weight:750}
+.dfPublishEfficient .dfPublishStatusMessage{font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+.dfPublishEfficient .dfPublishResult{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
+.dfPublishEfficient .dfPublishResult>a{min-height:45px;display:flex;align-items:center;justify-content:center}
+.dfPublishEfficient button:focus-visible,.dfPublishEfficient a:focus-visible,.dfPublishEfficient input:focus-visible{outline:3px solid #c58a48;outline-offset:2px}
+@media(max-width:520px){
+ .dfPublishEfficient>.dfPublishWorkspace{margin:8px;padding:8px;max-width:calc(100% - 16px)}
+ .dfPublishWorkspaceHeader{align-items:flex-start;margin:6px 3px 15px}
+ .dfPublishWorkspaceHeader h2{font-size:22px}
+ .dfPublishWorkspaceHeader p{font-size:11px}
+ .dfPublishWorkspaceLinks{gap:5px}
+ .dfPublishWorkspaceLinks>a,.dfPublishWorkspaceLinks>button{font-size:11px;min-height:36px;padding:7px 8px}
+ .dfPublishStateTabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .dfPublishStateTabs button{min-height:67px;padding:9px 7px}
+ .dfPublishStateTabs button span{font-size:11px}
+ .dfPublishStateTabs button strong{font-size:20px}
+ .dfPublishEfficient .dfPublishArticleCard{padding:14px 12px}
+ .dfPublishEfficient .dfPublishArticleTitle{font-size:18px}
+}
+@media(max-width:365px){
+ .dfPublishWorkspaceHeader{flex-wrap:wrap}
+ .dfPublishWorkspaceLinks{width:100%}
+ .dfPublishStateTabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dfPublishStateTabs button{min-height:53px;flex-direction:row;align-items:center}
+ .dfPublishEfficient .dfPublishMainActions>*{font-size:11px;padding:9px 7px}
+}
