@@ -64,7 +64,7 @@ export default function Admin(){
   <section className="dfV2Priority" aria-label="우선 처리 업무">
    <div className="dfV2SectionHead"><h2>우선 처리할 업무</h2><span>문제 발생 시 먼저 확인하세요</span></div>
    <a href="/focus-admin/publish"><span className="dfV2PriorityIcon" aria-hidden="true">▤</span><span><b>기사 검토·발행</b><small>{guest===false&&stats.queue!==null?stats.queue+"건 검토 대기 · 미통과 항목 확인":"검증 완료 여부와 보류 사유 확인"}</small></span><strong>›</strong></a>
-   <a href="/focus-admin/updates"><span className="dfV2PriorityIcon" aria-hidden="true">◈</span><span><b>공식기관 업데이트</b><small>{failed===null?"기관별 최근 상태 확인 중":failed>0?failed+"곳 실패·부분 오류 · 원인 확인":"최근 기관 점검 결과 정상 · 자료 누락 가능성 별도 확인"}{sources?.lastAttempt?" · "+latestTime(sources.lastAttempt):""}</small></span><strong>›</strong></a>
+   <a href="/focus-admin/updates"><span className="dfV2PriorityIcon" aria-hidden="true">◈</span><span><b>공식기관 업데이트</b><small>{failed===null?"기관별 최근 상태 확인 중":failed>0?failed+"곳 실패·부분 오류 · 원인 확인" :"최근 기관 점검에서 보고된 오류 0건 · 자료 누락 여부는 별도 확인"}{sources?.lastAttempt?" · "+latestTime(sources.lastAttempt):""}</small></span><strong>›</strong></a>
    <a href="/focus-admin/housing" className={housingIssue?"needsAttention":""}><span className="dfV2PriorityIcon" aria-hidden="true">⌂</span><span><b>분양·청약 데이터</b><small>{!housing?"데이터 연결 상태 확인 중":housingIssue?"자료 또는 인증·정기 수집 점검 필요":housing.counts.notices+"건 확보 · 최근 상태 정상"}</small></span><strong>›</strong></a>
   </section>
   <section className="dfV2Actions">
