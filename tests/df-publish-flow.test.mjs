@@ -8,3 +8,19 @@ test("One-tap review request publishes only after verified backend gates",async(
 test("Official policy documents stay separate from editorial review buttons",async()=>{const policy=await read("../app/focus/policy/page.js"),admin=await read("../app/focus-admin/page.js");assert.match(policy,/전국 정책·고시/);assert.match(policy,/핵심 내용 한눈에/);assert.match(admin,/dfV2Priority/);assert.match(admin,/공식기관 업데이트/);assert.match(admin,/검토부터 발행/)});
 
 test("Publishing entry shows real administrator access instead of a demo",async()=>{const s=await read("../app/focus-admin/layout.js");assert.match(s,/path==="\/focus-admin\/publish"\)return <AdminLogin/);const p=await read("../app/focus-admin/publish/page.js");assert.doesNotMatch(p,/async function doPublish/);assert.match(p,/loadError/);assert.match(p,/verifyError\|\|!live/)});
+
+
+test("Compact mobile publishing keeps action-first cards without changing protected gates",async()=>{
+ const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
+ for(const text of ["dfPublishEfficient","dfPublishStateTabs","dfPublishMainActions","dfPublishAudit","shownItems=visibleItems.slice","toggleArticle","dfPublishShowMore","df_publish_article","df_verify_article_sources","notReady","legal_check_status!==\"passed\""]){
+  assert.ok(page.includes(text.replaceAll('\\"','"')),text);
+ }
+ assert.match(page,/const ready=x=>!blocked\(x\)&&!scheduled\(x\)/);
+ assert.match(page,/setExpandedArticle/);
+ assert.match(page,/aria-expanded=\{open\}/);
+ assert.match(page,/open&&<section className="dfPublishAudit"/);
+ assert.doesNotMatch(page,/아래 확인 항목을 완료하세요/);
+ assert.match(css,/\.dfPublishEfficient \.dfPublishArticleCard/);
+ assert.match(css,/\.dfPublishEfficient \.dfPublishMainActions/);
+ assert.match(css,/@media\(max-width:365px\)/);
+});
