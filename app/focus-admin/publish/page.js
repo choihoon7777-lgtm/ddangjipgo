@@ -125,6 +125,11 @@ export default function Publish(){
   return rank(a)-rank(b)||new Date(b.queued_at||0).getTime()-new Date(a.queued_at||0).getTime();
  });
  const shownItems=visibleItems.slice(0,showCount);
+ function publishOrShowChecks(x){
+  if(busy)return;
+  if(ready(x)){requestReviewAndPublish(x);return}
+  setExpandedArticle(x.article_id);
+ }
  const toggleArticle=id=>setExpandedArticle(current=>current===id?"":id);
  const changeFilter=next=>{setQueueFilter(next);setShowCount(12);setExpandedArticle("")};
 
@@ -168,12 +173,13 @@ export default function Publish(){
        missing.length?"미확인: "+missing.length+"개 · "+missing.join(" · "):
        a.risk_level==="yellow"?"위험등급 검토 필요 · 검증 후 발행 가능":"최종 검토 후 발행 가능"}
      </p>
-     <div className="dfPublishMainActions">
-      <button type="button" className={"adminPrimary dfPublishActionPublish"+(passed?"":" isWaiting")} disabled={busy!==""||!passed} aria-describedby={passed?undefined:"df-publish-hint-"+x.id} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":passed?"즉시 발행":"발행 대기"}</button>
-      <button type="button" className={"adminSecondary dfPublishReviewButton"+(passed?"":" needsReview")} aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":passed?"예약·상세":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>
+     <div className="dfPublishMainActions dfPublishSingleAction">
+      <button type="button" className="adminPrimary dfPublishActionPublish" disabled={busy!==""} aria-expanded={passed?undefined:open} aria-controls={!passed&&open?"df-audit-"+x.id:undefined} aria-describedby={passed?undefined:"df-publish-hint-"+x.id} onClick={()=>publishOrShowChecks(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"발행"}</button>
       <a className="adminSecondary dfPublishPreviewLink" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
      </div>
+     {(passed||open)&&<button type="button" className="dfPublishAuxiliaryLink" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"세부 확인 닫기":"예약·보류 등 추가 설정"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
      {open&&<section className="dfPublishAudit" id={"df-audit-"+x.id} aria-label="기사 검토 상세">
+      {!passed&&<p className="dfPublishAuditWarning" role="status">{stop?"보류·차단 상태입니다. 사유를 먼저 확인하세요.":scheduled(x)?"예약된 기사입니다. 예약을 확인하거나 취소하세요.":missing.length?"발행 전 확인 필요: "+missing.join(" · "):a.risk_level==="yellow"?"위험등급 검토를 완료해야 합니다.":"법적 검토를 마쳐야 발행할 수 있습니다."}</p>}
       <div className="dfPublishAuditHead"><b>검증 항목</b><span>{checks.length-missing.length}/{checks.length} 확인</span></div>
       <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
       <div className="dfCheckGrid">{checks.map(([field,label])=><button type="button" key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
