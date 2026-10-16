@@ -34,7 +34,7 @@ test("Mobile publish controls remain in-flow, show locked publish until verified
  assert.match(page,/disabled=\{busy!==""\|\|!passed\}/);
  assert.match(page,/passed\?"즉시 발행":"발행 대기"/);
  assert.match(page,/검토하기/);
- assert.match(page,/확인 필요 "\+missing\.length/);
+ assert.match(page,/missing\.length\?"미확인: "\+missing\.length/);
  assert.match(page,/df_publish_article/);
  assert.match(page,/legal_check_status!=="passed"/);
  assert.match(page,/risk_level!=="green"/);
