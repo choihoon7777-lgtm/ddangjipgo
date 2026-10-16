@@ -14,7 +14,7 @@ const checks=[
 ];
 
 export default function Publish(){
- const[loading,setLoading]=useState(true),[loadError,setLoadError]=useState(""),[items,setItems]=useState([]),[queueFilter,setQueueFilter]=useState("all"),[search,setSearch]=useState(""),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
+ const[expandedArticle,setExpandedArticle]=useState(""),[showCount,setShowCount]=useState(12),[loading,setLoading]=useState(true),[loadError,setLoadError]=useState(""),[items,setItems]=useState([]),[queueFilter,setQueueFilter]=useState("all"),[search,setSearch]=useState(""),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
  async function load(){
   setLoading(true);setLoadError("");
   try{
@@ -113,36 +113,89 @@ export default function Publish(){
   }catch(e){setMsg("발행 보류: "+(e?.message||"알 수 없는 오류"))}
   finally{await load();setBusy("")}
  }
+
  const checklist=x=>checks.filter(([f])=>x[f]!==true).map(([,label])=>label);
- const ready=x=>x.df_articles?.risk_level==="green"&&x.legal_check_status==="passed"&&checklist(x).length===0;
- const blocked=x=>x.df_articles?.risk_level==="red"||x.legal_check_status==="blocked";
+ const scheduled=x=>Boolean(x.df_articles?.scheduled_at);
+ const blocked=x=>x.df_articles?.risk_level==="red"||x.legal_check_status==="blocked"||["held","rejected"].includes(x.df_articles?.status);
+ const ready=x=>!blocked(x)&&!scheduled(x)&&!["published","corrected"].includes(x.df_articles?.status)&&x.df_articles?.risk_level==="green"&&x.legal_check_status==="passed"&&checklist(x).length===0;
  const legalWait=x=>!blocked(x)&&!ready(x);
  const counts={all:items.length,ready:items.filter(ready).length,legal:items.filter(legalWait).length,blocked:items.filter(blocked).length};
- const visibleItems=items.filter(x=>(!focusId||x.article_id===focusId)&&(queueFilter==="all"||queueFilter==="ready"&&ready(x)||queueFilter==="legal"&&legalWait(x)||queueFilter==="blocked"&&blocked(x))&&(!search.trim()||String(x.df_articles?.title||"").toLocaleLowerCase("ko-KR").includes(search.trim().toLocaleLowerCase("ko-KR"))));
+ const visibleItems=items.filter(x=>(!focusId||x.article_id===focusId)&&(queueFilter==="all"||queueFilter==="ready"&&ready(x)||queueFilter==="legal"&&legalWait(x)||queueFilter==="blocked"&&blocked(x))&&(!search.trim()||String(x.df_articles?.title||"").toLocaleLowerCase("ko-KR").includes(search.trim().toLocaleLowerCase("ko-KR")))).sort((a,b)=>{
+  const rank=x=>ready(x)?0:blocked(x)?2:1;
+  return rank(a)-rank(b)||new Date(b.queued_at||0).getTime()-new Date(a.queued_at||0).getTime();
+ });
+ const shownItems=visibleItems.slice(0,showCount);
+ const toggleArticle=id=>setExpandedArticle(current=>current===id?"":id);
+ const changeFilter=next=>{setQueueFilter(next);setShowCount(12);setExpandedArticle("")};
 
- return <main className="adminShell dfAdminUnified dfPublishMobile"><DFAdminHeader title="기사 발행" kicker="PUBLISH QUEUE"/>
- <section className="adminPanel"><div className="dfQuickPublishGuide"><b>발행 대기 → 즉시 발행 → 기사 보기</b><span>준비된 기사는 버튼 한 번으로 공개됩니다. 추가 확인이 필요한 기사는 확인 항목을 펼쳐 처리하세요.</span><div><a href="/focus-admin/write">+ 새 기사 작성</a><a href="/focus/live">도시맥 공개 기사 보기 ↗</a></div></div><h2>발행 대기</h2>{publishedArticle&&<div className="dfQuickSaved" role="status"><b>✓ {publishedArticle.title}</b><span>발행 완료 · 도시맥에서 바로 읽을 수 있습니다.</span><a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">발행된 기사 보기 ↗</a><a href="/focus/live">최신 뉴스에서 확인 →</a></div>}{focusId&&<div className="dfQuickFocusInfo"><b>방금 작성한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 검토 대기열 보기</button></div>}
- <div className="dfV2EditorFilters" aria-label="검토 상태 필터">{[["all","전체",counts.all],["legal","확인 필요",counts.legal],["ready","발행 가능",counts.ready],["blocked","차단",counts.blocked]].map(([k,label,n])=><button type="button" key={k} className={queueFilter===k?"active":""} aria-pressed={queueFilter===k} onClick={()=>setQueueFilter(k)}>{label} <b>{n}</b></button>)}</div><label className="dfV2EditorSearch">기사 제목 검색<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="기사 제목으로 찾기"/></label>{msg&&<p className="editorGate" role="status">{msg}</p>}
- 
- {loadError?<div role="alert" className="emptyFocus">{loadError}<button className="adminSecondary" onClick={load}>다시 불러오기</button></div>:loading?<p role="status">실제 기사 목록을 불러오는 중…</p>:visibleItems.length===0?<div className="emptyFocus">{items.length===0?"현재 검토 대기 기사가 없습니다.":"선택한 조건의 기사가 없습니다. 필터를 변경해 주세요."}</div>:visibleItems.map(x=>{const a=x.df_articles||{};const all=checks.every(([f])=>x[f]);const passed=all&&x.legal_check_status==="passed"&&a.risk_level==="green";
- return <article className="adminPanel dfReviewCard dfPublishArticleCard" key={x.id}>
-  <small className="dfPublishArticleMeta">{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {(a.risk_level||"green").toUpperCase()} · {articleStatus[a.status]||a.status||"검토중"}</small>
-  <h3 className="dfPublishArticleTitle">{a.title}</h3>
-  <div className="dfV2EditorReadiness"><b className={ready(x)?"ready":blocked(x)?"blocked":"pending"}>{ready(x)?"발행 검증 완료":blocked(x)?"발행 차단":"추가 검토 필요"}</b><span>{checklist(x).length?"미확인: "+checklist(x).join(" · "):"기본 검증 항목 확인됨"} · 법적검토 {legalStatus[x.legal_check_status]||x.legal_check_status||"미확인"}</span></div>
-  <div className="dfReviewActions dfPublishPrimaryActions"><button type="button" className="adminPrimary" disabled={busy!==""||!passed||["published","corrected"].includes(a.status)} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":passed?"즉시 발행":"아래 확인 항목을 완료하세요"}</button><a className="adminSecondary" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a></div>
-  <details className="dfReviewEvidence dfPublishEvidence"><summary>{passed?"검토 내역 · 예약 · 보류":"확인 항목 열기"}</summary>
-  <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
-  <div className="dfCheckGrid">{checks.map(([field,label])=><button key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
-  <div className="editorGate"><span>법적검토 · {legalStatus[x.legal_check_status]||x.legal_check_status}</span></div>
-  {(x.source_text||x.ai_fact)&&<details className="dfReviewEvidence"><summary>근거자료 확인</summary>{x.source_text&&<><b>공식자료</b><pre>{x.source_text}</pre></>}{x.ai_fact&&<><b>FACT</b><pre>{x.ai_fact}</pre></>}</details>}
-  <div className="dfReviewActions">
-   {a.risk_level==="yellow"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>resolveYellow(x)}>YELLOW 검토완료</button>}
-   {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button className="adminSecondary" disabled={!all||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
-   {passed&&!["published","corrected"].includes(a.status)&&<div className="dfScheduleBox"><input type="datetime-local" value={scheduleTimes[x.article_id]||""} onChange={e=>setScheduleTimes({...scheduleTimes,[x.article_id]:e.target.value})}/><button className="adminSecondary" disabled={busy!==""} onClick={()=>schedule(x)}>예약발행</button>{a.scheduled_at&&<button className="adminSecondary" disabled={busy!==""} onClick={()=>cancelSchedule(x)}>예약취소</button>}</div>}
-   {a.scheduled_at&&<p className="dfScheduleState">예약 · {new Date(a.scheduled_at).toLocaleString("ko-KR")}</p>}
-   <button className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>{a.status==="held"?"보류 해제":"보류"}</button>
-
-  </div></details>
- </article>})}{focusId&&items.length>0&&!items.some(x=>x.article_id===focusId)&&<div className="dfQuickSaved"><b>해당 기사는 현재 검토 대기열에 없습니다.</b><p>이미 발행됐거나 검토가 완료된 기사일 수 있습니다.</p><a href={"/focus/article?id="+encodeURIComponent(focusId)}>공개 기사 확인 ↗</a><button type="button" onClick={()=>setFocusId("")}>전체 대기열 보기</button></div>}
- </section><DFToast message={msg} onClose={()=>setMsg("")}/><DFConfirmModal open={!!confirmTask} title={confirmTask?.title} body={confirmTask?.body} confirmLabel={confirmTask?.label} danger={confirmTask?.danger} onCancel={()=>setConfirmTask(null)} onConfirm={()=>{const task=confirmTask;setConfirmTask(null);task?.run?.()}}/><DFAdminBottomNav active="editor"/></main>
+ return <main className="adminShell dfAdminUnified dfPublishMobile dfPublishEfficient"><DFAdminHeader title="기사 발행" kicker="EDITORIAL DESK"/>
+  <section className="adminPanel dfPublishWorkspace" aria-label="기사 발행 관리">
+   <header className="dfPublishWorkspaceHeader">
+    <div><small>DOSIMAEK NEWSROOM</small><h2>기사 발행</h2><p>준비된 기사부터 확인하고 바로 발행하세요.</p></div>
+    <div className="dfPublishWorkspaceLinks"><a href="/focus-admin/write">+ 기사 작성</a><button type="button" onClick={load} disabled={loading||busy!==""}>새로고침</button></div>
+   </header>
+   {publishedArticle&&<div className="dfQuickSaved dfPublishResult" role="status">
+    <b>✓ 기사 발행 완료</b><span>{publishedArticle.title}</span>
+    <a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">발행된 기사 보기 ↗</a>
+   </div>}
+   {focusId&&<div className="dfQuickFocusInfo"><b>선택한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 기사 보기</button></div>}
+   <nav className="dfPublishStateTabs" aria-label="기사 검토 상태">
+    {[
+     ["all","전체",counts.all],
+     ["ready","발행 가능",counts.ready],
+     ["legal","확인 필요",counts.legal],
+     ["blocked","보류·차단",counts.blocked]
+    ].map(([k,label,n])=><button key={k} type="button" className={queueFilter===k?"active":""} aria-pressed={queueFilter===k} onClick={()=>changeFilter(k)}><span>{label}</span><strong>{n}</strong></button>)}
+   </nav>
+   <label className="dfPublishSearch"><span className="dfPublishSrOnly">기사 제목 검색</span><input type="search" value={search} onChange={e=>{setSearch(e.target.value);setShowCount(12)}} placeholder="기사 제목 검색" aria-label="기사 제목 검색"/></label>
+   {msg&&<p className="editorGate dfPublishStatusMessage" role="status">{msg}</p>}
+   {loadError?<div role="alert" className="emptyFocus">{loadError}<button type="button" className="adminSecondary" onClick={load}>다시 불러오기</button></div>
+   :loading?<p role="status" className="dfPublishLoading">기사 목록을 불러오는 중…</p>
+   :visibleItems.length===0?<div className="emptyFocus">{items.length===0?"현재 검토 대기 기사가 없습니다.":"해당 조건의 기사가 없습니다."}</div>
+   :<div className="dfPublishCardList">
+   {shownItems.map(x=>{const a=x.df_articles||{};const passed=ready(x);const stop=blocked(x);const open=expandedArticle===x.article_id;const missing=checklist(x);
+    const stateLabel=passed?"발행 가능":stop?"보류·차단":scheduled(x)?"예약됨":"확인 필요";
+    return <article className="dfPublishArticleCard" key={x.id}>
+     <div className="dfPublishArticleHeading">
+      <small className="dfPublishArticleMeta">{a.category||"미분류"}{a.region_code?" · "+a.region_code:""} · {articleStatus[a.status]||a.status||"검토중"}</small>
+      <b className={"dfPublishState "+(passed?"ready":stop?"blocked":"pending")}>{stateLabel}</b>
+     </div>
+     <h3 className="dfPublishArticleTitle">{a.title||"제목 없는 기사"}</h3>
+     <p className="dfPublishReadiness">
+      {passed?"사실·수치·출처 및 법적 검토 완료":
+       stop?"보류 또는 검토 차단 상태입니다. 사유를 확인하세요.":
+       scheduled(x)?"예약 발행이 설정되어 있습니다.":
+       missing.length?"미확인: "+missing.join(" · "):
+       a.risk_level==="yellow"?"위험등급 검토가 필요합니다.":"최종 검토가 필요합니다."}
+     </p>
+     <div className="dfPublishMainActions">
+      {passed?
+       <button type="button" className="adminPrimary" disabled={busy!==""} onClick={()=>requestReviewAndPublish(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"즉시 발행"}</button>:
+       <button type="button" className="adminSecondary dfPublishReviewButton" aria-expanded={open} aria-controls={"df-audit-"+x.id} onClick={()=>toggleArticle(x.article_id)}>{open?"검토 닫기":stop?"사유 확인":scheduled(x)?"예약 확인":"검토하기"}</button>}
+      <a className="adminSecondary dfPublishPreviewLink" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
+      {passed&&<button type="button" className="dfPublishMoreButton" aria-expanded={open} aria-controls={"df-audit-"+x.id} onClick={()=>toggleArticle(x.article_id)}>{open?"닫기":"예약·상세"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
+     </div>
+     {open&&<section className="dfPublishAudit" id={"df-audit-"+x.id} aria-label="기사 검토 상세">
+      <div className="dfPublishAuditHead"><b>검증 항목</b><span>{checks.length-missing.length}/{checks.length} 확인</span></div>
+      <p className="adminDataNote">{x.ai_verification||"AI 검증 결과 없음 — 직접 확인이 필요합니다."}</p>
+      <div className="dfCheckGrid">{checks.map(([field,label])=><button type="button" key={field} className={x[field]?"ok":""} disabled={busy!==""||a.risk_level==="red"} onClick={()=>setCheck(x,field,!x[field])}><b>{x[field]?"✓":"○"}</b><span>{label}</span></button>)}</div>
+      <div className="editorGate"><span>법적검토 · {legalStatus[x.legal_check_status]||x.legal_check_status||"미확인"}</span></div>
+      {(x.source_text||x.ai_fact)&&<details className="dfReviewEvidence dfPublishSource"><summary>근거자료 확인</summary>{x.source_text&&<><b>공식자료</b><pre>{x.source_text}</pre></>}{x.ai_fact&&<><b>FACT</b><pre>{x.ai_fact}</pre></>}</details>}
+      <div className="dfReviewActions dfPublishAuditActions">
+       {a.risk_level==="yellow"&&<button type="button" className="adminSecondary" disabled={missing.length!==0||busy!==""} onClick={()=>resolveYellow(x)}>위험등급 검토완료</button>}
+       {a.risk_level==="green"&&x.legal_check_status!=="passed"&&<button type="button" className="adminSecondary" disabled={missing.length!==0||busy!==""} onClick={()=>finalGate(x)}>최종 발행검토</button>}
+       {passed&&<div className="dfScheduleBox"><input aria-label="예약 발행 시각" type="datetime-local" value={scheduleTimes[x.article_id]||""} onChange={e=>setScheduleTimes({...scheduleTimes,[x.article_id]:e.target.value})}/><button type="button" className="adminSecondary" disabled={busy!==""} onClick={()=>schedule(x)}>예약발행</button></div>}
+       {a.scheduled_at&&<><p className="dfScheduleState">예약 · {new Date(a.scheduled_at).toLocaleString("ko-KR")}</p><button type="button" className="adminSecondary" disabled={busy!==""} onClick={()=>cancelSchedule(x)}>예약취소</button></>}
+       <button type="button" className="adminSecondary" disabled={busy!==""||["published","corrected"].includes(a.status)} onClick={()=>hold(x)}>{a.status==="held"?"보류 해제":"보류"}</button>
+      </div>
+     </section>}
+    </article>
+   })}
+   {shownItems.length<visibleItems.length&&<button type="button" className="dfPublishShowMore" onClick={()=>setShowCount(n=>n+12)}>기사 더 보기 ({visibleItems.length-shownItems.length}건 남음)</button>}
+   </div>}
+  </section>
+  <DFToast message={msg} onClose={()=>setMsg("")}/>
+  <DFConfirmModal open={!!confirmTask} title={confirmTask?.title} body={confirmTask?.body} confirmLabel={confirmTask?.label} danger={confirmTask?.danger} onCancel={()=>setConfirmTask(null)} onConfirm={()=>{const task=confirmTask;setConfirmTask(null);task?.run?.()}}/>
+  <DFAdminBottomNav active="editor"/>
+ </main>;
 }
