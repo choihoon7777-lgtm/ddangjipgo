@@ -1452,3 +1452,31 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfPublishStateTabs button{min-height:53px;flex-direction:row;align-items:center}
  .dfPublishEfficient .dfPublishMainActions>*{font-size:11px;padding:9px 7px}
 }
+
+
+/* Publish queue: isolate status filters from the site's legacy fixed nav rule. */
+.dfPublishEfficient nav.dfPublishStateTabs{
+  position:static;inset:auto;top:auto;right:auto;bottom:auto;left:auto;transform:none;
+  width:100%;max-width:100%;min-width:0;padding:0;margin:0 0 12px;z-index:auto;
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+}
+.dfPublishEfficient .dfPublishMainActions{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+.dfPublishEfficient .dfPublishMainActions>*{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishActionPublish.isWaiting{
+  opacity:1;cursor:not-allowed;background:#e8edf2;color:#577185;border-color:#d4dfe8;
+}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishReviewButton:not(.needsReview){
+  background:#f5f8fa;color:#32526a;border:1px solid #e0e7ed;
+}
+.dfPublishEfficient .dfPublishMainActions>.dfPublishReviewButton.needsReview{
+  background:#193e5d;color:#fff;border:1px solid #193e5d;
+}
+@media(max-width:520px){
+ .dfPublishEfficient nav.dfPublishStateTabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+}
+@media(max-width:365px){
+ .dfPublishEfficient nav.dfPublishStateTabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dfPublishEfficient .dfPublishMainActions{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:5px}
+ .dfPublishEfficient .dfPublishMainActions>*{padding:9px 5px;font-size:11px}
+}
