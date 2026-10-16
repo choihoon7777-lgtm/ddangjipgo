@@ -14,7 +14,7 @@ function ArticleInner(){
  const[a,setA]=useState(null),[history,setHistory]=useState([]),[loading,setLoading]=useState(true),[saved,setSaved]=useState(false),[user,setUser]=useState(null),[saveMsg,setSaveMsg]=useState(""),[saveBusy,setSaveBusy]=useState(false),[shareMsg,setShareMsg]=useState("");
  useEffect(()=>{const id=new URLSearchParams(location.search).get("id");if(!id){setLoading(false);return}(async()=>{
    const[{data},{data:hist},{data:{user:u}}]=await Promise.all([
-    dfSupabase.from("df_articles").select("id,title,subtitle,summary_3line,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at,hero_image_url").eq("id",id).in("status",["published","corrected"]).single(),
+    dfSupabase.from("df_articles").select("id,title,subtitle,summary_3line,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at,hero_image_url,body_image_urls").eq("id",id).in("status",["published","corrected"]).single(),
     dfSupabase.rpc("df_public_article_history",{p_article_id:id}),
     dfSupabase.auth.getUser()
    ]);
@@ -58,6 +58,8 @@ function ArticleInner(){
  if(!a)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState"><b>공개된 기사를 찾을 수 없습니다.</b><a href="/focus">메인으로 돌아가기 →</a></div></main>;
  const summaries=Array.isArray(a.summary_3line)?a.summary_3line.filter(Boolean):[];
  const isBlog=a.source_channel==="investgo";
+ const ownedImage=u=>typeof u==="string"&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(u);
+ const gallery=isBlog&&Array.isArray(a.body_image_urls)?a.body_image_urls.filter(u=>ownedImage(u)&&u!==a.hero_image_url).slice(0,9):[];
  const modified=!isBlog&&a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
  return <main className="focusShell dfHigh">
   <DFBrandHeader/>
@@ -74,6 +76,7 @@ function ArticleInner(){
    {summaries.length>0&&<section className="dfKeySummary"><small>기사 핵심</small>{summaries.map((x,i)=><p key={i}><b>{String(i+1).padStart(2,"0")}</b><span>{x}</span></p>)}</section>}
    {isBlog&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(a.hero_image_url||"")&&<figure className="dfInvestgoArticleFigure"><img className="dfInvestgoArticleImage" src={a.hero_image_url} alt={a.title+" 관련 이미지"} decoding="async" loading="eager" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>기사 관련 이미지</figcaption></figure>}
    {body?<section className="dfOfficialNewsFullText dfUnifiedArticleText"><h2>{isBlog?"전문 분석":"기사 본문"}</h2><OfficialArticleText content={body} kind={isBlog?"insight":"article"}/></section>:<p className="dfOfficialEmpty">기사 본문이 준비되지 않았습니다.</p>}
+   {gallery.length>0&&<section className="dfInvestgoArticleGallery" aria-label="네이버 원본 기사 추가 이미지"><h2>기사 관련 사진</h2>{gallery.map((src,i)=><figure key={src}><img src={src} alt={a.title+" 관련 원본 사진 "+(i+2)} decoding="async" loading="lazy" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>네이버 투자GO 원본 사진 {i+2}</figcaption></figure>)}</section>}
    <DFLiveAd placement="article" region={a.region_code}/>
    {history.length>0&&<section className="dfCorrectionHistory"><small>CORRECTION HISTORY</small><h2>수정 이력</h2>{history.map(v=><div key={v.version_no}><b>v{v.version_no}</b><span>{v.change_note||"기사 내용 수정"}</span><em>{new Date(v.created_at).toLocaleString("ko-KR")}</em></div>)}</section>}
 
