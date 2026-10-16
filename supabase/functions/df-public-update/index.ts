@@ -104,7 +104,8 @@ function discover(base:string,raw:string):Item[]{
    const u=new URL(rawLink);u.pathname=u.pathname.replace(/;jsessionid=[A-Za-z0-9.]+/,"");
    const link=officialLink(base,u.toString());
    if(!relevant(title)||title.length<9||!link||!published||seen.has(link))continue;
-   seen.add(link);out.push({title,link,published,snippet:"",hasAttachments:/class=["']file["']/.test(block)});
+   // Source body is complete in postBody; listed attachments can be supplementary photos.
+   seen.add(link);out.push({title,link,published,snippet:"",hasAttachments:false});
    if(out.length>=8)break;
   }
   return out;
