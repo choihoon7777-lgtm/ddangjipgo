@@ -5,7 +5,7 @@ const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSO
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
 const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","건설","반도체","철도","GTX","광역급행","교통망","신도시","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
-const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://gb.go.kr/page/link.do?mn=10109&pageNo=67","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://www.chungbuk.go.kr/www/selectGosiPblancList.do?key=422&pageIndex=1&pageUnit=20&searchCnd=all"};
+const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","충청북도 고시·공고":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
 const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
@@ -89,6 +89,43 @@ function discover(base:string,raw:string):Item[]{
  }
 
 
+
+
+ // Chungbuk: the provincial Citynet board uses dated <tr onclick=viewData>.
+ // Only source-labelled, dated rows become candidates; files remain review-gated.
+ if(new URL(base).hostname==="sido.chungbuk.go.kr"&&new URL(base).pathname.endsWith("/SAPGosiBizProcess.do")){
+  for(const m of raw.matchAll(/<tr\b[^>]*onclick=["']viewData\('(\d{3,12})','([ANPE])'\)["'][^>]*>([\s\S]*?)<\/tr>/gi)){
+   const row=m[3],cells=[...row.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(x=>text(x[1]));
+   if(cells.length<4)continue;
+   const title=cells[1]?.trim(),date=cells[3]?.match(/20\d{2}-\d{2}-\d{2}/)?.[0],published=date?parseDate(date):null;
+   if(!title||!relevant(title)||title.length<9||!published)continue;
+   const url=new URL(base);
+   url.searchParams.set("command","searchDetail");
+   url.searchParams.set("sno",m[1]);url.searchParams.set("gosiGbn",m[2]);
+   const link=officialLink(base,url.toString());
+   if(!link||seen.has(link))continue;
+   seen.add(link);out.push({title,link,published,snippet:"",hasAttachments:true});
+   if(out.length>=8)break;
+  }
+  return out;
+ }
+ // Gyeongbuk: current official gosi_notice board, with dated b_subject rows.
+ if(new URL(base).hostname==="www.gb.go.kr"&&new URL(base).pathname==="/Main/open_contents/section/ftc/page.do"){
+  for(const m of raw.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){
+   const row=m[1];
+   const a=row.match(/<td\b[^>]*class=["']b_subject["'][^>]*>\s*<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
+   const date=row.match(/<td\b[^>]*class=["']b_date["'][^>]*>(\d{2,4}[-.]\d{1,2}[-.]\d{1,2})/i);
+   if(!a||!date)continue;
+   const title=text(a[2]).trim(),dateText=/^\d\d[-.]/.test(date[1])?"20"+date[1]:date[1];
+   const published=parseDate(dateText),link=officialLink(base,a[1]);
+   if(!relevant(title)||title.length<9||!published||!link||seen.has(link))continue;
+   const detail=new URL(link);
+   if(detail.hostname!=="www.gb.go.kr"||detail.searchParams.get("BD_CODE")!=="gosi_notice"||detail.searchParams.get("cmd")!=="2")continue;
+   seen.add(link);out.push({title,link,published,snippet:"",hasAttachments:/class=["']b_file["']/.test(row)});
+   if(out.length>=8)break;
+  }
+  return out;
+ }
 
  // Gyeonggi's first-party newsroom is reachable when its notice homepage
  // blocks data-center traffic. Select only the dated press rows, never menus.
@@ -468,6 +505,8 @@ async function runBatch(batch:number){
     (current.url.includes("/cnapcPress/list.do")&&current.raw.includes("/cnapcPress/view.do")&&current.raw.includes("제공일자"))||
     (current.url.includes("gwangju.go.kr/boardList.do")&&current.raw.includes("board_list_body")&&current.raw.includes("작성일"))||
     (current.url.includes("gb.go.kr/page/link.do")&&current.raw.includes("boardList.view(")&&current.raw.includes("등록일"))||
+    (current.url.includes("/SAPGosiBizProcess.do")&&current.raw.includes("toolBoardList")&&current.raw.includes("게재일자"))||
+    (current.url.includes("gb.go.kr/Main/open_contents/section/ftc/page.do")&&current.raw.includes("BD_CODE=gosi_notice")&&current.raw.includes("b_date"))||
     (source.name==="대구광역시 고시·공고"&&current.raw.includes("fn_goLinkView(")&&current.raw.includes("00940170"))||
     (source.name==="인천광역시 고시·공고"&&current.raw.includes("/IC010307/view")&&current.raw.includes("2026-"));
    if(!items.length&&validButFiltered){
