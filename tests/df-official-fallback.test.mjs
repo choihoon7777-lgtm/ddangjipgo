@@ -64,3 +64,19 @@ test("Official board TLS fallback only reads fresh first-party cached pages",asy
  assert.match(sql,/df-official-feed-cache-store/);
  assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);
 });
+
+
+test("Government article extraction retains facts and explicitly quarantines navigation/control text",async()=>{
+ const s=await read("../supabase/functions/df-public-update/index.ts");
+ assert.match(s,/const namedEntities/);
+ assert.match(s,/lsquo:"‘",rsquo:"’",ldquo:"“",rdquo:"”"/);
+ assert.match(s,/String\.fromCodePoint\(char\)/);
+ assert.match(s,/const containsPageChrome=/);
+ assert.match(s,/경기뉴스룸/);
+ assert.match(s,/PAGE_LAYOUT_REQUIRES_REVIEW/);
+ assert.match(s,/manual_review_required:needsLayoutReview/);
+ assert.match(s,/detail_status:verified\?\(hasAttachment\|\|usedFeedBody\|\|needsLayoutReview/);
+ assert.match(s,/detail_status:hasAttachment\|\|usedFeedBody\|\|needsLayoutReview/);
+ assert.match(s,/detail_ok:verified&&!usedFeedBody&&!hasAttachment&&!needsLayoutReview/);
+ assert.doesNotMatch(s,/rejectUnauthorized\s*:\s*false/);
+});
