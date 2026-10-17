@@ -7,8 +7,15 @@ const terms=["도시계획","도시관리","지구단위","도시개발","개발
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
 const fallback:Record<string,string>={"국토교통부":"https://www.korea.kr/briefing/pressReleaseList.do","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","충청북도 고시·공고":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","부산광역시 고시·공고":"https://sido.busan.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","울산광역시 자동수집":"https://ulsan.go.kr/u/rep/transfer/notice/list.ulsan?mId=001004002000000000","부산광역시 자동수집":"https://sido.busan.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
-const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
-const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
+const namedEntities:Record<string,string>={nbsp:" ",amp:"&",lt:"<",gt:">",quot:'"',apos:"'",lsquo:"‘",rsquo:"’",ldquo:"“",rdquo:"”",middot:"·",ndash:"–",mdash:"—",bull:"•",hellip:"…"};
+const entities=(s:string)=>s.replace(/&(#(?:x[0-9a-f]{1,6}|\d{1,7})|[a-z]{2,12});/gi,(whole,code:string)=>{
+ const normalized=code.toLowerCase();
+ if(Object.prototype.hasOwnProperty.call(namedEntities,normalized))return namedEntities[normalized];
+ if(!normalized.startsWith("#"))return whole;
+ const char=normalized.startsWith("#x")?parseInt(normalized.slice(2),16):parseInt(normalized.slice(1),10);
+ return Number.isInteger(char)&&char>=32&&char<=0x10ffff&&!(char>=0xd800&&char<=0xdfff)?String.fromCodePoint(char):whole;
+});
+const text=(html:string)=>entities(html.replace(/\r\n?/g,"\n").replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
 const tag=(s:string,k:string)=>{const raw=s.match(new RegExp("<"+k+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+k+">","i"))?.[1]||"";return text(raw.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(_,inner)=>inner));};
 const hash=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))).map(b=>b.toString(16).padStart(2,"0")).join("");
 const cors=(req:Request)=>{
@@ -381,6 +388,16 @@ function bodyFrom(raw:string,title:string){
  if(!pageMatch||noise>1||selected.length<140||selected.length>250000)return "";
  return selected;
 }
+// Government sites sometimes embed navigation and download controls in the
+// extracted article. Treat such source content as an editorial-review item;
+// never let it satisfy the automatic publish gate.
+const containsPageChrome=(body:string)=>{
+ const prefix=body.slice(0,1250);
+ return /(?:^|\n)\s*(?:제목\s*\n[\s\S]{0,180}작성자\s*\n|작성자\s*\n|조회수\s*\d+|담당부서\s*\n|문의처\s*\n)/m.test(prefix)
+  || /(?:^|\n)\s*보도자료\s*\n[\s\S]{0,120}보도자료\s*\n[\s\S]{0,220}경기뉴스룸/m.test(prefix)
+  || prefix.includes("-->")&&/(?:첨부파일|작성자|문의처)/.test(prefix);
+};
+
 function summary(body:string,title=""){
  const normalize=(s:string)=>s.replace(/[^0-9a-z가-힣]/gi,"").toLowerCase();
  const normalizedTitle=normalize(title);
@@ -434,10 +451,11 @@ async function collectRow(source:any,item:Item){
  if(!old){
   const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
   const rightsHold=source.name==="전북특별자치도 자동수집";
-  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified||rightsHold,auto_hidden:!verified||rightsHold,rights_requires_review:rightsHold,needs_detail_fetch:!verified||usedFeedBody,detail_ok:verified&&!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:error||null};
+  const needsLayoutReview=containsPageChrome(body);
+  const payload={collector:"fixed_public_official",source_type:source.source_type,collector_kind:source.collector_kind,channel:/입법예고|조례|규칙/.test(item.title)?"입법예고":/고시|공고|계획/.test(item.title)?"고시공고":"보도자료",category_hint:"정책·고시",region_code:source.region_code||null,public_hidden:!verified||rightsHold,auto_hidden:!verified||rightsHold,rights_requires_review:rightsHold,needs_detail_fetch:!verified||usedFeedBody||needsLayoutReview,manual_review_required:needsLayoutReview,detail_ok:verified&&!usedFeedBody&&!hasAttachment&&!needsLayoutReview,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:error||(needsLayoutReview?"PAGE_LAYOUT_REQUIRES_REVIEW":null)};
   const idHash=await hash(item.link);
   const cHash=await hash(body||item.snippet||item.title);
-  const record={source_id:source.id,external_id:item.link,canonical_key:idHash,title:item.title,source_url:item.link,detail_url:item.link,published_at:item.published,content_text:verified?body:item.snippet||item.title,content_hash:cHash,body_hash:verified?cHash:null,detail_status:verified?(hasAttachment||usedFeedBody?"partial":"complete"):"queued",detail_retry_count:0,detail_completed_at:verified?now:null,last_checked_at:now,key_content:verified?keyContent:null,key_extract_status:verified?"ready":"pending",key_extracted_at:verified?now:null,raw_payload:payload,verification_status:verified?"verified":"pending"};
+  const record={source_id:source.id,external_id:item.link,canonical_key:idHash,title:item.title,source_url:item.link,detail_url:item.link,published_at:item.published,content_text:verified?body:item.snippet||item.title,content_hash:cHash,body_hash:verified?cHash:null,detail_status:verified?(hasAttachment||usedFeedBody||needsLayoutReview?"partial":"complete"):"queued",detail_retry_count:0,detail_completed_at:verified?now:null,last_checked_at:now,key_content:verified?keyContent:null,key_extract_status:verified?"ready":"pending",key_extracted_at:verified?now:null,raw_payload:payload,verification_status:verified?"verified":"pending"};
   const insert=await db.from("df_source_documents").insert(record).select("id").single();
   if(insert.error){if(insert.error.code==="23505")return"duplicate";throw insert.error}
   if(verified)await db.from("df_source_document_versions").insert({document_id:insert.data.id,content_hash:cHash,title:item.title,content_text:body,source_url:item.link,source_published_at:item.published});
@@ -467,7 +485,8 @@ async function collectRow(source:any,item:Item){
  }
  const cHash=await hash(body);
  const hasAttachment=item.hasAttachments||/\.hwpx?|\.pdf|첨부파일/i.test(body);
- const upd=await db.from("df_source_documents").update({title:item.title,content_text:body,content_hash:cHash,body_hash:cHash,detail_status:hasAttachment||usedFeedBody?"partial":"complete",detail_completed_at:now,key_content:keyContent,key_extract_status:"ready",key_extracted_at:now,verification_status:"verified",raw_payload:{...(old.raw_payload||{}),public_hidden:false,auto_hidden:false,needs_detail_fetch:usedFeedBody,detail_ok:!usedFeedBody&&!hasAttachment,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:null},last_checked_at:now}).eq("id",old.id);
+ const needsLayoutReview=containsPageChrome(body);
+ const upd=await db.from("df_source_documents").update({title:item.title,content_text:body,content_hash:cHash,body_hash:cHash,detail_status:hasAttachment||usedFeedBody||needsLayoutReview?"partial":"complete",detail_completed_at:now,key_content:keyContent,key_extract_status:"ready",key_extracted_at:now,verification_status:"verified",raw_payload:{...(old.raw_payload||{}),public_hidden:false,auto_hidden:false,needs_detail_fetch:usedFeedBody||needsLayoutReview,manual_review_required:needsLayoutReview,detail_ok:!usedFeedBody&&!hasAttachment&&!needsLayoutReview,feed_excerpt_only:usedFeedBody,attachments_detected:!!hasAttachment,attachment_text_extracted:false,last_detail_error:null},last_checked_at:now}).eq("id",old.id);
  if(upd.error)throw upd.error;
  await db.from("df_source_document_versions").upsert({document_id:old.id,content_hash:cHash,title:item.title,content_text:body,source_url:item.link,source_published_at:item.published},{onConflict:"document_id,content_hash",ignoreDuplicates:true});
  return"completed_published";
