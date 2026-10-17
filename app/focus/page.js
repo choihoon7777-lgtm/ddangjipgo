@@ -27,7 +27,7 @@ export default function FocusHome(){
       <div><small>{lead.is_top_focus?"편집 선정 · ":"최근 발행 · "}{lead.category||"최신뉴스"}{lead.region_code?" · "+lead.region_code:""}</small><strong className="dfCityLeadMotto">도시의 변화를<br/>읽다.</strong></div>
       <span>{dateLabel(lead.published_at)}</span>
      </div>
-     <div className="dfHomeLeadCopy"><h1>{lead.title}</h1>{lead.subtitle&&<p>{lead.subtitle}</p>}<div><span>{lead.updated_at&&lead.updated_at!==lead.published_at?"수정기사":""}</span><b>기사보기 →</b></div></div>
+     <div className="dfHomeLeadCopy"><h1>{lead.title}</h1>{lead.subtitle&&<p>{lead.subtitle}</p>}<div>{lead.updated_at&&lead.updated_at!==lead.published_at&&<span>수정기사</span>}<b>기사보기 →</b></div></div>
     </a>
     {seconds.length>0&&<div className="dfHomeSecondaries">{seconds.map(a=><a href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3><span>{dateLabel(a.published_at)}</span></div><b>→</b></a>)}</div>}
    </>
