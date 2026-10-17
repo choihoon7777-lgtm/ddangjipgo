@@ -3,6 +3,7 @@ import{useEffect,useState}from"react";
 import{dfSupabase}from"../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFSectionTitle,DFLiveNotice,DFLiveAd}from"../../components/df-shell";
 import{mergeHomeStories,safeEditorialCover}from"../../lib/df-home-editorial";
+import{decodeEditorialEntities}from"../../lib/df-editorial-format";
 const dateLabel=x=>{if(!x)return"";const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{month:"2-digit",day:"2-digit"}).format(d)};
 const originalIssueDate=x=>{if(!x)return"";const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
 export default function FocusHome(){
@@ -27,18 +28,18 @@ export default function FocusHome(){
       <div><small>{lead.is_top_focus?"편집 선정 · ":"최근 발행 · "}{lead.category||"최신뉴스"}{lead.region_code?" · "+lead.region_code:""}</small><strong className="dfCityLeadMotto">도시의 변화를<br/>읽다.</strong></div>
       <span>{dateLabel(lead.published_at)}</span>
      </div>
-     <div className="dfHomeLeadCopy"><h1>{lead.title}</h1>{lead.subtitle&&<p>{lead.subtitle}</p>}<div>{lead.updated_at&&lead.updated_at!==lead.published_at&&<span>수정기사</span>}<b>기사보기 →</b></div></div>
+     <div className="dfHomeLeadCopy"><h1>{decodeEditorialEntities(lead.title)}</h1>{lead.subtitle&&<p>{lead.subtitle}</p>}<div>{lead.updated_at&&lead.updated_at!==lead.published_at&&<span>수정기사</span>}<b>기사보기 →</b></div></div>
     </a>
-    {seconds.length>0&&<div className="dfHomeSecondaries">{seconds.map(a=><a href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3><span>{dateLabel(a.published_at)}</span></div><b>→</b></a>)}</div>}
+    {seconds.length>0&&<div className="dfHomeSecondaries">{seconds.map(a=><a href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{decodeEditorialEntities(a.title)}</h3><span>{dateLabel(a.published_at)}</span></div><b>→</b></a>)}</div>}
    </>
   </section>:<section className="dfHomeIntro"><small>DOSIMAEK</small><h1>도시의 변화를<br/>공식자료부터 읽습니다.</h1><p>개발사업·정책·고시·분양·금융 정보를 검증해 한곳에 모읍니다.</p><div><a href="/focus/live">개발뉴스 보기</a><a href="/search">주소로 부동산 분석</a></div></section>}
   {latest.length>0&&<section className="focusBlock dfLatestBlock"><DFSectionTitle eyebrow="LATEST NEWS" title="최신 뉴스" href="/focus/live"/>
-   {latest.map(a=><a className="dfLatestRow" href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{a.title}</h3><span>{dateLabel(a.published_at)}{a.updated_at&&a.updated_at!==a.published_at?" · 수정기사":""}</span></div><b>→</b></a>)}
+   {latest.map(a=><a className="dfLatestRow" href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.category||"최신뉴스"}{a.region_code?" · "+a.region_code:""}</small><h3>{decodeEditorialEntities(a.title)}</h3><span>{dateLabel(a.published_at)}{a.updated_at&&a.updated_at!==a.published_at?" · 수정기사":""}</span></div><b>→</b></a>)}
   </section>}
   <section className="focusHero dfLandCompact"><div className="focusLandBox"><div className="focusLandBoxHead"><div><small>MY PROPERTY INTELLIGENCE</small><h1>내 부동산 변화 추적</h1></div><span className="focusLandBadge">내 부동산 관리</span></div><p className="focusLandTagline">관심 부동산의 변화를 한눈에</p><p className="focusLandDesc">토지·건물을 등록하면 주변 개발사업·도시계획·실거래·개발호재 변화를 추적합니다.</p><div className="focusHeroActions"><a className="focusHeroPrimary" href="/my/properties">관심부동산 관리 →</a><a className="focusHeroSecondary" href="/search">주소로 분석하기 ↗</a><a className="focusHeroSecondary" href="/alerts">변화 알림 확인 →</a></div></div></section>
   <section className="focusBlock dfPremiumDirectory" aria-label="분야별 개발정보"><DFSectionTitle eyebrow="EXPLORE" title="분야별 정보"/><div className="dfPremiumDirectoryGrid"><a href="/focus/policy"><span aria-hidden="true">§</span><b>개발정책·고시</b><small>정부·지자체 공식자료</small></a><a href="/focus/housing"><span aria-hidden="true">▥</span><b>분양·청약</b><small>분양가·청약일정</small></a><a href="/focus/projects"><span aria-hidden="true">▱</span><b>개발사업</b><small>주요 사업 현황</small></a><a href="/focus/region"><span aria-hidden="true">⌖</span><b>지역별 정보</b><small>관심지역 개발정보</small></a></div></section>
 <DFLiveAd placement="home"/>
-  {insights.length>0&&<section className="focusBlock dfLatestBlock dfInvestgoHome"><DFSectionTitle eyebrow="EXPERT INSIGHTS" title="시장 분석" href="/focus/live?category=인사이트" label="전체 보기 →"/><p className="dfInvestgoHomeNotice">개발사업과 부동산 시장을 이해하는 전문 분석 기사입니다.</p>{insights.map(a=><a className="dfLatestRow" href={"/focus/article?id="+a.id} key={a.id}><div><small>인사이트 · {originalIssueDate(a.original_source_published_at||a.published_at)} 발행</small><h3>{a.title}</h3><span>심층 분석 보기</span></div>{a.hero_image_url?.includes("/storage/v1/object/public/df-investgo-images/")&&<img className="dfInsightHomeThumb" src={a.hero_image_url} alt="" loading="lazy" decoding="async"/>}<b>→</b></a>)}</section>}
+  {insights.length>0&&<section className="focusBlock dfLatestBlock dfInvestgoHome"><DFSectionTitle eyebrow="EXPERT INSIGHTS" title="시장 분석" href="/focus/live?category=인사이트" label="전체 보기 →"/><p className="dfInvestgoHomeNotice">개발사업과 부동산 시장을 이해하는 전문 분석 기사입니다.</p>{insights.map(a=><a className="dfLatestRow" href={"/focus/article?id="+a.id} key={a.id}><div><small>인사이트 · {originalIssueDate(a.original_source_published_at||a.published_at)} 발행</small><h3>{decodeEditorialEntities(a.title)}</h3><span>심층 분석 보기</span></div>{a.hero_image_url?.includes("/storage/v1/object/public/df-investgo-images/")&&<img className="dfInsightHomeThumb" src={a.hero_image_url} alt="" loading="lazy" decoding="async"/>}<b>→</b></a>)}</section>}
   <section className="dfHomeTrust"><div><b>OFFICIAL SOURCE</b><span>공식자료 기반 검증</span></div><i></i><div><b>REVISION LOG</b><span>수정이력 공개</span></div><i></i><div><b>REGIONAL</b><span>지역별 개발정보</span></div></section>
   <DFBottomNav active="home"/>
  </main>
