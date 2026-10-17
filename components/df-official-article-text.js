@@ -1,12 +1,12 @@
 "use client";
 import{useMemo}from"react";
-import{parseEditorialBody}from"../lib/df-editorial-format";
+import{parseEditorialBody,isAnnexPresentationLabel}from"../lib/df-editorial-format";
 
 // Shared renderer for official documents, investment articles and news stories.
 // Never interpret the upstream text as HTML and never fabricate missing text.
 export default function OfficialArticleText({content,partial=false,kind="article"}){
  const blocks=useMemo(()=>{
-  const original=parseEditorialBody(content);
+  const original=parseEditorialBody(content).filter(b=>!isAnnexPresentationLabel(b.text));
   if(kind!=="insight")return original;
   // Many imported blog paragraphs consist of a single short sentence.
   // Join adjacent short sentences into ordinary newspaper paragraphs without
