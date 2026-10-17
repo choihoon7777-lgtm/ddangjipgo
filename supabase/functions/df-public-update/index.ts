@@ -18,7 +18,7 @@ const cors=(req:Request)=>{
 };
 const respond=(req:Request,status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers:{...cors(req),"Content-Type":"application/json; charset=utf-8"}});
 const allowed=(u:URL)=>u.protocol==="https:"&&!u.username&&!u.password&&!u.port&&(/\.go\.kr$/.test(u.hostname)||u.hostname==="www.korea.kr");
-async function download(value:string,timeout=12000){
+async function directDownload(value:string,timeout=12000){
  let u=new URL(value);
  for(let i=0;i<4;i++){
   if(!allowed(u))throw new Error("OFFICIAL_HOST_REQUIRED");
@@ -37,6 +37,25 @@ async function download(value:string,timeout=12000){
  }
  throw new Error("REDIRECT_LIMIT");
 }
+// A second official HTTP client persists only short-lived, allowlisted
+// government pages. No certificate verification is disabled, and cached
+// responses are never accepted for arbitrary links or article details.
+async function download(value:string,timeout=12000){
+ try{return await directDownload(value,timeout)}
+ catch(err){
+  let url:URL;
+  try{url=new URL(value)}catch{throw err}
+  const candidates=[
+   "sido.busan.go.kr","sido.chungbuk.go.kr","www.gb.go.kr","ulsan.go.kr"
+  ];
+  if(!allowed(url)||!candidates.includes(url.hostname))throw err;
+  const {data,error}=await db.from("df_official_feed_cache").select("url,body,content_type,fetched_at")
+   .eq("url",url.href).gte("fetched_at",new Date(Date.now()-80*60*1000).toISOString()).maybeSingle();
+  if(error||!data||typeof data.body!=="string"||data.body.length<600)throw err;
+  return {url:url.href,raw:data.body,type:data.content_type||"text/html",cache:true};
+ }
+}
+
 type Item={title:string;link:string;published:string|null;snippet:string;officialBody?:string;hasAttachments?:boolean;detailApi?:string};
 const officialLink=(base:string,path:string)=>{try{const u=new URL(entities(path),base);return allowed(u)?u.href:""}catch{return""}};
 const parseDate=(s:string):string|null=>{
