@@ -14,12 +14,17 @@ const checks=[
 ];
 
 export default function Publish(){
- const[expandedArticle,setExpandedArticle]=useState(""),[showCount,setShowCount]=useState(12),[loading,setLoading]=useState(true),[loadError,setLoadError]=useState(""),[items,setItems]=useState([]),[queueFilter,setQueueFilter]=useState("all"),[search,setSearch]=useState(""),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
+ const[eligibility,setEligibility]=useState({}),[expandedArticle,setExpandedArticle]=useState(""),[showCount,setShowCount]=useState(12),[loading,setLoading]=useState(true),[loadError,setLoadError]=useState(""),[items,setItems]=useState([]),[queueFilter,setQueueFilter]=useState("all"),[search,setSearch]=useState(""),[focusId,setFocusId]=useState(""),[publishedArticle,setPublishedArticle]=useState(null),[busy,setBusy]=useState(""),[msg,setMsg]=useState(""),[scheduleTimes,setScheduleTimes]=useState({}),[confirmTask,setConfirmTask]=useState(null);
  async function load(){
   setLoading(true);setLoadError("");
   try{
-  const{data,error}=await dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at,scheduled_at)").is("reviewed_at",null).order("queued_at",{ascending:false});
-  if(error)throw error;setItems(data||[]);
+  const[queue,preflight]=await Promise.all([
+   dfSupabase.from("df_editorial_queue").select("id,article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,queued_at,ai_fact,ai_verification,source_text,df_articles(id,title,category,region_code,status,risk_level,body,created_at,scheduled_at)").is("reviewed_at",null).order("queued_at",{ascending:false}),
+   dfSupabase.rpc("df_admin_publish_preflight")
+  ]);
+  if(queue.error)throw queue.error;
+  setItems(queue.data||[]);
+  setEligibility(!preflight.error&&preflight.data&&typeof preflight.data==="object"?preflight.data:{});
   }catch(e){setLoadError("기사를 불러오지 못했습니다: "+e.message)}finally{setLoading(false)}
  }
  useEffect(()=>{const id=new URLSearchParams(window.location.search).get("article")||"";if(/^[0-9a-f-]{36}$/i.test(id))setFocusId(id);load()},[]);
@@ -84,40 +89,33 @@ export default function Publish(){
  function cancelSchedule(x){setConfirmTask({title:"예약발행 취소",body:"설정된 예약시간을 삭제하고 검토 상태로 되돌립니다.",label:"예약 취소",danger:true,run:()=>doCancelSchedule(x)})}
  async function requestReviewAndPublish(x){
   if(busy)return;
-  setBusy(x.article_id+"reviewRequest");setMsg("");
+  setBusy(x.article_id+"reviewRequest");setMsg("");setPublishedArticle(null);
   try{
    const {data:{user},error:authError}=await dfSupabase.auth.getUser();
    if(authError||!user)throw new Error("실제 발행은 운영자 로그인 후 가능합니다.");
-   const {data:q,error:qError}=await dfSupabase.from("df_editorial_queue")
-    .select("article_id,fact_check_passed,numeric_check_passed,date_check_passed,source_check_passed,duplicate_check_passed,legal_check_status,df_articles(id,title,status,risk_level)")
-    .eq("article_id",x.article_id).is("reviewed_at",null).maybeSingle();
-   if(qError)throw qError;
-   if(!q)throw new Error("검토 대상 기사가 없거나 이미 처리되었습니다.");
-   const a=q.df_articles||{};
-   if(["published","corrected"].includes(a.status))throw new Error("이미 공개된 기사입니다.");
-   const notReady=checks.filter(([field])=>q[field]!==true).map(([,label])=>label);
-   if(a.risk_level!=="green"||q.legal_check_status!=="passed"||notReady.length){
-    const reasons=[...(a.risk_level!=="green"?["위험등급 "+(a.risk_level||"미확인")]:[]),
-      ...(notReady.length?["미완료 검증: "+notReady.join("·")]:[]),
-      ...(q.legal_check_status!=="passed"?["법적 검토 미통과"]:[])];
-    setMsg("발행 전 확인이 필요합니다: "+reasons.join(" / "));
+   // The server checks all gates and commits public status + audit in one transaction.
+   // Do not treat an RPC success as a publication without checking its response.
+   const{data:result,error:publishError}=await dfSupabase.rpc("df_publish_article_one_click",{
+    p_article_id:x.article_id,p_dry_run:false
+   });
+   if(publishError)throw publishError;
+   if(!result?.published){
+    setMsg("발행 보류 · "+(result?.reason||"공식 원문 확인이 필요합니다."));
     return;
    }
-   const {data:published,error:publishError}=await dfSupabase.rpc("df_publish_article",{p_article_id:q.article_id,p_actor:user.id});
-   if(publishError)throw publishError;
-   if(!published||!["published","corrected"].includes(published.status))throw new Error("발행 응답을 확인하지 못했습니다. 다시 조회하세요.");
-   const {data:live,error:verifyError}=await dfSupabase.from("df_articles").select("id,title,status,published_at").eq("id",q.article_id).in("status",["published","corrected"]).maybeSingle();
-   if(verifyError||!live){setMsg("발행 요청을 완료했습니다. 기사 공개 여부를 새로고침하여 확인하세요.");return;}
+   const{data:live,error:verifyError}=await dfSupabase.from("df_articles")
+    .select("id,title,status,published_at").eq("id",x.article_id).in("status",["published","corrected"]).maybeSingle();
+   if(verifyError||!live){setMsg("발행 요청이 처리됐으나 공개 상태 조회에 실패했습니다. 새로고침 후 확인하세요.");return}
    setPublishedArticle({id:live.id,title:live.title});
-   setMsg("발행 완료 · 아래 기사 보기에서 확인하세요.");
-  }catch(e){setMsg("발행 보류: "+(e?.message||"알 수 없는 오류"))}
+   setMsg(result.already_published?"이미 발행된 기사입니다. 아래 기사 보기를 누르세요.":"실제 발행 완료 · 아래 공개 기사 보기를 누르세요.");
+  }catch(e){setMsg("발행 실패 · "+(e?.message||"알 수 없는 오류"))}
   finally{await load();setBusy("")}
  }
 
  const checklist=x=>checks.filter(([f])=>x[f]!==true).map(([,label])=>label);
  const scheduled=x=>Boolean(x.df_articles?.scheduled_at);
  const blocked=x=>x.df_articles?.risk_level==="red"||x.legal_check_status==="blocked"||["held","rejected"].includes(x.df_articles?.status);
- const ready=x=>!blocked(x)&&!scheduled(x)&&!["published","corrected"].includes(x.df_articles?.status)&&x.df_articles?.risk_level==="green"&&x.legal_check_status==="passed"&&checklist(x).length===0;
+ const ready=x=>!blocked(x)&&!scheduled(x)&&!["published","corrected"].includes(x.df_articles?.status)&&(eligibility[x.article_id]?.publishable===true||x.df_articles?.risk_level==="green"&&x.legal_check_status==="passed"&&checklist(x).length===0);
  const legalWait=x=>!blocked(x)&&!ready(x);
  const counts={all:items.length,ready:items.filter(ready).length,legal:items.filter(legalWait).length,blocked:items.filter(blocked).length};
  const visibleItems=items.filter(x=>(!focusId||x.article_id===focusId)&&(queueFilter==="all"||queueFilter==="ready"&&ready(x)||queueFilter==="legal"&&legalWait(x)||queueFilter==="blocked"&&blocked(x))&&(!search.trim()||String(x.df_articles?.title||"").toLocaleLowerCase("ko-KR").includes(search.trim().toLocaleLowerCase("ko-KR")))).sort((a,b)=>{
@@ -127,8 +125,7 @@ export default function Publish(){
  const shownItems=visibleItems.slice(0,showCount);
  function publishOrShowChecks(x){
   if(busy)return;
-  if(ready(x)){requestReviewAndPublish(x);return}
-  setExpandedArticle(x.article_id);
+  requestReviewAndPublish(x);
  }
  const toggleArticle=id=>setExpandedArticle(current=>current===id?"":id);
  const changeFilter=next=>{setQueueFilter(next);setShowCount(12);setExpandedArticle("")};
@@ -136,12 +133,12 @@ export default function Publish(){
  return <main className="adminShell dfAdminUnified dfPublishMobile dfPublishEfficient"><DFAdminHeader title="기사 발행" kicker="EDITORIAL DESK"/>
   <section className="adminPanel dfPublishWorkspace" aria-label="기사 발행 관리">
    <header className="dfPublishWorkspaceHeader">
-    <div><small>DOSIMAEK NEWSROOM</small><h2>기사 발행</h2><p>준비된 기사부터 확인하고 바로 발행하세요.</p></div>
+    <div><small>DOSIMAEK NEWSROOM</small><h2>기사 발행</h2><p>발행을 누르면 서버에서 검증하고, 통과한 기사는 즉시 공개합니다.</p></div>
     <div className="dfPublishWorkspaceLinks"><a href="/focus-admin/write">+ 기사 작성</a><button type="button" onClick={load} disabled={loading||busy!==""}>새로고침</button></div>
    </header>
    {publishedArticle&&<div className="dfQuickSaved dfPublishResult" role="status">
     <b>✓ 기사 발행 완료</b><span>{publishedArticle.title}</span>
-    <a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">발행된 기사 보기 ↗</a>
+    <a className="adminPrimary" href={"/focus/article?id="+encodeURIComponent(publishedArticle.id)} target="_blank" rel="noopener noreferrer">실제 공개 기사 확인 ↗</a>
    </div>}
    {focusId&&<div className="dfQuickFocusInfo"><b>선택한 기사만 표시 중</b><button type="button" onClick={()=>{setFocusId("");window.history.replaceState(null,"","/focus-admin/publish")}}>전체 기사 보기</button></div>}
    <nav className="dfPublishStateTabs" aria-label="기사 검토 상태">
@@ -167,14 +164,15 @@ export default function Publish(){
      </div>
      <h3 className="dfPublishArticleTitle">{a.title||"제목 없는 기사"}</h3>
      <p className="dfPublishReadiness" id={"df-publish-hint-"+x.id}>
-      {passed?"검증 완료 · 지금 발행할 수 있습니다.":
+      {passed?"자동 검증 통과 · 발행을 누르면 바로 공개됩니다.":
        stop?"보류 또는 검토 차단 · 사유 확인 후 처리":
        scheduled(x)?"예약 발행 설정됨 · 예약 확인 가능":
+       eligibility[x.article_id]?.reason?eligibility[x.article_id].reason:
        missing.length?"미확인: "+missing.length+"개 · "+missing.join(" · "):
        a.risk_level==="yellow"?"위험등급 검토 필요 · 검증 후 발행 가능":"최종 검토 후 발행 가능"}
      </p>
      <div className="dfPublishMainActions dfPublishSingleAction">
-      <button type="button" className="adminPrimary dfPublishActionPublish" disabled={busy!==""} aria-expanded={passed?undefined:open} aria-controls={!passed&&open?"df-audit-"+x.id:undefined} aria-describedby={passed?undefined:"df-publish-hint-"+x.id} onClick={()=>publishOrShowChecks(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"발행"}</button>
+      <button type="button" className="adminPrimary dfPublishActionPublish" disabled={busy!==""} aria-describedby={"df-publish-hint-"+x.id} onClick={()=>publishOrShowChecks(x)}>{busy===x.article_id+"reviewRequest"?"발행 중…":"발행"}</button>
       <a className="adminSecondary dfPublishPreviewLink" href={"/focus-admin/preview?id="+x.article_id}>미리보기</a>
      </div>
      {(passed||open)&&<button type="button" className="dfPublishAuxiliaryLink" aria-expanded={open} aria-controls={open?"df-audit-"+x.id:undefined} onClick={()=>toggleArticle(x.article_id)}>{open?"세부 확인 닫기":"예약·보류 등 추가 설정"} <span aria-hidden="true">{open?"⌃":"⌄"}</span></button>}
