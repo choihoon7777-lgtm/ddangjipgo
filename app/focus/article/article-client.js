@@ -4,6 +4,7 @@ import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
 import OfficialArticleText from "../../../components/df-official-article-text";
 import{articleSummary}from"../../../lib/df-article-summary";
+import{decodeEditorialEntities}from"../../../lib/df-editorial-format";
 import{guestIsSaved,guestToggleSaved,guestRecordRecent}from"../../../lib/df-guest-trial";
 
 function normalizeBody(body){
@@ -47,7 +48,7 @@ function ArticleInner(){
  }
  async function shareArticle(){
   if(!a)return;setShareMsg("");
-  const url=location.href,payload={title:a.title,text:a.subtitle||"도시맥 기사",url};
+  const url=location.href,payload={title:decodeEditorialEntities(a.title),text:a.subtitle||"도시맥 기사",url};
   try{
    if(navigator.share){await navigator.share(payload);setShareMsg("공유했습니다.");}
    else if(navigator.clipboard){await navigator.clipboard.writeText(url);setShareMsg("기사 링크를 복사했습니다.");}
@@ -68,7 +69,7 @@ function ArticleInner(){
   <DFLiveNotice placement="article" region={a.region_code}/>
   <article className="dfNewsArticle">
    <div className="dfArticleMeta"><span>{isBlog?"인사이트":a.category||"최신뉴스"}</span>{a.region_code&&<em>{a.region_code}</em>}{a.status==="corrected"&&<em>정정</em>}</div>
-   <h1>{a.title}</h1>
+   <h1>{decodeEditorialEntities(a.title)}</h1>
    <p className="dfTime">발행 {new Date(a.original_source_published_at||a.published_at).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"})}{modified&&<> · <b>수정 {new Date(a.updated_at).toLocaleString("ko-KR")}</b></>}</p>
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
