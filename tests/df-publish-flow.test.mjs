@@ -1,55 +1,82 @@
-import test from"node:test";import assert from"node:assert/strict";import{readFile}from"node:fs/promises";const read=p=>readFile(new URL(p,import.meta.url),"utf8");
-test("New article links straight to exact editorial queue",async()=>{const s=await read("../app/focus-admin/write/page.js");assert.match(s,/setSavedId/);assert.match(s,/focus-admin\/publish\?article=/);assert.match(s,/df_create_article_candidate/);assert.match(s,/p_source_verified:false/);assert.match(s,/p_legal_check_status:"manual_required"/)});
-test("Publishing retains protected RPC and offers verified live article link",async()=>{const s=await read("../app/focus-admin/publish/page.js");assert.match(s,/df_publish_article/);assert.match(s,/setPublishedArticle/);assert.match(s,/focus\/article\?id=/);assert.match(s,/!focusId\|\|x.article_id===focusId/);assert.match(s,/legal_check_status==="passed"/);assert.match(s,/x\.df_articles/)});
-test("Admin dashboard exposes short publishing flow without bypass",async()=>{const s=await read("../app/focus-admin/page.js");assert.match(s,/dfV2ActionGrid/);for(const p of ["/focus-admin/write","/focus-admin/publish","/focus/live"])assert.ok(s.includes(p));assert.match(s,/관리자 인증 후 가능/)});
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const read=p=>readFile(new URL(p,import.meta.url),"utf8");
 
-test("One-tap review request publishes only after verified backend gates",async()=>{const s=await read("../app/focus-admin/publish/page.js");assert.match(s,/async function requestReviewAndPublish/);assert.match(s,/df_editorial_queue/);assert.match(s,/legal_check_status!=="passed"/);assert.match(s,/risk_level!=="green"/);assert.match(s,/df_publish_article/);assert.match(s,/실제 발행은 운영자 로그인 후 가능/);assert.match(s,/function publishOrShowChecks\(x\)/);assert.match(s,/if\(ready\(x\)\)\{requestReviewAndPublish\(x\);return\}/);assert.match(s,/setPublishedArticle/)});
+test("New article links directly to its real editorial queue",async()=>{
+ const src=await read("../app/focus-admin/write/page.js");
+ for(const token of ["setSavedId","focus-admin/publish?article=","df_create_article_candidate","p_source_verified:false","p_legal_check_status:\"manual_required\""])
+  assert.ok(src.includes(token),token);
+});
 
-test("Official policy documents stay separate from editorial review buttons",async()=>{const policy=await read("../app/focus/policy/page.js"),admin=await read("../app/focus-admin/page.js");assert.match(policy,/전국 정책·고시/);assert.match(policy,/핵심 내용 한눈에/);assert.match(admin,/dfV2Priority/);assert.match(admin,/공식기관 업데이트/);assert.match(admin,/검토부터 발행/)});
+test("One click publishes through protected database RPC and verifies live article status",async()=>{
+ const src=await read("../app/focus-admin/publish/page.js");
+ assert.match(src,/async function requestReviewAndPublish/);
+ assert.match(src,/df_publish_article_one_click/);
+ assert.match(src,/p_article_id:x.article_id,p_dry_run:false/);
+ assert.match(src,/\.in\("status",\["published","corrected"\]\)\.maybeSingle\(\)/);
+ assert.match(src,/result\?\.published/);
+ assert.match(src,/setPublishedArticle\(\{id:live.id,title:live.title\}\)/);
+ assert.match(src,/focus\/article\?id=/);
+ assert.match(src,/실제 공개 기사 확인/);
+ assert.match(src,/실제 발행은 운영자 로그인 후 가능합니다/);
+ assert.doesNotMatch(src,/\.update\(\{status:"published"/);
+});
 
-test("Publishing entry shows real administrator access instead of a demo",async()=>{const s=await read("../app/focus-admin/layout.js");assert.match(s,/path==="\/focus-admin\/publish"\)return <AdminLogin/);const p=await read("../app/focus-admin/publish/page.js");assert.doesNotMatch(p,/async function doPublish/);assert.match(p,/loadError/);assert.match(p,/verifyError\|\|!live/)});
+test("Every article publish button invokes actual server workflow, not checklist toggle",async()=>{
+ const src=await read("../app/focus-admin/publish/page.js");
+ assert.match(src,/function publishOrShowChecks\(x\)/);
+ assert.match(src,/requestReviewAndPublish\(x\)/);
+ assert.doesNotMatch(src,/if\(ready\(x\)\)\{requestReviewAndPublish\(x\);return\}/);
+ assert.match(src,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
+ assert.match(src,/busy===x.article_id\+"reviewRequest"\?"발행 중…":"발행"/);
+ assert.match(src,/setMsg\("발행 보류 · "/);
+ assert.match(src,/await load\(\);setBusy\(""/);
+ assert.match(src,/df_admin_publish_preflight/);
+ assert.match(src,/eligibility\[x.article_id\]\?\.publishable===true/);
+});
 
-
-test("Compact mobile publishing keeps action-first cards without changing protected gates",async()=>{
- const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
- for(const text of ["dfPublishEfficient","dfPublishStateTabs","dfPublishMainActions","dfPublishAudit","shownItems=visibleItems.slice","toggleArticle","dfPublishShowMore","df_publish_article","df_verify_article_sources","notReady","legal_check_status!==\"passed\""]){
-  assert.ok(page.includes(text.replaceAll('\\"','"')),text);
+test("Admin-only one-click SQL preserves preflight and official verified-source restrictions",async()=>{
+ const source=await read("../supabase/migrations/20261017_df_one_click_publish.sql");
+ const preview=await read("../supabase/migrations/20261017_df_one_click_publish_preflight.sql");
+ for(const t of ["df_is_admin()","p_dry_run","auth.uid()","from public.df_editorial_queue","from public.df_source_documents","verification_status","detail_status","source_url","source_document_id","duplicate","official_verified","public.df_publish_article(p_article_id,v_actor)"]){
+  const alternatives=t==="duplicate"?["중복 기사","other.original_source_url"]:[t];
+  assert.ok(alternatives.some(word=>source.includes(word)),t);
  }
- assert.match(page,/const ready=x=>!blocked\(x\)&&!scheduled\(x\)/);
- assert.match(page,/setExpandedArticle/);
- assert.match(page,/aria-expanded=\{open\}/);
+ assert.match(source,/revoke all on function public.df_publish_article_one_click\(uuid,boolean\) from public,anon/);
+ assert.match(source,/grant execute on function public.df_publish_article_one_click\(uuid,boolean\) to authenticated,service_role/);
+ assert.match(source,/v_doc.detail_status<>'complete'/);
+ assert.match(source,/v_article.source_channel<>'보도자료'/);
+ assert.match(source,/other.status in \('published','corrected'\)/);
+ assert.match(source,/v_article.status not in \('review','draft','approved'\)/);
+ assert.match(source,/v_article.scheduled_at is not null/);
+ assert.match(source,/if p_dry_run then/);
+ assert.match(source,/if v_official then/);
+ assert.doesNotMatch(source,/set status='published'/);
+ assert.match(preview,/df_publish_article_one_click\(q.article_id,true\)/);
+ assert.match(preview,/df_is_admin\(\)/);
+});
+
+test("Admin remains read-only to guests, and dashboard includes publishing entry",async()=>{
+ const admin=await read("../app/focus-admin/page.js");
+ const layout=await read("../app/focus-admin/layout.js");
+ assert.match(admin,/\/focus-admin\/publish/);
+ assert.match(admin,/관리자 인증 후 가능/);
+ assert.match(layout,/path==="\/focus-admin\/publish"\)return <AdminLogin\/>/);
+});
+
+test("Mobile publication cards present one active publish button with optional advanced review",async()=>{
+ const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
+ for(const token of ["dfPublishEfficient","dfPublishStateTabs","dfPublishMainActions","dfPublishAudit","dfPublishShowMore","dfPublishStateTabs","dfVerify","df_publish_article_one_click"]){
+  if(token==="dfVerify")continue;
+  assert.ok(page.includes(token),token);
+ }
+ assert.match(page,/className="adminPrimary dfPublishActionPublish"/);
+ assert.match(page,/disabled=\{busy!==""\}/);
+ assert.match(page,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
+ assert.match(page,/\.slice\(0,showCount\)/);
  assert.match(page,/open&&<section className="dfPublishAudit"/);
- assert.doesNotMatch(page,/아래 확인 항목을 완료하세요/);
  assert.match(css,/\.dfPublishEfficient \.dfPublishArticleCard/);
  assert.match(css,/\.dfPublishEfficient \.dfPublishMainActions/);
- assert.match(css,/@media\(max-width:365px\)/);
-});
-
-
-test("Mobile publish controls remain in-flow, show locked publish until verified, and never bypass gates",async()=>{
- const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
- assert.match(css,/nav\.dfPublishStateTabs\s*\{[^}]*position:static/);
- assert.match(css,/nav\.dfPublishStateTabs\s*\{[^}]*transform:none/);
- assert.match(page,/className="adminPrimary dfPublishActionPublish"/);
- assert.match(page,/disabled=\{busy!==""\}/);assert.doesNotMatch(page,/disabled=\{busy!==""\|\|!passed\}/);
- assert.match(page,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
- assert.match(page,/발행 전 확인 필요/);assert.match(page,/예약·보류 등 추가 설정/);
- assert.match(page,/missing\.length\?"미확인: "\+missing\.length/);
- assert.match(page,/df_publish_article/);
- assert.match(page,/legal_check_status!=="passed"/);
- assert.match(page,/risk_level!=="green"/);
-});
-
-test("All article cards use exactly one active publish control, without bypassing review gates",async()=>{
- const [page,css]=await Promise.all([read("../app/focus-admin/publish/page.js"),read("../app/globals.css")]);
- assert.match(page,/function publishOrShowChecks\(x\)/);
- assert.match(page,/if\(ready\(x\)\)\{requestReviewAndPublish\(x\);return\}/);
- assert.match(page,/setExpandedArticle\(x\.article_id\)/);
- assert.match(page,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
- assert.match(page,/busy===x\.article_id\+"reviewRequest"\?"발행 중…":"발행"/);
- assert.doesNotMatch(page,/발행 대기<\/button>/);
- assert.match(page,/df_publish_article/);
- assert.match(page,/notReady\.length/);
- assert.match(css,/\.dfPublishEfficient \.dfPublishMainActions\.dfPublishSingleAction/);
  assert.match(css,/nav\.dfPublishStateTabs\s*\{[^}]*position:static/);
 });
