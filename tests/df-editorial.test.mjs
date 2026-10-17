@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const source=await readFile(new URL("../lib/df-editorial-format.js",import.meta.url),"utf8");
-const {parseEditorialBody,getEditorialOutline,safeOriginalUrl,decodeEditorialEntities}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+const {parseEditorialBody,getEditorialOutline,safeOriginalUrl,decodeEditorialEntities,isAnnexPresentationLabel}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
 
 test("Official headings and bullets display as structured paragraphs without dropped facts",()=>{
  const blocks=parseEditorialBody("■ 사업 개요\n실제 착공한 사업은 14곳이다.\n남은 사업은 11곳이다.\n\n① 사업일정\n② 공사비 검토\n\n※ 이 기사는 공식 자료를 기준으로 작성했다.");
@@ -76,4 +76,20 @@ test("Repeated CRLF and blank HTML extraction rows collapse to readable paragrap
  const raw="인천시가 47면을 개방했다.\r\n \r\n  \r\n\n연말까지 72면을 개방한다.\r\n\r\n2027년 8월 개통을 목표로 한다.";
  const blocks=parseEditorialBody(raw);
  assert.equal(blocks.map(x=>x.text).join(" | "),"인천시가 47면을 개방했다. | 연말까지 72면을 개방한다. | 2027년 8월 개통을 목표로 한다.");
+});
+
+
+test("Public article hides decorative 별첨 labels while preserving original document and annex facts",async()=>{
+ const original="광주시는 해당 사업의 추진 내용을 공개했다.\n\n※ 별첨 : 환영문\n\n실제 편입·제외 토지와 도면은 공식 공고문의 별첨을 기준으로 확인해야 합니다.\n\n1유형 : 출처표시 (상업적 이용 및 변경 가능)";
+ const blocks=parseEditorialBody(original);
+ assert.ok(blocks.some(x=>isAnnexPresentationLabel(x.text)));
+ const publicBlocks=blocks.filter(x=>!isAnnexPresentationLabel(x.text));
+ assert.ok(!publicBlocks.some(x=>/※\s*별첨\s*[:：]/.test(x.text)));
+ assert.ok(publicBlocks.some(x=>x.text.includes("실제 편입·제외 토지와 도면은")));
+ assert.ok(publicBlocks.some(x=>x.text.includes("1유형 : 출처표시")));
+ assert.ok(original.includes("※ 별첨 : 환영문"));
+ assert.equal(isAnnexPresentationLabel("별첨에 명시된 지형도면은 고시 내용을 확정하는 근거다."),false);
+ const renderer=await readFile(new URL("../components/df-official-article-text.js",import.meta.url),"utf8");
+ assert.match(renderer,/filter\(b=>!isAnnexPresentationLabel\(b.text\)\)/);
+ assert.doesNotMatch(renderer,/dangerouslySetInnerHTML/);
 });
