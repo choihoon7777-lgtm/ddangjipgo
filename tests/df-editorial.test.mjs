@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const source=await readFile(new URL("../lib/df-editorial-format.js",import.meta.url),"utf8");
-const {parseEditorialBody,getEditorialOutline,safeOriginalUrl}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+const {parseEditorialBody,getEditorialOutline,safeOriginalUrl,decodeEditorialEntities}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
 
 test("Official headings and bullets display as structured paragraphs without dropped facts",()=>{
  const blocks=parseEditorialBody("■ 사업 개요\n실제 착공한 사업은 14곳이다.\n남은 사업은 11곳이다.\n\n① 사업일정\n② 공사비 검토\n\n※ 이 기사는 공식 자료를 기준으로 작성했다.");
@@ -57,4 +57,23 @@ test("Public article renderer has no duplicated contents navigation and keeps re
  assert.match(component,/sections\.map\(\(b,i\)=>/);
  assert.match(component,/className="dfEditorialHeading"/);
  assert.match(component,/className="dfEditorialParagraph"/);
+});
+
+
+test("Official articles decode HTML quotes, symbols and encoded Hangul without interpreting HTML",()=>{
+ const raw="광주시는 &lsquo;도시개발&rsquo; 사업과 &#xC11C;&#50872;의 &middot; 주택 공급을 논의했다. &ldquo;수치 72면&rdquo; &amp; 추가 계획이다.";
+ const result=parseEditorialBody(raw).map(x=>x.text).join(" ");
+ assert.match(result,/‘도시개발’/);
+ assert.match(result,/서울/);
+ assert.match(result,/· 주택/);
+ assert.match(result,/“수치 72면” & 추가/);
+ assert.equal(decodeEditorialEntities("&lt;script&gt;alert(1)&lt;/script&gt;"),"<script>alert(1)</script>");
+ assert.equal(decodeEditorialEntities("&unknown; &badname;"),"&unknown; &badname;");
+ assert.equal(decodeEditorialEntities("&#0; &#xD800;"),"&#0; &#xD800;");
+});
+
+test("Repeated CRLF and blank HTML extraction rows collapse to readable paragraphs, retaining facts",()=>{
+ const raw="인천시가 47면을 개방했다.\r\n \r\n  \r\n\n연말까지 72면을 개방한다.\r\n\r\n2027년 8월 개통을 목표로 한다.";
+ const blocks=parseEditorialBody(raw);
+ assert.equal(blocks.map(x=>x.text).join(" | "),"인천시가 47면을 개방했다. | 연말까지 72면을 개방한다. | 2027년 8월 개통을 목표로 한다.");
 });
