@@ -1,5 +1,5 @@
 import test from "node:test";import assert from "node:assert/strict";import{readFile}from"node:fs/promises";const read=p=>readFile(new URL(p,import.meta.url),"utf8");
-test("Fallback boards are explicit vetted government endpoints",async()=>{const src=await read("../supabase/functions/df-public-update/index.ts");for(const url of ["https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","https://www.chungbuk.go.kr/www/selectGosiPblancList.do"])assert.ok(src.includes(url));assert.match(src,/isValidatedNoRelevantBoard/);assert.match(src,/datedDetails>=2/);assert.match(src,/officialLink\(base,a\[1\]\)/);});
+test("Fallback boards are explicit vetted government endpoints",async()=>{const src=await read("../supabase/functions/df-public-update/index.ts");for(const url of ["https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do"])assert.ok(src.includes(url));assert.match(src,/isValidatedNoRelevantBoard/);assert.match(src,/datedDetails>=2/);assert.match(src,/officialLink\(base,a\[1\]\)/);});
 test("Filtered official list cannot be mistaken for a source homepage or disable security",async()=>{const src=await read("../supabase/functions/df-public-update/index.ts");assert.match(src,/\.protocol==="https:"/);assert.match(src,/isValidatedNoRelevantBoard\(current.url,current.raw\)/);assert.match(src,/last_result:"failed"/);assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);});
 
 test("Official board preferred over homepage and failed board still retries original",async()=>{const s=await read("../supabase/functions/df-public-update/index.ts");assert.match(s,/const primary=source\.collector_kind==="local_auto"&&fallback\[source.name\]/);assert.match(s,/try\{current=await download\(alternate,11000\)\}/)});
@@ -31,11 +31,21 @@ test("Gyeonggi official newsroom parser strips session IDs and only uses dated f
 
 test("Chungbuk citynet and Gyeongbuk modern notice pages use dated official records",async()=>{
  const src=await read("../supabase/functions/df-public-update/index.ts");
- assert.match(src,/hostname==="sido\.chungbuk\.go\.kr"/);
+ assert.match(src,/"sido\.chungbuk\.go\.kr"/);
  assert.match(src,/hostname==="www\.gb\.go\.kr"/);
  assert.match(src,/url\.searchParams\.set\("sno",m\[1\]\)/);
  assert.match(src,/dateText=\/\^\\d\\d/);
  assert.match(src,/detail\.searchParams\.get\("BD_CODE"\)==="gosi_notice"/);
  assert.match(src,/hasAttachments:true/);
  assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);
+});
+
+test("MOLIT fallback uses attributed first-party Korean government press releases",async()=>{
+ const s=await read("../supabase/functions/df-public-update/index.ts");
+ assert.match(s,/https:\/\/www\.korea\.kr\/briefing\/pressReleaseList\.do/);
+ assert.match(s,/hostname==="www\.korea\.kr"/);
+ assert.match(s,/국토교통부/);
+ assert.match(s,/hasAttachments:true/);
+ assert.match(s,/usedFeedBody/);
+ assert.match(s,/!usedFeedBody&&!hasAttachment/);
 });
