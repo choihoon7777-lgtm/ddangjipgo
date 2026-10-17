@@ -3,7 +3,6 @@ import{Suspense,useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/df-shell";
 import OfficialArticleText from "../../../components/df-official-article-text";
-import{articleSummary}from"../../../lib/df-article-summary";
 import{decodeEditorialEntities}from"../../../lib/df-editorial-format";
 import{guestIsSaved,guestToggleSaved,guestRecordRecent}from"../../../lib/df-guest-trial";
 
@@ -16,7 +15,7 @@ function ArticleInner(){
  const[a,setA]=useState(null),[history,setHistory]=useState([]),[loading,setLoading]=useState(true),[saved,setSaved]=useState(false),[user,setUser]=useState(null),[saveMsg,setSaveMsg]=useState(""),[saveBusy,setSaveBusy]=useState(false),[shareMsg,setShareMsg]=useState("");
  useEffect(()=>{const id=new URLSearchParams(location.search).get("id");if(!id){setLoading(false);return}(async()=>{
    const[{data},{data:hist},{data:{user:u}}]=await Promise.all([
-    dfSupabase.from("df_articles").select("id,title,subtitle,summary_3line,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at,hero_image_url,body_image_urls").eq("id",id).in("status",["published","corrected"]).single(),
+    dfSupabase.from("df_articles").select("id,title,subtitle,body,category,region_code,published_at,updated_at,risk_level,status,source_channel,original_source_url,original_source_label,original_source_published_at,hero_image_url,body_image_urls").eq("id",id).in("status",["published","corrected"]).single(),
     dfSupabase.rpc("df_public_article_history",{p_article_id:id}),
     dfSupabase.auth.getUser()
    ]);
@@ -58,7 +57,6 @@ function ArticleInner(){
  const body=useMemo(()=>normalizeBody(a?.body),[a]);
  if(loading)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>;
  if(!a)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState"><b>공개된 기사를 찾을 수 없습니다.</b><a href="/focus">메인으로 돌아가기 →</a></div></main>;
- const digest=articleSummary(a.summary_3line,{title:a.title});
  const isBlog=a.source_channel==="investgo";
  const ownedImage=u=>typeof u==="string"&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(u);
  const gallery=isBlog&&Array.isArray(a.body_image_urls)?a.body_image_urls.filter(u=>ownedImage(u)&&u!==a.hero_image_url).slice(0,9):[];
@@ -73,7 +71,6 @@ function ArticleInner(){
    <p className="dfTime">발행 {new Date(a.original_source_published_at||a.published_at).toLocaleString("ko-KR",{timeZone:"Asia/Seoul"})}{modified&&<> · <b>수정 {new Date(a.updated_at).toLocaleString("ko-KR")}</b></>}</p>
    <div className="dfArticleActions"><button disabled={saveBusy} aria-pressed={saved} onClick={toggleSave}>{saveBusy?"처리 중…":saved?"★ 저장됨":"☆ 기사 저장"}</button><button onClick={shareArticle}>공유</button><a href={"/focus/correction?id="+a.id}>정정 요청</a></div>
    {(saveMsg||shareMsg)&&<p className="dfArticleActionMsg">{saveMsg||shareMsg}</p>}
-   {digest&&<section className="dfKeySummary dfUnifiedSummary" aria-label="핵심 요약"><small>핵심 요약</small><p className="dfUnifiedSummaryText">{digest}</p></section>}
    {isBlog&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(a.hero_image_url||"")&&<figure className="dfInvestgoArticleFigure"><img className="dfInvestgoArticleImage" src={a.hero_image_url} alt={a.title+" 관련 이미지"} decoding="async" loading="eager" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>기사 관련 이미지</figcaption></figure>}
    {body?<section className="dfOfficialNewsFullText dfUnifiedArticleText"><h2>기사 본문</h2><OfficialArticleText content={body} kind={isBlog?"insight":"article"}/></section>:<p className="dfOfficialEmpty">기사 본문이 준비되지 않았습니다.</p>}
    {gallery.length>0&&<section className="dfInvestgoArticleGallery" aria-label="네이버 원본 기사 추가 이미지"><h2>기사 관련 사진</h2>{gallery.map((src,i)=><figure key={src}><img src={src} alt={a.title+" 관련 원본 사진 "+(i+2)} decoding="async" loading="lazy" onError={e=>{e.currentTarget.parentElement.style.display="none"}}/><figcaption>네이버 투자GO 원본 사진 {i+2}</figcaption></figure>)}</section>}
