@@ -5,7 +5,7 @@ const SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (()=>{try{return JSO
 const db = createClient(SUPABASE_ENDPOINT, SECRET, {auth:{persistSession:false,autoRefreshToken:false}});
 const terms=["도시계획","도시관리","지구단위","도시개발","개발계획","개발사업","재개발","재건축","정비구역","정비계획","산업단지","산단","주택","건축","토지","지형도면","도로","건설","반도체","철도","GTX","광역급행","교통망","신도시","공원","하천","하수도","용도지역","용도구역","공공주택","역세권","특구","연구개발특구","인구감소지역","글로벌 AI 허브","혁신연구소","지역균형발전","첨단산업","혁신도시","국가산단","지적재조사","입법예고","조례","규칙"];
 const excludes=["채용","인사발령","공시송달","담배소매","과태료","입찰결과","수의계약","물품구매","안전점검 수행기관","평가 결과 상위 업체","도로점용","입찰","선정위원","등록말소"];
-const fallback:Record<string,string>={"국토교통부":"https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","충청북도 고시·공고":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","부산광역시 고시·공고":"https://sido.busan.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y"};
+const fallback:Record<string,string>={"국토교통부":"https://www.korea.kr/briefing/pressReleaseList.do","경기도 자동수집":"https://gnews.gg.go.kr/briefing/brief_gongbo.do?BS_CODE=s017&page=1&subject_Code=BO01","과학기술정보통신부":"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&bbsSeqNo=94","행정안전부":"https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008","세종특별자치시 자동수집":"https://www.sejong.go.kr/prog/publicNotice/kor/sub02_030301/C1_1/list.do","경상북도 자동수집":"https://www.gb.go.kr/Main/open_contents/section/ftc/page.do?mnu_uid=6789","대구광역시 자동수집":"https://info.daegu.go.kr/newshome/mtnmain.php?mtnkey=todaylist","광주광역시 자동수집":"https://www.gwangju.go.kr/boardList.do?boardId=BD_0000000027&pageId=www789","충청남도 자동수집":"https://www.chungnam.go.kr/cnportal/cnapcPressList/cnapcPress/list.do?menuNo=500498","인천광역시 자동수집":"https://www.incheon.go.kr/mayor_9/MA05010000","충청북도 자동수집":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","충청북도 고시·공고":"https://sido.chungbuk.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y","부산광역시 고시·공고":"https://sido.busan.go.kr/citynet/jsp/sap/SAPGosiBizProcess.do?command=searchList&flag=gosiGL&svp=Y"};
 const relevant=(s:string)=>terms.some(k=>s.includes(k))&&!excludes.some(k=>s.includes(k));
 const entities=(s:string)=>s.replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=(html:string)=>entities(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<br\b[^>]*>/gi,"\n").replace(/<\/(?:p|div|article|section|li|tr|h[1-6])>/gi,"\n").replace(/<[^>]*>/g," ").replace(/[ \t\u00a0]+/g," ").replace(/\n{3,}/g,"\n\n")).trim();
@@ -17,7 +17,7 @@ const cors=(req:Request)=>{
  return {"Access-Control-Allow-Origin":ok?o:"null","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"content-type,apikey,x-client-info","Vary":"Origin","Cache-Control":"no-store"};
 };
 const respond=(req:Request,status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers:{...cors(req),"Content-Type":"application/json; charset=utf-8"}});
-const allowed=(u:URL)=>u.protocol==="https:"&&!u.username&&!u.password&&!u.port&&/\.go\.kr$/.test(u.hostname);
+const allowed=(u:URL)=>u.protocol==="https:"&&!u.username&&!u.password&&!u.port&&(/\.go\.kr$/.test(u.hostname)||u.hostname==="www.korea.kr");
 async function download(value:string,timeout=12000){
  let u=new URL(value);
  for(let i=0;i<4;i++){
@@ -90,6 +90,30 @@ function discover(base:string,raw:string):Item[]{
 
 
 
+
+
+ // Government Policy Briefing republishes ministry releases. Accept only the
+ // explicitly credited Ministry of Land, Infrastructure and Transport.
+ // This source frequently embeds its release PDF as an iframe, so snippets
+ // are always held for attachment/full-text review, never directly approved.
+ if(new URL(base).hostname==="www.korea.kr"&&new URL(base).pathname==="/briefing/pressReleaseList.do"){
+  const section=raw.slice(Math.max(0,raw.indexOf('class="list_type"')));
+  for(const m of section.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)){
+   const block=m[1];
+   if(!/<span\b[^>]*class=["']source["'][^>]*>[\s\S]*?<span>\s*국토교통부\s*<\/span>/i.test(block))continue;
+   const a=block.match(/<a\b[^>]*href=["']([^"']*\/briefing\/pressReleaseView\.do\?newsId=\d+[^"']*)["']/i);
+   const titleHtml=block.match(/<strong[^>]*>([\s\S]*?)<\/strong>/i)?.[1]||"";
+   const date=block.match(/<span\b[^>]*class=["']source["'][^>]*>\s*<span>\s*(20\d{2}[./-]\d{1,2}[./-]\d{1,2})/i);
+   if(!a||!date)continue;
+   const title=text(titleHtml),published=parseDate(date[1]),link=officialLink(base,a[1]);
+   if(!relevant(title)||title.length<9||!published||!link||seen.has(link))continue;
+   const lead=block.match(/<span\b[^>]*class=["']lead["'][^>]*>([\s\S]*?)<\/span>/i)?.[1]||"";
+   const officialBody=text(lead).slice(0,6000);
+   seen.add(link);out.push({title,link,published,snippet:officialBody.slice(0,700),officialBody,hasAttachments:true});
+   if(out.length>=8)break;
+  }
+  return out;
+ }
 
  // Chungbuk: the provincial Citynet board uses dated <tr onclick=viewData>.
  // Only source-labelled, dated rows become candidates; files remain review-gated.
@@ -506,6 +530,7 @@ async function runBatch(batch:number){
     (current.url.includes("gwangju.go.kr/boardList.do")&&current.raw.includes("board_list_body")&&current.raw.includes("작성일"))||
     (current.url.includes("gb.go.kr/page/link.do")&&current.raw.includes("boardList.view(")&&current.raw.includes("등록일"))||
     (current.url.includes("/SAPGosiBizProcess.do")&&current.raw.includes("toolBoardList")&&current.raw.includes("게재일자"))||
+    (current.url.includes("korea.kr/briefing/pressReleaseList.do")&&current.raw.includes("pressReleaseView.do")&&current.raw.includes("class=\"source\""))||
     (current.url.includes("gb.go.kr/Main/open_contents/section/ftc/page.do")&&current.raw.includes("BD_CODE=gosi_notice")&&current.raw.includes("b_date"))||
     (source.name==="대구광역시 고시·공고"&&current.raw.includes("fn_goLinkView(")&&current.raw.includes("00940170"))||
     (source.name==="인천광역시 고시·공고"&&current.raw.includes("/IC010307/view")&&current.raw.includes("2026-"));
