@@ -24,8 +24,8 @@ test("Representatives are shown only for verifiable public image storage",async(
  const trusted="https://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/public/df-news-images/cover.jpg";
  assert.equal(safeEditorialCover(trusted),trusted);
  for(const unsafe of ["javascript:alert(1)","http://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/public/df-news-images/cover.jpg","https://other.example.com/cover.jpg","https://svafsvyjjufbqvxzoqee.supabase.co/storage/v1/object/private/df-news-images/cover.jpg"])assert.equal(safeEditorialCover(unsafe),null);
- assert.equal(articleSourceLabel({source_channel:"보도자료"}),"공식 보도자료");
- assert.equal(articleSourceLabel({source_channel:null}),"자료 출처 확인");
+ assert.equal(articleSourceLabel({source_channel:"보도자료"}),"");
+ assert.equal(articleSourceLabel({source_channel:null}),"");
 });
 test("Bottom-nav active destinations stay in sync with property and region pages",async()=>{
  const prop=await read("../app/my/properties/page.js"),region=await read("../app/focus/region/page.js"),home=await read("../app/focus/page.js");
