@@ -49,3 +49,18 @@ test("MOLIT fallback uses attributed first-party Korean government press release
  assert.match(s,/usedFeedBody/);
  assert.match(s,/!usedFeedBody&&!hasAttachment/);
 });
+
+test("Official board TLS fallback only reads fresh first-party cached pages",async()=>{
+ const src=await read("../supabase/functions/df-public-update/index.ts");
+ const sql=await read("../supabase/migrations/20261017_df_official_verified_http_cache.sql");
+ for(const x of ['"sido.busan.go.kr"','"sido.chungbuk.go.kr"','"www.gb.go.kr"','"ulsan.go.kr"','df_official_feed_cache','directDownload(value,timeout)'])assert.ok(src.includes(x),x);
+ assert.match(src,/80\*60\*1000/);
+ assert.match(src,/\.eq\("url",url\.href\)/);
+ assert.match(src,/!allowed\(url\)/);
+ assert.match(sql,/enable row level security/);
+ assert.match(sql,/revoke all.*anon,authenticated/i);
+ assert.match(sql,/net\._http_response/);
+ assert.match(sql,/df-official-feed-cache-fetch/);
+ assert.match(sql,/df-official-feed-cache-store/);
+ assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);
+});
