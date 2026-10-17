@@ -29,10 +29,13 @@ test("Every article publish button invokes actual server workflow, not checklist
  assert.match(src,/requestReviewAndPublish\(x\)/);
  assert.doesNotMatch(src,/if\(ready\(x\)\)\{requestReviewAndPublish\(x\);return\}/);
  assert.match(src,/onClick=\{\(\)=>publishOrShowChecks\(x\)\}/);
- assert.match(src,/busy===x.article_id\+"reviewRequest"\?"발행 중…":"발행"/);
+ assert.match(src,/busy===x.article_id\+"reviewRequest"\?"발행 중…":passed\?"발행":"확인 필요 · 사유 보기"/);
  assert.match(src,/setMsg\("발행 보류 · "/);
  assert.match(src,/await load\(\);setBusy\(""/);
  assert.match(src,/df_admin_publish_preflight/);
+ assert.match(src,/if\(!ready\(x\)\)\{setExpandedArticle\(x.article_id\)/);
+ assert.match(src,/window.location.assign\("\/focus\/article\?id="\+encodeURIComponent\(live.id\)\)/);
+
  assert.match(src,/eligibility\[x.article_id\]\?\.publishable===true/);
 });
 
