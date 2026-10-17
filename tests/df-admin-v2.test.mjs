@@ -12,10 +12,10 @@ test("Admin dashboard separates today's published articles from cumulative and k
 });
 test("Editorial review shows blockers but never bypasses protected publication gates",async()=>{
  const s=await read("../app/focus-admin/publish/page.js");
- for(const x of ["queueFilter","visibleItems","legalWait","blocked","체크","df_publish_article","legal_check_status","미확인:"]){if(x!=="체크")assert.ok(s.includes(x),x)}
+ for(const x of ["queueFilter","visibleItems","legalWait","blocked","df_publish_article_one_click","df_admin_publish_preflight","legal_check_status","미확인:"])assert.ok(s.includes(x),x);
  assert.match(s,/x\.legal_check_status==="passed"/);
- assert.match(s,/p_actor:user.id/);
- assert.match(s,/notReady/);
+ assert.match(s,/p_article_id:x.article_id,p_dry_run:false/);
+ assert.match(s,/result\?\.published/);
  assert.doesNotMatch(s,/\.update\(\{legal_check_status:"passed",fact_check_passed:true/);
 });
 test("Source status can show failures only without altering official data",async()=>{
