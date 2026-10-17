@@ -35,7 +35,7 @@ test("Chungbuk citynet and Gyeongbuk modern notice pages use dated official reco
  assert.match(src,/hostname==="www\.gb\.go\.kr"/);
  assert.match(src,/url\.searchParams\.set\("sno",m\[1\]\)/);
  assert.match(src,/dateText=\/\^\\d\\d/);
- assert.match(src,/detail\.searchParams\.get\("BD_CODE"\)==="gosi_notice"/);
+ assert.match(src,/detail\.searchParams\.get\("BD_CODE"\)!=="gosi_notice"/);
  assert.match(src,/hasAttachments:true/);
  assert.doesNotMatch(src,/rejectUnauthorized\s*:\s*false/);
 });
