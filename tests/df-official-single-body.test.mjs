@@ -30,7 +30,7 @@ test("Existing official articles shed only factory-added duplicate introduction,
 
 test("Reader retains concise summary and a single body section for non-blog official news", async()=>{
  const reader=await read("../app/focus/article/article-client.js");
- assert.match(reader,/dfKeySummary/);
+ assert.doesNotMatch(reader,/dfKeySummary|핵심 요약/);
  assert.match(reader,/dfOfficialNewsFullText/);
  assert.match(reader,/기사 본문/);
  assert.match(reader,/OfficialArticleText content=\{body\}/);
