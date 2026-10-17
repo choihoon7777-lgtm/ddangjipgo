@@ -33,20 +33,18 @@ test("Boilerplate, copied article title and exact repeated points do not display
  assert.equal(articleSummary(null,{title:"조례 변경"}),"");
 });
 
-test("All newsroom channels share title, short digest and exactly one full article body",async()=>{
+test("All article types show the title and full body, never an extra core-summary card",async()=>{
  const ui=await read("../app/focus/article/article-client.js");
  const css=await read("../app/globals.css");
- assert.match(ui,/articleSummary\(a.summary_3line,\{title:a.title\}\)/);
- assert.match(ui,/dfKeySummary dfUnifiedSummary/);
- assert.match(ui,/dfUnifiedSummaryText/);
+ assert.doesNotMatch(ui,/articleSummary\(|dfKeySummary|dfUnifiedSummary|dfUnifiedSummaryText|핵심 요약|summary_3line/);
  assert.match(ui,/<h2>기사 본문<\/h2>/);
  assert.equal((ui.match(/OfficialArticleText content=\{body\}/g)||[]).length,1);
  assert.doesNotMatch(ui,/dfNewsLead|dfInsightDateNotice|전문 분석|\b01<\/b>/);
  assert.match(ui,/dfInvestgoArticleFigure/);
  assert.match(ui,/dfInvestgoArticleGallery/);
  assert.match(ui,/a.original_source_published_at\|\|a.published_at/);
- assert.match(css,/\.dfNewsArticle \.dfUnifiedSummary/);
- assert.match(css,/-webkit-line-clamp:3/);
+ assert.match(css,/\.dfNewsArticle \.dfOfficialNewsFullText/);
+ assert.doesNotMatch(css,/\.dfNewsArticle \.dfUnifiedSummary/);
 });
 
 test("Previously deduplicated official full source is retained and no second factory key block is reintroduced",async()=>{
