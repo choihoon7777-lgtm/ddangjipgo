@@ -9,6 +9,7 @@ const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조
 const channelLabel=x=>x==="고시공고"?"고시·공고":x==="조례규칙"?"조례·규칙":x||"공식자료";
 const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
 const factEntries=x=>x&&typeof x==="object"?Object.entries(x).filter(([,v])=>v!==null&&v!==undefined&&String(v).trim()):[];
+const cardFacts=x=>factEntries(x).filter(([k])=>!/(첨부|파일)/.test(k)).slice(0,3);
 export default function Policy(){
  const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0),[backRegion,setBackRegion]=useState(null),[visibleCount,setVisibleCount]=useState(20);
  useEffect(()=>{
@@ -44,6 +45,7 @@ export default function Policy(){
     <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
     <section className="dfPolicySummaryCard">
      <div className="dfPolicyMeta"><span>{channelLabel(detail.channel)}</span>{detail.version_count>1&&<b>내용 변경</b>}</div>
+     <small className="dfPolicyFormLabel">공식자료 핵심정리</small>
      <h1>{detail.title}</h1>
      <div className="dfPolicyByline"><b>{detail.source_name||"공식기관"}</b><span>{dateKey(detail.published_at||detail.fetched_at)}</span></div>
     </section>
@@ -52,9 +54,7 @@ export default function Policy(){
      <small>핵심 내용</small>
      <h2>이 문서에서 확인할 내용</h2>
      <div className="dfPolicyKeySentences">
-      {detail.key_extract_status==="ready"&&detail.key_content
-       ?String(detail.key_content).split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>)
-       :<p>공식 상세 본문에서 핵심 내용을 확인 중입니다. 제목과 기관 정보만으로 내용을 임의 해석하지 않습니다.</p>}
+      {String(detail.key_content||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>)}
      </div>
     </section>
 
@@ -72,7 +72,7 @@ export default function Policy(){
 
     <section className="dfPolicyOfficialCta">
      <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><p>개발포커스에서는 핵심 내용을 먼저 확인하고, 전체 문서와 세부 조항은 공식 사이트에서 확인할 수 있습니다.</p></div>
-     {detail.official_url&&<a href={detail.official_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
+     {(detail.official_url||detail.source_url)&&<a href={detail.official_url||detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
     </section>
    </article><DFBottomNav active="policy"/></main>
  }
@@ -82,11 +82,12 @@ export default function Policy(){
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=><a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
+  <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=>{const facts=cardFacts(x.key_facts);return <a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
    <div className="dfPolicyRowMeta"><span>{channelLabel(x.channel)}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>변경</b>}</div>
    <h3>{x.title}</h3>
-   {x.key_extract_status==="ready"&&x.key_content?<div className="dfPolicyKeyPreview">{x.key_content}</div>:<div className="dfPolicyKeyPreview muted">핵심 내용 확인 중</div>}
-   <div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>내용 보기</span></div>
-  </a>)}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}{!loading&&items.length>visibleCount&&<div className="dfPolicyMore"><button type="button" onClick={()=>setVisibleCount(n=>n+20)}>이전 자료 더 보기 ({Math.min(items.length-visibleCount,20)}건)</button></div>}</section>
+   <div className="dfPolicyKeyPreview">{x.key_content}</div>
+   {!!facts.length&&<div className="dfPolicyCardFacts">{facts.map(([k,v])=><span key={k}><b>{k}</b>{String(v)}</span>)}</div>}
+   <div className="dfPolicyRowFoot"><p>{x.topic_code||"기타"} · {dateKey(x.published_at||x.fetched_at)}</p><span>핵심 내용 보기 ›</span></div>
+  </a>})}</div></section>):<div className="focusEmpty"><b>선택한 조건의 개발정책이 없습니다.</b><span>새 공식자료가 확인되면 자동으로 누적됩니다.</span></div>}{!loading&&items.length>visibleCount&&<div className="dfPolicyMore"><button type="button" onClick={()=>setVisibleCount(n=>n+20)}>이전 자료 더 보기 ({Math.min(items.length-visibleCount,20)}건)</button></div>}</section>
   <DFBottomNav active="policy"/></main>
 }
