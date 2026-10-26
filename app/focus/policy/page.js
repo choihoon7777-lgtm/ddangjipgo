@@ -72,7 +72,7 @@ export default function Policy(){
 
     <section className="dfPolicyOfficialCta">
      <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><p>개발포커스에서는 핵심 내용을 먼저 확인하고, 전체 문서와 세부 조항은 공식 사이트에서 확인할 수 있습니다.</p></div>
-     {(detail.official_url||detail.source_url)&&<a href={detail.official_url||detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
+     {detail.official_url&&<a href={detail.official_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
     </section>
    </article><DFBottomNav active="policy"/></main>
  }
