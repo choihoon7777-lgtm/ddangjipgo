@@ -1523,3 +1523,44 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
 .dfInvestgoArticleGallery figure{margin:0;max-width:100%;width:100%;min-width:0;text-align:center}
 .dfInvestgoArticleGallery img{display:block;width:100%;max-height:540px;object-fit:contain;border-radius:12px;background:#f4f6f8}
 .dfInvestgoArticleGallery figcaption{font-size:11px;color:#75879a;line-height:1.6;margin-top:7px}
+
+/* Development Policy: official-source key reader */
+.dfPolicyReader{max-width:760px;margin:0 auto;padding:18px 14px 110px}
+.dfPolicyReader .dfPolicySummaryCard{padding:20px 0 18px;border-bottom:1px solid #e5ebef}
+.dfPolicyReader .dfPolicySummaryCard h1{margin:10px 0 12px;font-size:27px;line-height:1.35;letter-spacing:-.045em;color:#142f46;word-break:keep-all}
+.dfPolicyByline{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:11px;color:#708191}
+.dfPolicyByline b{color:#36566f}.dfPolicyByline span:before{content:"·";margin-right:9px;color:#b1bcc5}
+.dfPolicyReaderSection{margin-top:18px;padding:18px;border:1px solid #e0e7ec;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(19,48,72,.035)}
+.dfPolicyReaderSection>small,.dfPolicyOfficialCta small{display:block;margin-bottom:4px;font-size:9px;font-weight:850;letter-spacing:.08em;color:#a66f37}
+.dfPolicyReaderSection h2{margin:0 0 13px;font-size:18px;line-height:1.35;letter-spacing:-.03em;color:#19384f}
+.dfPolicyLead{border-color:#d9e5ec;background:#fbfcfd}
+.dfPolicyKeySentences{display:flex;flex-direction:column;gap:10px}
+.dfPolicyKeySentences p{margin:0;font-size:14px;line-height:1.8;color:#263d51;word-break:keep-all}
+.dfPolicyFactsCard dl{margin:0;border-top:1px solid #edf1f4}
+.dfPolicyFactsCard dl>div{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid #edf1f4}
+.dfPolicyFactsCard dt{font-size:11px;font-weight:800;color:#738392}
+.dfPolicyFactsCard dd{margin:0;font-size:12px;line-height:1.55;color:#213a50;word-break:keep-all}
+.dfPolicyAttachmentCard>div{display:flex;flex-direction:column;gap:8px}
+.dfPolicyAttachmentCard a{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 13px;border-radius:11px;background:#f6f8fa;border:1px solid #e2e8ed}
+.dfPolicyAttachmentCard a b{min-width:0;font-size:11px;line-height:1.45;color:#26465e;word-break:keep-all}
+.dfPolicyAttachmentCard a span{flex-shrink:0;font-size:9px;color:#8a6745}
+.dfPolicyOfficialCta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-top:20px;padding:19px;border-radius:16px;background:#173b58;color:#fff}
+.dfPolicyOfficialCta b{display:block;font-size:14px;margin-bottom:4px}.dfPolicyOfficialCta p{margin:0;font-size:10px;line-height:1.65;color:#d4e0e9}
+.dfPolicyOfficialCta a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 14px;border-radius:10px;background:#fff;color:#173b58;font-size:11px;font-weight:850;white-space:nowrap}
+.dfPolicyReaderRow{display:block;padding:17px 0!important}
+.dfPolicyReaderRow .dfPolicyRowMeta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dfPolicyReaderRow .dfPolicyRowMeta em{font-style:normal;font-size:9px;color:#778896}
+.dfPolicyReaderRow h3{margin:8px 0 0;font-size:16px;line-height:1.45;letter-spacing:-.025em;word-break:keep-all}
+.dfPolicyReaderRow .dfPolicyKeyPreview{margin:9px 0 11px;font-size:11px;line-height:1.7;color:#506476;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dfPolicyReaderRow .dfPolicyKeyPreview.muted{color:#9aa7b2}
+.dfPolicyReaderRow .dfPolicyRowFoot{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.dfPolicyReaderRow .dfPolicyRowFoot p{margin:0;font-size:9px;color:#81909c}.dfPolicyReaderRow .dfPolicyRowFoot span{font-size:9px;font-weight:800;color:#9a6a37}
+@media(max-width:560px){
+ .dfPolicyReader{padding-inline:12px}
+ .dfPolicyReader .dfPolicySummaryCard h1{font-size:23px}
+ .dfPolicyReaderSection{padding:16px 14px;border-radius:14px}
+ .dfPolicyOfficialCta{grid-template-columns:1fr;gap:13px;padding:16px 14px}
+ .dfPolicyOfficialCta a{width:100%}
+ .dfPolicyFactsCard dl>div{grid-template-columns:82px 1fr}
+ .dfPolicyAttachmentCard a{align-items:flex-start;flex-direction:column}
+}
