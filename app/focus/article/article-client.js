@@ -103,13 +103,13 @@ function ArticleInner(){
  }
  const body=useMemo(()=>normalizeBody(a?.body),[a]);
  const readingMinutes=Math.max(1,Math.ceil(body.replace(/\s/g,"").length/550));
- if(loading)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>;
- if(!a)return <main className="focusShell dfHigh"><DFBrandHeader/><div className="dfArticleState"><b>공개된 기사를 찾을 수 없습니다.</b><a href="/focus">메인으로 돌아가기 →</a></div></main>;
+ if(loading)return <main className="focusShell dfHigh dfEditorialArticlePage"><DFBrandHeader/><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>;
+ if(!a)return <main className="focusShell dfHigh dfEditorialArticlePage"><DFBrandHeader/><div className="dfArticleState"><b>공개된 기사를 찾을 수 없습니다.</b><a href="/focus">메인으로 돌아가기 →</a></div></main>;
  const isBlog=a.source_channel==="investgo";
  const ownedImage=u=>typeof u==="string"&&/^https:\/\/svafsvyjjufbqvxzoqee\.supabase\.co\/storage\/v1\/object\/public\/df-investgo-images\//.test(u);
  const gallery=isBlog&&Array.isArray(a.body_image_urls)?a.body_image_urls.filter(u=>ownedImage(u)&&u!==a.hero_image_url).slice(0,9):[];
  const modified=!isBlog&&a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
- return <main className="focusShell dfHigh">
+ return <main className="focusShell dfHigh dfEditorialArticlePage">
   <DFBrandHeader/>
   <div className="dfReadingProgress" role="progressbar" aria-label="기사 읽기 진행률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readingProgress}><span style={{width:readingProgress+"%"}}/></div>
   {archiveUsed&&<p className="dfReaderStatus" role="status"><span className="dfStatusDot" aria-hidden="true"></span> 발행 기사 저장본 표시 중 · 이후 수정사항은 반영되지 않을 수 있습니다.</p>}
@@ -142,4 +142,4 @@ function ArticleInner(){
   </article><DFBottomNav active="news"/>
  </main>
 }
-export default function ArticleClient(){return <Suspense fallback={<main className="focusShell dfHigh"><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>}><ArticleInner/></Suspense>}
+export default function ArticleClient(){return <Suspense fallback={<main className="focusShell dfHigh dfEditorialArticlePage"><div className="dfArticleState">기사를 불러오는 중입니다.</div></main>}><ArticleInner/></Suspense>}
