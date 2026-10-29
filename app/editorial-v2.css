@@ -933,3 +933,10 @@
 @media(prefers-reduced-motion:reduce){
  .focusShell .focusTabs,.focusShell * {scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}
 }
+
+/* Keep the active indicator anchored to its own navigation item. */
+.focusShell .dfPremiumBottom>a {position:relative!important}
+/* Avoid unexpected snap movement when changing tab with VoiceOver or reduced motion. */
+@media(prefers-reduced-motion:reduce){
+ .focusShell .focusHeaderWrap .focusTabs{scroll-snap-type:none!important}
+}
