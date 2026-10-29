@@ -66,11 +66,11 @@ export default function Policy(){
   const facts=factEntries(detail.key_facts);
   return <main className="focusShell dfHigh"><DFBrandHeader/>
    <article className="dfPolicyDetail dfPolicyReader">
-    {snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>저장된 공식자료를 표시합니다</b><p>현재 실시간 자료 조회가 제한되어 있습니다. 마지막 원문 수집 확인: {dateKey(policySnapshot.last_source_fetched_at)}. 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
+    {snapshotMode&&<div className="dfPolicySnapshotNotice dfEditorialPolicyNotice" role="status"><b>마지막 확인 자료</b><p>수집 기준 {dateKey(policySnapshot.last_source_fetched_at)} · 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
     <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
     <section className="dfPolicySummaryCard">
      <div className="dfPolicyMeta"><span>{channelLabel(detail.channel)}</span>{detail.version_count>1&&<b>원문 갱신 이력</b>}</div>
-     <small className="dfPolicyFormLabel">OFFICIAL DEVELOPMENT INTELLIGENCE · 도시맥</small>
+     <small className="dfPolicyFormLabel">DOSIMAEK / OFFICIAL DOCUMENT</small>
      <h1>{detail.title}</h1>
      <div className="dfPolicyByline"><b>{detail.source_name||"공식기관"}</b><span>{dateKey(detail.published_at||detail.fetched_at)}</span></div>
     </section>
@@ -82,8 +82,8 @@ export default function Policy(){
     </section>}
 
     <section className="dfPolicyReaderSection dfPolicyLead">
-     <small>공식자료에서 확인된 문장</small>
-     <h2>고시 핵심 내용</h2>
+     <small>DOCUMENT HIGHLIGHTS</small>
+     <h2>문서 핵심 내용</h2>
      <div className="dfPolicyKeySentences">
       {keyLines(detail.key_content).map((x,i)=><p key={i}>{x}</p>)}
      </div>
@@ -98,12 +98,12 @@ export default function Policy(){
    </article><DFBottomNav active="policy"/></main>
  }
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>도시맥 · 개발 인텔리전스</small><h1>정책·고시 판단실</h1><p>어디가, 무엇이, 얼마나 바뀌었는지. 공식자료에서 확인된 사실과 추가 확인사항을 한 화면에 정리합니다.</p><div><b>핵심 정보 먼저</b><span>사업정보 → 핵심 내용 → 첨부자료</span></div></section>
-  <section className="dfPolicyFilters">
-   <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
-   <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
+  <section className="dfPolicyHero dfEditorialPolicyHero"><small>OFFICIAL DOCUMENTS / POLICY</small><h1>정책·고시</h1><p>정부·지자체의 고시와 보도자료에서 확인한 사업정보와 핵심 문장을 모았습니다.</p><div><b>문서별 확인</b><span>사업정보 · 핵심 내용 · 첨부자료</span></div></section>
+  <section className="dfPolicyFilters dfEditorialPolicyFilters" aria-label="정책·고시 필터">
+   <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} aria-current={channel===x?"page":undefined} href={href(x,topic)}>{x}</a>)}</div></div>
+   <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} aria-current={topic===x?"page":undefined} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>공식자료 저장본 {items.length}건 표시 중</b><p>실시간 조회가 제한되어 마지막으로 확인된 자료를 표시합니다. 원문 수집 기준: {dateKey(policySnapshot.last_source_fetched_at)}. 최신 발표·변경사항은 공식 기관에서 재확인해 주세요.</p></div>}{!snapshotMode&&!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=>{const facts=cardFacts(x.key_facts);return <a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
+  <section className="dfPolicyFeed dfEditorialPolicyFeed"><div className="dfEditorialPolicyOverview"><b>{loading?"자료 확인 중":`${items.length}건의 문서`}</b><span>확인된 발행일 기준</span></div>{snapshotMode&&<div className="dfPolicySnapshotNotice dfEditorialPolicyNotice" role="status"><b>마지막 확인 자료</b><p>수집 기준 {dateKey(policySnapshot.last_source_fetched_at)} · 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}{!snapshotMode&&!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>정책·고시 자료를 불러오고 있습니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=>{const facts=cardFacts(x.key_facts);return <a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
    <div className="dfPolicyRowMeta"><span>{channelLabel(x.channel)}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>원문 갱신</b>}</div>
    <h3>{x.title}</h3>
    <div className="dfDecisionCardLabel">{explicitChange(x.key_facts)?"변경 내용 확인":"공식자료 핵심"} <span>· {cardFacts(x.key_facts).length?"기본정보 추출":"세부 수치 대조 필요"}</span></div>
