@@ -4,6 +4,7 @@ import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav,DFSectionTitle}from"../../../components/df-shell";
 import{decodeEditorialEntities}from"../../../lib/df-editorial-format";
 import{getCachedInvestgoList}from"../../../lib/df-investgo-fallback";
+import{getCachedOfficialNewsList}from"../../../lib/df-official-news-fallback";
 const cats=["전체","개발사업","정책·고시","분양","금융","건설사 동향","인사이트"];
 const channelFilters=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topicFilters=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자"];
@@ -26,12 +27,21 @@ export default function Live(){
     if(queryError)throw queryError;
     if(active)setItems(data||[]);
    }catch(e){
-    if(category==="인사이트"||category==="전체"){
-     try{
-      const cached=await getCachedInvestgoList(50);
-      if(active){setItems(cached);setArchiveUsed(true);}
-     }catch(inner){if(active){setItems([]);setError("발행 글 저장본도 불러올 수 없습니다.");}}
-    }else if(active){setItems([]);setError("현재 실시간 뉴스 조회가 제한되어 있습니다. 다른 분야의 글도 일시적으로 표시되지 않을 수 있습니다.");}
+    try{
+     const [official,blog]=await Promise.all([
+      getCachedOfficialNewsList(50).catch(()=>[]),
+      getCachedInvestgoList(50).catch(()=>[])
+     ]);
+     const combined=[...official,...blog]
+      .filter(a=>(category==="전체"||a.category===category)&&
+       (category!=="정책·고시"||(
+        (channel==="전체"||a.source_channel===(channelMap[channel]||channel))&&
+        (topic==="전체"||a.topic_code===(topicMap[topic]||topic)))))
+      .sort((a,b)=>new Date(b.published_at||0)-new Date(a.published_at||0))
+      .slice(0,50);
+     if(active){setItems(combined);setArchiveUsed(!!combined.length);
+      if(!combined.length)setError("현재 이 분야에서 제공할 수 있는 발행 기사 저장본이 없습니다.");}
+    }catch(inner){if(active){setItems([]);setError("발행 기사 저장본을 불러올 수 없습니다.");}}
    }finally{if(active)setLoading(false)}
   })();
   return()=>{active=false}
@@ -45,8 +55,8 @@ export default function Live(){
   <div><small>자료유형</small><div>{channelFilters.map(x=><a key={x} className={channel===x?"on":""} href={hrefForFilter(x,topic)}>{x}</a>)}</div></div>
   <div><small>주제</small><div>{topicFilters.map(x=><a key={x} className={topic===x?"on":""} href={hrefForFilter(channel,x)}>{x}</a>)}</div></div>
  </section>}
- {archiveUsed&&<p className="dfInvestgoArchiveNotice" role="status">실시간 데이터 연결이 제한되어 기존 발행 글 저장본을 표시합니다. 신규 발행·수정은 반영되지 않을 수 있습니다.</p>}
- {error&&<div className="focusEmpty" role="alert"><b>{error}</b></div>}
+ {archiveUsed&&<p className="dfReaderStatus" role="status"><span className="dfStatusDot" aria-hidden="true"></span> 기존 발행 기사 표시 중 · 새 자료 반영 지연</p>}
+ {error&&<p className="dfReaderStatus" role="alert">{error} <a href="/focus/policy">정책·고시 보기</a></p>}
  <section className="focusBlock"><DFSectionTitle eyebrow="LATEST" title={category==="전체"?"전체 뉴스":isPolicy?"개발정책":category} />
  {loading?<div className="focusEmpty"><b>뉴스를 불러오는 중입니다.</b></div>:items.length?items.map((a,i)=><a className={"focusNews "+(i===0?"leadNews":"")} href={"/focus/article?id="+a.id} key={a.id}><div><small>{a.source_channel==="investgo"?"인사이트":isPolicy?(a.source_channel==="고시공고"?"고시·공고":a.source_channel==="조례규칙"?"조례·규칙":a.source_channel||"개발정책"):(a.category||"최신뉴스")}</small><h3>{decodeEditorialEntities(a.title)}</h3>{a.subtitle&&i===0&&<p className="dfNewsSubtitle">{a.subtitle}</p>}<p>{a.source_channel==="investgo"?"발행 "+publicationDate(a.original_source_published_at||a.published_at):(a.updated_at&&a.updated_at!==a.published_at?"수정기사 · ":"")+"발행 "+publicationDate(a.published_at)}</p></div>{a.source_channel==="investgo"&&a.hero_image_url?.includes("/storage/v1/object/public/df-investgo-images/")&&<img className="dfInsightNewsThumb" src={a.hero_image_url} alt="" loading="lazy" decoding="async"/>}<span className="newsArrow">→</span></a>):<div className="focusEmpty"><b>현재 공개된 자료가 없습니다.</b><span>{isPolicy?"선택한 필터에 해당하는 공식자료가 없습니다.":"검증·승인된 기사만 표시됩니다."}</span></div>}
  </section><DFBottomNav active="news"/></main>
