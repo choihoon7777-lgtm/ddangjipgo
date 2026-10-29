@@ -1,0 +1,24 @@
+
+/* Citymaek verified policy decision reader — scoped to /focus/policy */
+.dfDecisionChecks{background:#fffaf4;border:1px solid #f1dfc8;border-radius:16px;padding:19px 20px;margin:16px 0;color:#19344d}
+.dfDecisionCheckHeader span{display:block;font-size:11px;font-weight:850;color:#a16624;margin-bottom:6px}
+.dfDecisionCheckHeader h2{font-size:18px;line-height:1.4;letter-spacing:-.3px;margin:0 0 10px}
+.dfDecisionChecks ul{padding:0;margin:0;list-style:none;display:grid;gap:10px}
+.dfDecisionChecks li{position:relative;padding-left:21px;font-size:13px;font-weight:680;line-height:1.7;word-break:keep-all}
+.dfDecisionChecks li::before{content:"!";position:absolute;left:0;top:3px;display:grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1px solid #d19f64;color:#ac6b22;font-size:10px}
+.dfDecisionChecks>p{font-size:13px;line-height:1.7}
+.dfDecisionDisclaimer{margin:15px 0 0!important;padding-top:12px;border-top:1px solid #efdfcd;color:#8d7a64;font-size:11px!important;line-height:1.65!important}
+.dfDecisionCardLabel{display:flex;align-items:center;gap:4px;margin:8px 0 5px;font-size:11px;font-weight:850;color:#a26328;letter-spacing:-.15px}
+.dfDecisionCardLabel span{font-weight:600;color:#7d8c99}
+.dfPolicyReader .dfPolicySummaryCard{padding-top:9px}
+.dfPolicyReader .dfPolicyFactsCard{background:#fff}
+.dfPolicyReader .dfPolicyKeySentences p{word-break:keep-all}
+@media(max-width:560px){
+ .dfDecisionChecks{padding:16px 15px;border-radius:14px}
+}
+
+/* Clearly distinguish dated fallback records from live official data. */
+.dfPolicySnapshotNotice{background:#fff4e7;border:1px solid #e9cda9;color:#483a2a;border-radius:13px;padding:14px 16px;margin:12px 0 16px;line-height:1.65}
+.dfPolicySnapshotNotice b{display:block;font-size:13px;font-weight:850;color:#97571d}
+.dfPolicySnapshotNotice p{font-size:12px;line-height:1.75;margin:5px 0 0;word-break:keep-all}
+.dfPolicyReader>.dfPolicySnapshotNotice{margin:12px 0 18px}
