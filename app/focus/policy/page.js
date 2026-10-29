@@ -3,6 +3,7 @@ import{useEffect,useMemo,useState}from"react";
 import{dfSupabase}from"../../../lib/df-browser";
 import{DFBrandHeader,DFBottomNav}from"../../../components/df-shell";
 import "./policy-workbench.css";
+import policySnapshot from "../../../lib/df-policy-snapshot.json";
 
 const channels=["전체","보도자료","고시·공고","입법예고","조례·규칙"];
 const topics=["전체","도시계획","주택·건축","토지·정비","교통·인프라","산업·투자","기타"];
@@ -16,6 +17,7 @@ const keyLines=s=>String(s||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).fi
 const pickFact=(facts,keys)=>{for(const key of keys){const hit=factEntries(facts).find(([k])=>k===key);if(hit)return String(hit[1]);}return null;};
 const changeKeys=["변경사항","변경 내용","변경내용","주요 변경사항","변경 전후","변경 전·후","주요 변경내용"];
 const explicitChange=facts=>pickFact(facts,changeKeys);
+const cachedPolicies=(channel,topic)=>policySnapshot.items.filter(x=>(channel==="전체"||channelDb(channel)===x.channel)&&(topic==="전체"||topic===x.topic_code));
 const checksFor=detail=>{
  const facts=detail.key_facts||{};
  const checks=[];
@@ -26,7 +28,7 @@ const checksFor=detail=>{
  return checks.slice(0,3);
 };
 export default function Policy(){
- const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0),[backRegion,setBackRegion]=useState(null),[visibleCount,setVisibleCount]=useState(20);
+ const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0),[backRegion,setBackRegion]=useState(null),[snapshotMode,setSnapshotMode]=useState(false),[visibleCount,setVisibleCount]=useState(20);
  useEffect(()=>{
   let active=true;
   const params=new URLSearchParams(location.search),id=params.get("id");
@@ -34,15 +36,22 @@ export default function Policy(){
   setBackRegion(fromRegion);
   const c=channels.includes(params.get("channel"))?params.get("channel"):"전체";
   const t=topics.includes(params.get("topic"))?params.get("topic"):"전체";
-  setChannel(c);setTopic(t);setLoading(true);setError("");setVisibleCount(20);
+  setChannel(c);setTopic(t);setLoading(true);setError("");setSnapshotMode(false);setVisibleCount(20);
   (async()=>{
    try{
     if(id&&!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id))throw new Error("올바른 자료 주소가 아닙니다.");
     const result=id?await dfSupabase.rpc("df_public_development_policy_detail",{p_document_id:id}):await dfSupabase.rpc("df_public_development_policy",{p_channel:c==="전체"?null:channelDb(c),p_topic:t==="전체"?null:t,p_limit:150,p_offset:0});
-    if(result.error)throw new Error("자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
     if(!active)return;
-    if(id){if(!result.data?.[0])throw new Error("자료를 찾을 수 없거나 공개되지 않은 자료입니다.");setDetail(result.data[0]);}
-    else setItems(result.data||[]);
+    if(result.error){
+     const cached=id?policySnapshot.details?.[id]:cachedPolicies(c,t);
+     if(!cached)throw new Error("현재 공식자료 서비스에 접속할 수 없으며 해당 자료는 저장본에 없습니다.");
+     setSnapshotMode(true);
+     if(id)setDetail(cached);
+     else setItems(cached);
+    }else if(id){
+     if(!result.data?.[0])throw new Error("자료를 찾을 수 없거나 공개되지 않은 자료입니다.");
+     setDetail(result.data[0]);
+    }else setItems(result.data||[]);
    }catch(e){if(active)setError(e.message);}
    finally{if(active)setLoading(false);}
   })();
@@ -62,6 +71,7 @@ export default function Policy(){
   const period=pickFact(detail.key_facts,["사업기간","기간","시행일","적용일"]);
   return <main className="focusShell dfHigh"><DFBrandHeader/>
    <article className="dfPolicyDetail dfPolicyReader">
+    {snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>저장된 공식자료를 표시합니다</b><p>현재 실시간 자료 조회가 제한되어 있습니다. 마지막 원문 수집 확인: {dateKey(policySnapshot.last_source_fetched_at)}. 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
     <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
     <section className="dfPolicySummaryCard">
      <div className="dfPolicyMeta"><span>{channelLabel(detail.channel)}</span>{detail.version_count>1&&<b>원문 갱신 이력</b>}</div>
@@ -120,7 +130,7 @@ export default function Policy(){
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
   </section>
-  <section className="dfPolicyFeed">{!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=>{const facts=cardFacts(x.key_facts);return <a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
+  <section className="dfPolicyFeed">{snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>공식자료 저장본 {items.length}건 표시 중</b><p>실시간 조회가 제한되어 마지막으로 확인된 자료를 표시합니다. 원문 수집 기준: {dateKey(policySnapshot.last_source_fetched_at)}. 최신 발표·변경사항은 공식 기관에서 재확인해 주세요.</p></div>}{!snapshotMode&&!loading&&collectionDelayed&&<p className="dfPolicyFreshness" role="status">마지막 수집 확인: {dateKey(latestCollected)} · 이후 자료는 아직 수집 여부가 확인되지 않았습니다.</p>}{loading?<div className="focusEmpty"><b>오늘의 개발정책을 불러오는 중입니다.</b></div>:grouped.length?grouped.map(([date,rows],gi)=><section className="dfPolicyDay" key={date}><header><div><small>{gi===0?"최근 자료":"이전 자료"}</small><h2>{date}</h2></div><span>{rows.length}건</span></header><div>{rows.map(x=>{const facts=cardFacts(x.key_facts);return <a className="dfPolicyRow dfPolicyReaderRow" href={"/focus/policy?id="+x.id} key={x.id}>
    <div className="dfPolicyRowMeta"><span>{channelLabel(x.channel)}</span><em>{x.source_name||"공식기관"}</em>{x.changed&&<b>원문 갱신</b>}</div>
    <h3>{x.title}</h3>
    <div className="dfDecisionCardLabel">{explicitChange(x.key_facts)?"변경 내용 확인":"공식자료 핵심"} <span>· {cardFacts(x.key_facts).length?"기본정보 추출":"세부 수치 대조 필요"}</span></div>
