@@ -5,6 +5,7 @@ import{DFBrandHeader,DFBottomNav,DFLiveNotice,DFLiveAd}from"../../../components/
 import OfficialArticleText from "../../../components/df-official-article-text";
 import{decodeEditorialEntities}from"../../../lib/df-editorial-format";
 import{getCachedInvestgoArticle}from"../../../lib/df-investgo-fallback";
+import{getCachedOfficialNewsArticle}from"../../../lib/df-official-news-fallback";
 import{guestIsSaved,guestToggleSaved,guestRecordRecent}from"../../../lib/df-guest-trial";
 
 function normalizeBody(body){
@@ -28,7 +29,7 @@ function ArticleInner(){
     const response=articleResult.status==="fulfilled"?articleResult.value:null;
     let story=response?.data||null,usedArchive=false;
     if(!story){
-     try{story=await getCachedInvestgoArticle(id);usedArchive=!!story;}catch(e){story=null;}
+     try{story=await getCachedOfficialNewsArticle(id)||await getCachedInvestgoArticle(id);usedArchive=!!story;}catch(e){story=null;}
     }
     const history=historyResult.status==="fulfilled"?historyResult.value?.data||[]:[];
     const u=userResult.status==="fulfilled"?userResult.value?.data?.user||null:null;
@@ -81,7 +82,7 @@ function ArticleInner(){
  const modified=!isBlog&&a.updated_at&&a.published_at&&new Date(a.updated_at).getTime()>new Date(a.published_at).getTime()+1000;
  return <main className="focusShell dfHigh">
   <DFBrandHeader/>
-  {archiveUsed&&<p className="dfInvestgoArchiveNotice" role="status">투자GO 발행 글의 저장본입니다. 현재 실시간 연결이 제한되어 이후 수정사항은 반영되지 않을 수 있습니다.</p>}
+  {archiveUsed&&<p className="dfReaderStatus" role="status"><span className="dfStatusDot" aria-hidden="true"></span> 발행 기사 저장본 표시 중 · 이후 수정사항은 반영되지 않을 수 있습니다.</p>}
   <div className="dfArticleCrumb"><a href={isBlog?"/focus/live?category=인사이트":"/focus/live"}>← {isBlog?"인사이트":"최신뉴스"}</a><span>도시맥</span></div>
   <DFLiveNotice placement="article" region={a.region_code}/>
   <article className="dfNewsArticle">
