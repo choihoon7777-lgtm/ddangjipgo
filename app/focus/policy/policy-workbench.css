@@ -1,16 +1,5 @@
 
 /* Citymaek verified policy decision reader — scoped to /focus/policy */
-.dfDecisionBrief{margin:18px 0 16px;padding:24px 22px 20px;background:linear-gradient(140deg,#102b47 0%,#163b5b 72%,#234968 100%);color:#fff;border-radius:19px;box-shadow:0 12px 32px rgba(22,48,76,.16)}
-.dfDecisionBriefTop{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;letter-spacing:.04em;color:#f6ba78;font-weight:850}
-.dfDecisionBriefTop strong{font-size:10px;letter-spacing:0;background:#f8b7651f;color:#f9d7ac;border:1px solid #f9d7ac40;padding:5px 8px;border-radius:100px;white-space:nowrap}
-.dfDecisionBrief h2{margin:16px 0 10px;font-size:clamp(20px,3.2vw,26px);letter-spacing:-.6px;line-height:1.4;color:#fff;font-weight:850}
-.dfDecisionBriefLead{margin:0 0 22px;line-height:1.8;color:#e9eff6;font-size:14px;word-break:keep-all}
-.dfDecisionStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.dfDecisionStats>div{min-width:0;border:1px solid #ffffff2d;border-radius:11px;background:#ffffff0d;padding:12px 11px}
-.dfDecisionStats small{display:block;color:#c4d1dc;font-size:11px;margin-bottom:8px;font-weight:750}
-.dfDecisionStats b{display:block;color:#fff;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
-.dfDecisionEvidence{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:16px;color:#d0dce8;font-size:11px}
-.dfDecisionEvidence span::before{content:"•";padding-right:6px;color:#ffad57}
 .dfDecisionChecks{background:#fffaf4;border:1px solid #f1dfc8;border-radius:16px;padding:19px 20px;margin:16px 0;color:#19344d}
 .dfDecisionCheckHeader span{display:block;font-size:11px;font-weight:850;color:#a16624;margin-bottom:6px}
 .dfDecisionCheckHeader h2{font-size:18px;line-height:1.4;letter-spacing:-.3px;margin:0 0 10px}
@@ -24,14 +13,7 @@
 .dfPolicyReader .dfPolicySummaryCard{padding-top:9px}
 .dfPolicyReader .dfPolicyFactsCard{background:#fff}
 .dfPolicyReader .dfPolicyKeySentences p{word-break:keep-all}
-.dfPolicyReader .dfPolicyOfficialCta{margin-top:16px}
 @media(max-width:560px){
- .dfDecisionBrief{padding:19px 15px 17px;margin:12px 0 15px;border-radius:15px}
- .dfDecisionBriefLead{font-size:13px;line-height:1.7}
- .dfDecisionStats{grid-template-columns:1fr;gap:7px}
- .dfDecisionStats>div{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:start;padding:10px 11px}
- .dfDecisionStats small{margin:1px 0 0}
- .dfDecisionStats b{font-size:13px}
  .dfDecisionChecks{padding:16px 15px;border-radius:14px}
 }
 
