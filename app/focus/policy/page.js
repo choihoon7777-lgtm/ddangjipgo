@@ -61,10 +61,10 @@ export default function Policy(){
  const latestCollected=items.reduce((latest,x)=>Math.max(latest,Date.parse(x.fetched_at||"")||0),0);
  const collectionDelayed=latestCollected>0&&Date.now()-latestCollected>72*60*60*1000;
  function href(c=channel,t=topic){const p=new URLSearchParams();if(c!=="전체")p.set("channel",c);if(t!=="전체")p.set("topic",t);return"/focus/policy"+(p.toString()?"?"+p.toString():"")}
- if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="policy"/></main>;
+ if(error)return <main className="focusShell dfHigh dfEditorialPolicyPage"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="policy"/></main>;
  if(detail){
   const facts=factEntries(detail.key_facts);
-  return <main className="focusShell dfHigh"><DFBrandHeader/>
+  return <main className="focusShell dfHigh dfEditorialPolicyPage"><DFBrandHeader/>
    <article className="dfPolicyDetail dfPolicyReader">
     {snapshotMode&&<div className="dfPolicySnapshotNotice dfEditorialPolicyNotice" role="status"><b>마지막 확인 자료</b><p>수집 기준 {dateKey(policySnapshot.last_source_fetched_at)} · 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
     <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
@@ -97,7 +97,7 @@ export default function Policy(){
 
    </article><DFBottomNav active="policy"/></main>
  }
- return <main className="focusShell dfHigh"><DFBrandHeader/>
+ return <main className="focusShell dfHigh dfEditorialPolicyPage"><DFBrandHeader/>
   <section className="dfPolicyHero dfEditorialPolicyHero"><small>OFFICIAL DOCUMENTS / POLICY</small><h1>정책·고시</h1><p>정부·지자체의 고시와 보도자료에서 확인한 사업정보와 핵심 문장을 모았습니다.</p><div><b>문서별 확인</b><span>사업정보 · 핵심 내용 · 첨부자료</span></div></section>
   <section className="dfPolicyFilters dfEditorialPolicyFilters" aria-label="정책·고시 필터">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} aria-current={channel===x?"page":undefined} href={href(x,topic)}>{x}</a>)}</div></div>
