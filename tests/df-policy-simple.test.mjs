@@ -38,7 +38,8 @@ test("Policy can show verified cached records when the public Supabase RPC is un
  assert.match(s,/result\.error/);
  assert.match(s,/setSnapshotMode\(true\)/);
  assert.match(s,/cachedPolicies\(c,t\)/);
- assert.match(s,/마지막 원문 수집 확인/);
+ assert.match(s,/수집 기준/);
+ assert.match(s,/dateKey\(policySnapshot\.last_source_fetched_at\)/);
  assert.equal(snapshot.items.length,100);
  assert.equal(Object.keys(snapshot.details).length,100);
  for(const item of snapshot.items){
