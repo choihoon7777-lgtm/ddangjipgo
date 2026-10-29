@@ -48,7 +48,7 @@ export default function Live(){
  },[category,channel,topic]);
  function hrefForFilter(nextChannel=channel,nextTopic=topic){const p=new URLSearchParams();p.set("category","정책·고시");if(nextChannel!=="전체")p.set("channel",nextChannel);if(nextTopic!=="전체")p.set("topic",nextTopic);return"/focus/live?"+p.toString()}
  const isPolicy=category==="정책·고시";
- return <main className="focusShell dfHigh"><DFBrandHeader/>
+ return <main className="focusShell dfHigh dfEditorialListingPage"><DFBrandHeader/>
  <section className="dfLiveHero dfEditorialArchiveHead"><small>DOSIMAEK / EDITORIAL</small><h1>{isPolicy?"정책·고시":category==="인사이트"?"시장 분석":category==="전체"?"개발뉴스":category}</h1><p>{isPolicy?"지자체·정부의 발행 자료를 확인합니다.":category==="인사이트"?"투자GO의 부동산·개발 실무 분석을 모았습니다.":"개발사업·정책·부동산 시장의 발행 기사를 분야별로 살펴보세요."}</p></section>
  <nav className="dfNewsFilters dfEditorialFilters" aria-label="기사 분야 선택">{cats.map(x=><a key={x} className={x===category?"on":""} aria-current={x===category?"page":undefined} href={x==="전체"?"/focus/live":x==="정책·고시"?"/focus/policy":"/focus/live?category="+encodeURIComponent(x)}>{x==="정책·고시"?"개발정책":x}</a>)}</nav>
  {isPolicy&&<section className="dfPolicyFilters">
