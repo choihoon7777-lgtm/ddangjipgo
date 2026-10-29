@@ -6,7 +6,44 @@ const hrefFor=(x)=>x==="최신 뉴스"?"/focus/live":x==="시장 분석"?"/focus
 
 export function DFBrandHeader(){
  const[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false),[unread,setUnread]=useState(0);
- useEffect(()=>{let live=true;setRoute(location.pathname+location.search);const close=e=>{if(e.key==="Escape")setMenuOpen(false)};window.addEventListener("keydown",close);(async()=>{const{data:{user}}=await dfSupabase.auth.getUser();if(!live||!user)return;const[role,alerts]=await Promise.all([dfSupabase.from("df_admin_roles").select("profile_id").eq("profile_id",user.id).eq("is_active",true).maybeSingle(),dfSupabase.from("df_land_alerts").select("id",{count:"exact",head:true}).in("status",["pending","sent"])]);if(live){setIsAdmin(!!role.data);setUnread(alerts.count||0)}})();return()=>{live=false;window.removeEventListener("keydown",close)}},[]);
+ const menuRef=useRef(null),menuButtonRef=useRef(null),navRef=useRef(null);
+ useEffect(()=>{
+  let live=true;
+  setRoute(location.pathname+location.search);
+  (async()=>{
+   try{
+    const {data}=await dfSupabase.auth.getUser();
+    const user=data?.user;
+    if(!live||!user)return;
+    const [role,alerts]=await Promise.all([
+     dfSupabase.from("df_admin_roles").select("profile_id").eq("profile_id",user.id).eq("is_active",true).maybeSingle(),
+     dfSupabase.from("df_land_alerts").select("id",{count:"exact",head:true}).in("status",["pending","sent"])
+    ]);
+    if(live){setIsAdmin(!!role.data);setUnread(alerts.count||0);}
+   }catch(e){/* Public navigation remains usable when account services are unavailable. */}
+  })();
+  return()=>{live=false};
+ },[]);
+ useEffect(()=>{
+  if(!menuOpen)return;
+  const pointer=e=>{
+   if(menuRef.current?.contains(e.target)||menuButtonRef.current?.contains(e.target))return;
+   setMenuOpen(false);
+  };
+  const key=e=>{
+   if(e.key==="Escape"){setMenuOpen(false);menuButtonRef.current?.focus();}
+  };
+  document.addEventListener("pointerdown",pointer);
+  window.addEventListener("keydown",key);
+  return()=>{document.removeEventListener("pointerdown",pointer);window.removeEventListener("keydown",key)};
+ },[menuOpen]);
+ useEffect(()=>{
+  const active=navRef.current?.querySelector('[aria-current="page"]');
+  if(active&&navRef.current){
+   navRef.current.scrollLeft=Math.max(0,active.offsetLeft-navRef.current.offsetWidth/2+active.offsetWidth/2);
+  }
+ },[route]);
+
  const currentPath=route.split("?")[0]||"";
  const params=new URLSearchParams(route.includes("?")?route.slice(route.indexOf("?")+1):"");
  const currentCategory=params.get("category");
@@ -26,11 +63,11 @@ export function DFBrandHeader(){
    <div className="focusTools">
     <a className="focusTool focusToolIcon dfHeaderBell" href="/alerts" aria-label={"내 부동산 알림"+(unread?" 읽지 않은 알림 "+unread+"건":"")} title="내 부동산 알림"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>{unread>0&&<span className="dfHeaderBellCount">{unread>99?"99+":unread}</span>}</a>
     <a className="focusTool focusToolIcon" href="/focus/search" aria-label="통합검색"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.7"/><path d="m16 16 5 5"/></svg></a>
-    <button type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="메뉴" onClick={()=>setMenuOpen(v=>!v)}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button ref={menuButtonRef} type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="전체 메뉴" onClick={()=>setMenuOpen(v=>!v)}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
    </div>
   </header>
-  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/focus/live?category=인사이트"><b>시장 분석 · 투자GO</b><span>부동산 개발·금융 전문 분석 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
-  <nav className="focusTabs" aria-label="도시맥 뉴스 카테고리">{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
+  {menuOpen&&<div ref={menuRef} className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu" aria-label="전체 메뉴">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/focus/live?category=인사이트"><b>시장 분석 · 투자GO</b><span>부동산 개발·금융 전문 분석 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
+  <nav ref={navRef} className="focusTabs" aria-label="도시맥 뉴스 카테고리">{categories.map(x=><a className={activeFor(x)?"active":""} aria-current={activeFor(x)?"page":undefined} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
  </div>
 }
 export function DFSubHeader({title,back="/focus",right="/focus/search",kicker}){
