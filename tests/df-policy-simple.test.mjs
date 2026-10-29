@@ -27,7 +27,7 @@ test("Policy list surfaces key content before opening a document",async()=>{
  const s=await read("../app/focus/policy/page.js");
  assert.match(s,/x\.key_content/);
  assert.match(s,/dfPolicyKeyPreview/);
- assert.match(s,/사업정보 → 핵심 내용 → 첨부자료/);
+ assert.match(s,/사업정보 · 핵심 내용 · 첨부자료/);
  assert.match(s,/dfDecisionCardLabel/);
 });
 
