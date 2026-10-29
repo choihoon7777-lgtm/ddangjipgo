@@ -8,8 +8,9 @@ const topics=["전체","도시계획","주택·건축","토지·정비","교통�
 const channelDb=x=>x==="고시·공고"?"고시공고":x==="조례·규칙"?"조례규칙":x;
 const channelLabel=x=>x==="고시공고"?"고시·공고":x==="조례규칙"?"조례·규칙":x||"공식자료";
 const dateKey=x=>{const d=new Date(x);return Number.isNaN(d.getTime())?"":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)};
-const factEntries=x=>x&&typeof x==="object"?Object.entries(x).filter(([,v])=>v!==null&&v!==undefined&&String(v).trim()):[];
-const cardFacts=x=>factEntries(x).filter(([k])=>!/(첨부|파일)/.test(k)).slice(0,3);
+const factPriority=["사업명","위치","면적","규모","사업기간","기간","준공예정일","사업시행자","공고번호","담당부서","등록일"];
+const factEntries=x=>x&&typeof x==="object"?Object.entries(x).filter(([,v])=>v!==null&&v!==undefined&&String(v).trim()).sort(([a],[b])=>{const ai=factPriority.indexOf(a),bi=factPriority.indexOf(b);return(ai<0?99:ai)-(bi<0?99:bi)}):[];
+const cardFacts=x=>factEntries(x).filter(([k])=>!/(첨부|파일|담당부서|등록일|공고번호)/.test(k)).slice(0,3);
 export default function Policy(){
  const[channel,setChannel]=useState("전체"),[topic,setTopic]=useState("전체"),[items,setItems]=useState([]),[detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[retry,setRetry]=useState(0),[backRegion,setBackRegion]=useState(null),[visibleCount,setVisibleCount]=useState(20);
  useEffect(()=>{
@@ -45,24 +46,24 @@ export default function Policy(){
     <a className="dfPolicyBack" href={backRegion?"/focus/region"+(backRegion==="전국"?"":"?name="+encodeURIComponent(backRegion)):"/focus/policy"}>← {backRegion?backRegion+" 지역 자료":"개발정책"}</a>
     <section className="dfPolicySummaryCard">
      <div className="dfPolicyMeta"><span>{channelLabel(detail.channel)}</span>{detail.version_count>1&&<b>내용 변경</b>}</div>
-     <small className="dfPolicyFormLabel">공식자료 핵심정리</small>
+     <small className="dfPolicyFormLabel">공식자료에서 확인된 핵심</small>
      <h1>{detail.title}</h1>
      <div className="dfPolicyByline"><b>{detail.source_name||"공식기관"}</b><span>{dateKey(detail.published_at||detail.fetched_at)}</span></div>
     </section>
 
-    <section className="dfPolicyReaderSection dfPolicyLead">
-     <small>핵심 내용</small>
-     <h2>이 문서에서 확인할 내용</h2>
-     <div className="dfPolicyKeySentences">
-      {String(detail.key_content||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>)}
-     </div>
-    </section>
-
     {!!facts.length&&<section className="dfPolicyReaderSection dfPolicyFactsCard">
-     <small>주요 정보</small>
-     <h2>문서에서 확인된 정보</h2>
+     <small>한눈에 보기</small>
+     <h2>주요 정보</h2>
      <dl>{facts.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{String(v)}</dd></div>)}</dl>
     </section>}
+
+    <section className="dfPolicyReaderSection dfPolicyLead">
+     <small>공식자료 핵심</small>
+     <h2>주요 내용</h2>
+     <div className="dfPolicyKeySentences">
+      {String(detail.key_content||detail.content_text||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).map((x,i)=><p key={i}>{x}</p>)}
+     </div>
+    </section>
 
     {!!detail.attachments?.length&&<section className="dfPolicyReaderSection dfPolicyAttachmentCard">
      <small>첨부자료</small>
@@ -72,7 +73,7 @@ export default function Policy(){
 
     <section className="dfPolicyOfficialCta">
      <div><small>공식 출처</small><b>{detail.source_name||"공식기관"}</b><p>개발포커스에서는 핵심 내용을 먼저 확인하고, 전체 문서와 세부 조항은 공식 사이트에서 확인할 수 있습니다.</p></div>
-     {detail.official_url&&<a href={detail.official_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
+     {(detail.official_url||detail.source_url)&&<a href={detail.official_url||detail.source_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
     </section>
    </article><DFBottomNav active="policy"/></main>
  }
