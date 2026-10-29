@@ -32,3 +32,19 @@ test("Policy list surfaces key content before opening a document",async()=>{
  assert.match(s,/근거 수치 → 실무 확인 → 공식 원문/);
  assert.match(s,/dfDecisionCardLabel/);
 });
+
+test("Policy can show verified cached records when the public Supabase RPC is unavailable",async()=>{
+ const s=await read("../app/focus/policy/page.js");
+ const snapshot=JSON.parse(await read("../lib/df-policy-snapshot.json"));
+ assert.match(s,/policySnapshot/);
+ assert.match(s,/result\.error/);
+ assert.match(s,/setSnapshotMode\(true\)/);
+ assert.match(s,/cachedPolicies\(c,t\)/);
+ assert.match(s,/마지막 원문 수집 확인/);
+ assert.equal(snapshot.items.length,100);
+ assert.equal(Object.keys(snapshot.details).length,100);
+ for(const item of snapshot.items){
+  assert.ok(snapshot.details[item.id],"List and detailed cached data must match");
+  assert.ok(item.key_content,"Only source-verified records should be cached");
+ }
+});
