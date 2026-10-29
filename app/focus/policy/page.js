@@ -64,7 +64,6 @@ export default function Policy(){
  if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="policy"/></main>;
  if(detail){
   const facts=factEntries(detail.key_facts);
-  const checks=checksFor(detail);
   return <main className="focusShell dfHigh"><DFBrandHeader/>
    <article className="dfPolicyDetail dfPolicyReader">
     {snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>저장된 공식자료를 표시합니다</b><p>현재 실시간 자료 조회가 제한되어 있습니다. 마지막 원문 수집 확인: {dateKey(policySnapshot.last_source_fetched_at)}. 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
@@ -88,12 +87,6 @@ export default function Policy(){
      <div className="dfPolicyKeySentences">
       {keyLines(detail.key_content).map((x,i)=><p key={i}>{x}</p>)}
      </div>
-    </section>
-
-    <section className="dfDecisionChecks" aria-labelledby="dfDecisionCheckTitle">
-     <div className="dfDecisionCheckHeader"><span>확인사항</span><h2 id="dfDecisionCheckTitle">투자·개발 판단 전 확인</h2></div>
-     {checks.length?<ul>{checks.map((x,i)=><li key={i}>{x}</li>)}</ul>:<p>기본정보가 추출되었습니다. 사업 진행 또는 법적 판단 전 원문·첨부를 최종 대조하세요.</p>}
-     <p className="dfDecisionDisclaimer">자동 추출한 요약은 법적 효력이 있는 고시 원문을 대체하지 않습니다. 누락 항목을 추정 수치로 채우지 않습니다.</p>
     </section>
 
     {!!detail.attachments?.length&&<section className="dfPolicyReaderSection dfPolicyAttachmentCard">
