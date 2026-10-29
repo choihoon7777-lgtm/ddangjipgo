@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:unified-article-layout && npm run test:official-single-body && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:official-attachments && npm run test:official-fallback && npm run test:no-public-sources && npm run test:public-language && npm run test:unified-ux && npm run test:housing-live && npm run test:admin-v2 && npm run test:admin-security && npm run test:admin-password && next build",
+    "build": "npm run test:radar && npm run test:housing && npm run test:editorial && npm run test:unified-article-layout && npm run test:official-single-body && npm run test:guest && npm run test:premium-ui && npm run test:brand && npm run test:publish-flow && npm run test:policy-simple && npm run test:investgo-fallback && npm run test:official-attachments && npm run test:official-fallback && npm run test:no-public-sources && npm run test:public-language && npm run test:unified-ux && npm run test:housing-live && npm run test:admin-v2 && npm run test:admin-security && npm run test:admin-password && next build",
     "start": "next start",
     "test:radar": "node --test tests/df-radar.test.mjs",
     "test:housing": "node --test tests/df-housing*.test.mjs",
@@ -24,7 +24,8 @@
     "test:admin-password": "node --test tests/df-admin-password.test.mjs",
     "test:official-attachments": "node --test tests/df-official-attachments.test.mjs",
     "test:official-single-body": "node --test tests/df-official-single-body.test.mjs",
-    "test:unified-article-layout": "node --test tests/df-unified-article-layout.test.mjs"
+    "test:unified-article-layout": "node --test tests/df-unified-article-layout.test.mjs",
+    "test:investgo-fallback": "node --test tests/df-investgo-fallback.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
