@@ -6,9 +6,9 @@ test("Policy detail is a concise Citymaek evidence-first decision reader, not a 
  assert.match(s,/핵심 내용/);
  assert.match(s,/dfPolicyKeySentences/);
  assert.match(s,/공식 문서에서 추출한 사업정보/);
- assert.match(s,/dfDecisionBrief/);
+ assert.doesNotMatch(s,/dfDecisionBrief/);
  assert.match(s,/dfDecisionChecks/);
- assert.match(s,/명확하지 않은 항목|원문 대조 필요|변경 전·후 미확정/);
+ assert.match(s,/변경 전·후 항목과 실제 변경 범위|실무 확인사항|투자·개발 판단 전 확인/);
  assert.match(s,/공식 첨부파일/);
  assert.match(s,/detail\.key_content/);
  assert.match(s,/detail\.key_facts/);
@@ -16,20 +16,18 @@ test("Policy detail is a concise Citymaek evidence-first decision reader, not a 
  assert.doesNotMatch(s,/OfficialArticleText|dfPolicyFullReader/);
 });
 
-test("Policy reader identifies the official source and links out for full detail",async()=>{
+test("Policy detail keeps a concise byline but omits the final official source block",async()=>{
  const s=await read("../app/focus/policy/page.js");
  assert.match(s,/detail\.source_name/);
  assert.match(s,/x\.source_name/);
- assert.match(s,/detail\.official_url/);
- assert.match(s,/공식 사이트에서 자세히 보기 ↗/);
- assert.doesNotMatch(s,/detail\.source_url/);
+ assert.doesNotMatch(s,/dfPolicyOfficialCta|최종 확인 \/ 공식 출처|detail\.official_url/);
 });
 
 test("Policy list surfaces key content before opening a document",async()=>{
  const s=await read("../app/focus/policy/page.js");
  assert.match(s,/x\.key_content/);
  assert.match(s,/dfPolicyKeyPreview/);
- assert.match(s,/근거 수치 → 실무 확인 → 공식 원문/);
+ assert.match(s,/사업정보 → 핵심 내용 → 첨부자료/);
  assert.match(s,/dfDecisionCardLabel/);
 });
 
