@@ -1618,3 +1618,8 @@ article.dfPolicyDetail .dfPolicySource span{font-size:11px;line-height:1.65}
  .dfPolicyFactsCard dl>div{grid-template-columns:82px 1fr}
  .dfPolicyKeySentences p{font-size:14px;line-height:1.75}
 }
+
+/* INVESTGO read-only recovery notice when live API has billing/usage restrictions */
+.dfInvestgoArchiveNotice{margin:13px 16px;padding:13px 15px;border:1px solid #e7ceb0;border-radius:12px;background:#fff8ee;color:#735029;font-size:12px;line-height:1.65;word-break:keep-all}
+.dfPremiumHome .dfInvestgoHome{margin-top:15px}
+.dfPremiumHome .dfInvestgoHome .dfLatestRow{min-height:70px}
