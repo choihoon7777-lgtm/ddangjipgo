@@ -7,8 +7,8 @@ test("Policy detail is a concise Citymaek evidence-first decision reader, not a 
  assert.match(s,/dfPolicyKeySentences/);
  assert.match(s,/공식 문서에서 추출한 사업정보/);
  assert.doesNotMatch(s,/dfDecisionBrief/);
- assert.match(s,/dfDecisionChecks/);
- assert.match(s,/변경 전·후 항목과 실제 변경 범위|실무 확인사항|투자·개발 판단 전 확인/);
+ assert.doesNotMatch(s,/className="dfDecisionChecks"/);
+ assert.doesNotMatch(s,/<h2 id="dfDecisionCheckTitle">/);
  assert.match(s,/공식 첨부파일/);
  assert.match(s,/detail\.key_content/);
  assert.match(s,/detail\.key_facts/);
