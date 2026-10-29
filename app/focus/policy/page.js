@@ -64,11 +64,7 @@ export default function Policy(){
  if(error)return <main className="focusShell dfHigh"><DFBrandHeader/><section className="focusEmpty" role="alert"><b>{error}</b><button className="dfPolicyRetry" onClick={()=>setRetry(x=>x+1)}>다시 시도</button><a href="/focus/policy">개발정책 목록으로</a></section><DFBottomNav active="policy"/></main>;
  if(detail){
   const facts=factEntries(detail.key_facts);
-  const confirmedChange=explicitChange(detail.key_facts);
   const checks=checksFor(detail);
-  const place=pickFact(detail.key_facts,["위치","사업위치","소재지"]);
-  const size=pickFact(detail.key_facts,["사업면적","산업단지 면적","면적","규모"]);
-  const period=pickFact(detail.key_facts,["사업기간","기간","시행일","적용일"]);
   return <main className="focusShell dfHigh"><DFBrandHeader/>
    <article className="dfPolicyDetail dfPolicyReader">
     {snapshotMode&&<div className="dfPolicySnapshotNotice" role="status"><b>저장된 공식자료를 표시합니다</b><p>현재 실시간 자료 조회가 제한되어 있습니다. 마지막 원문 수집 확인: {dateKey(policySnapshot.last_source_fetched_at)}. 이후 변경사항은 포함되지 않을 수 있습니다.</p></div>}
@@ -80,20 +76,8 @@ export default function Policy(){
      <div className="dfPolicyByline"><b>{detail.source_name||"공식기관"}</b><span>{dateKey(detail.published_at||detail.fetched_at)}</span></div>
     </section>
 
-    <section className="dfDecisionBrief" aria-labelledby="dfDecisionBriefTitle">
-     <div className="dfDecisionBriefTop"><span>01 / 실무 판단 요약</span><strong>공식자료 기반</strong></div>
-     <h2 id="dfDecisionBriefTitle">{confirmedChange?"고시에서 확인된 변경 사항":"사업·계획의 핵심을 먼저 확인하세요"}</h2>
-     <p className="dfDecisionBriefLead">{confirmedChange||(/(변경|개정|해제|조정)/.test(detail.title||"")?"변경 관련 고시·공고가 확인되었습니다. 변경 전·후의 구체적 차이는 아래의 확인사항과 공식 첨부자료를 대조해야 합니다.":"공식 문서에서 확인된 사업정보를 정리했습니다. 중요한 판단 전 세부 규정과 첨부자료를 확인하세요.")}</p>
-     <div className="dfDecisionStats">
-      <div><small>대상 위치</small><b>{place||"원문 대조 필요"}</b></div>
-      <div><small>면적·규모</small><b>{size||"원문 대조 필요"}</b></div>
-      <div><small>기간·시행</small><b>{period||"원문 대조 필요"}</b></div>
-     </div>
-     <div className="dfDecisionEvidence"><span>추출 정보 {facts.length}개 항목</span><span>{confirmedChange?"변경 내용 추출됨":"변경 전·후 미확정"}</span></div>
-    </section>
-
     {!!facts.length&&<section className="dfPolicyReaderSection dfPolicyFactsCard">
-     <small>02 / 근거 데이터</small>
+     <small>사업정보</small>
      <h2>공식 문서에서 추출한 사업정보</h2>
      <dl>{facts.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{String(v)}</dd></div>)}</dl>
     </section>}
@@ -107,7 +91,7 @@ export default function Policy(){
     </section>
 
     <section className="dfDecisionChecks" aria-labelledby="dfDecisionCheckTitle">
-     <div className="dfDecisionCheckHeader"><span>03 / 실무 확인사항</span><h2 id="dfDecisionCheckTitle">투자·개발 판단 전 확인</h2></div>
+     <div className="dfDecisionCheckHeader"><span>확인사항</span><h2 id="dfDecisionCheckTitle">투자·개발 판단 전 확인</h2></div>
      {checks.length?<ul>{checks.map((x,i)=><li key={i}>{x}</li>)}</ul>:<p>기본정보가 추출되었습니다. 사업 진행 또는 법적 판단 전 원문·첨부를 최종 대조하세요.</p>}
      <p className="dfDecisionDisclaimer">자동 추출한 요약은 법적 효력이 있는 고시 원문을 대체하지 않습니다. 누락 항목을 추정 수치로 채우지 않습니다.</p>
     </section>
@@ -118,14 +102,10 @@ export default function Policy(){
      <div>{detail.attachments.map((a,i)=><a key={(a.url||"")+i} href={a.url} target="_blank" rel="noreferrer"><b>{a.name||"첨부파일"}</b><span>{(a.type||"FILE").toUpperCase()} · 열기 ↗</span></a>)}</div>
     </section>}
 
-    <section className="dfPolicyOfficialCta">
-     <div><small>최종 확인 / 공식 출처</small><b>{detail.source_name||"공식기관"}</b><p>도시맥에서 주요 내용을 먼저 확인하고, 법적 효력·도면·부속표는 공식 기관의 원문으로 최종 대조합니다.</p></div>
-     {detail.official_url&&<a href={detail.official_url} target="_blank" rel="noreferrer">공식 사이트에서 자세히 보기 ↗</a>}
-    </section>
    </article><DFBottomNav active="policy"/></main>
  }
  return <main className="focusShell dfHigh"><DFBrandHeader/>
-  <section className="dfPolicyHero"><small>도시맥 · 개발 인텔리전스</small><h1>정책·고시 판단실</h1><p>어디가, 무엇이, 얼마나 바뀌었는지. 공식자료에서 확인된 사실과 추가 확인사항을 한 화면에 정리합니다.</p><div><b>핵심 정보 먼저</b><span>근거 수치 → 실무 확인 → 공식 원문</span></div></section>
+  <section className="dfPolicyHero"><small>도시맥 · 개발 인텔리전스</small><h1>정책·고시 판단실</h1><p>어디가, 무엇이, 얼마나 바뀌었는지. 공식자료에서 확인된 사실과 추가 확인사항을 한 화면에 정리합니다.</p><div><b>핵심 정보 먼저</b><span>사업정보 → 핵심 내용 → 첨부자료</span></div></section>
   <section className="dfPolicyFilters">
    <div><small>자료유형</small><div>{channels.map(x=><a key={x} className={channel===x?"on":""} href={href(x,topic)}>{x}</a>)}</div></div>
    <div><small>주제</small><div>{topics.map(x=><a key={x} className={topic===x?"on":""} href={href(channel,x)}>{x}</a>)}</div></div>
