@@ -30,5 +30,5 @@ test("Individual INVESTGO article is readable from backup when live data unavail
  assert.match(article,/setA\(story\)/);
  assert.match(article,/OfficialArticleText content=\{body\}/);
  assert.match(metadata,/investgoSnapshot\.articles\.find/);
- assert.match(article,/저장본입니다/);
+ assert.match(article,/발행 기사 저장본 표시 중/);
 });
