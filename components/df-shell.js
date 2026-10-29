@@ -1,8 +1,8 @@
 "use client";
 import{useEffect,useRef,useState}from"react";
 import{dfSupabase}from"../lib/df-browser";
-const categories=["최신 뉴스","정책·고시","분양·청약","지역별 정보"];
-const hrefFor=(x)=>x==="최신 뉴스"?"/focus/live":x==="지역별 정보"?"/focus/region":x==="개발사업"?"/focus/projects":x==="정책·고시"?"/focus/policy":x==="분양·청약"?"/focus/housing":"/focus/live?category="+encodeURIComponent(x);
+const categories=["최신 뉴스","정책·고시","시장 분석","분양·청약","지역별 정보"];
+const hrefFor=(x)=>x==="최신 뉴스"?"/focus/live":x==="시장 분석"?"/focus/live?category=인사이트":x==="지역별 정보"?"/focus/region":x==="개발사업"?"/focus/projects":x==="정책·고시"?"/focus/policy":x==="분양·청약"?"/focus/housing":"/focus/live?category="+encodeURIComponent(x);
 
 export function DFBrandHeader(){
  const[menuOpen,setMenuOpen]=useState(false),[route,setRoute]=useState(""),[isAdmin,setIsAdmin]=useState(false),[unread,setUnread]=useState(0);
@@ -14,6 +14,7 @@ export function DFBrandHeader(){
   if(x==="홈")return currentPath==="/focus";
   if(x==="최신 뉴스")return currentPath==="/focus/live"&&!currentCategory;
   if(x==="지역별 정보")return currentPath==="/focus/region";
+  if(x==="시장 분석")return currentPath==="/focus/live"&&currentCategory==="인사이트";
   if(x==="개발사업")return currentPath==="/focus/projects"||(currentPath==="/focus/live"&&currentCategory==="개발사업");
   if(x==="정책·고시")return currentPath==="/focus/policy";
   if(x==="분양·청약")return currentPath==="/focus/housing";
@@ -28,7 +29,7 @@ export function DFBrandHeader(){
     <button type="button" className={"focusTool focusToolIcon "+(menuOpen?"on":"")} aria-expanded={menuOpen} aria-controls="focus-quick-menu" aria-label="메뉴" onClick={()=>setMenuOpen(v=>!v)}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
    </div>
   </header>
-  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
+  {menuOpen&&<div className="focusHeaderPopover focusQuickMenu" id="focus-quick-menu">{isAdmin&&<a className="focusAdminShortcut" href="/focus-admin"><b>운영센터</b><span>기사·공지·광고 관리 →</span></a>}<a href="/focus-admin/updates"><b>전국 신규자료 업데이트</b><span>로그인 없이 공식자료 지금 수집 →</span></a><a href="/focus/region"><b>지역 FOCUS</b><span>전국 개발정보 →</span></a><a href="/focus/housing"><b>분양·청약</b><span>전국 분양가·청약일정 →</span></a><a href="/focus/live"><b>뉴스·개발정보</b><span>전체 기사 보기 →</span></a><a href="/focus/live?category=인사이트"><b>시장 분석 · 투자GO</b><span>부동산 개발·금융 전문 분석 →</span></a><a href="/my"><b>MY FOCUS</b><span>내 정보 관리 →</span></a><a href="/alerts"><b>알림</b><span>관심부동산 변화 →</span></a><a href="/search"><b>땅짚고</b><span>주소로 부동산 분석 →</span></a></div>}
   <nav className="focusTabs" aria-label="도시맥 뉴스 카테고리">{categories.map(x=><a className={activeFor(x)?"active":""} href={hrefFor(x)} key={x}>{x}</a>)}</nav>
  </div>
 }
