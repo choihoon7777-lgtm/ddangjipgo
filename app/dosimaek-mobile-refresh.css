@@ -1,0 +1,26 @@
+/* DOSIMAEK mobile editorial refinement, scoped to homepage */
+@media(max-width:640px){
+.dfPremiumHome{background:#f5f7fa;color:#11243d;padding-bottom:82px}
+.dfPremiumHome .dfPremiumEdition{padding:10px 16px;gap:8px}
+.dfPremiumHome .dfPremiumEdition em{font-size:11px}
+.dfPremiumHome .dfHomeLead{margin:0 12px 12px;border-radius:16px;overflow:hidden}
+.dfPremiumHome .dfHomeLeadVisual{min-height:170px!important;max-height:210px!important}
+.dfPremiumHome .dfCityLeadMotto{font-size:24px!important;line-height:1.25!important}
+.dfPremiumHome .dfHomeLeadCopy{padding:14px 15px!important}
+.dfPremiumHome .dfHomeLeadCopy h1{font-size:21px!important;line-height:1.38!important;letter-spacing:-.6px}
+.dfPremiumHome .dfHomeLeadCopy p{font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dfPremiumHome .dfHomeSecondaries{gap:0}
+.dfPremiumHome .dfHomeSecondaries a{min-height:62px;padding:12px 14px}
+.dfPremiumHome .focusBlock{margin-left:12px;margin-right:12px;border-radius:16px;overflow:hidden}
+.dfPremiumHome .dfLatestBlock{padding:15px!important}
+.dfPremiumHome .dfLatestRow{padding:12px 0!important;min-height:66px}
+.dfPremiumHome .dfLatestRow h3{font-size:14px!important;line-height:1.42!important;letter-spacing:-.25px}
+.dfPremiumHome .dfPremiumDirectoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dfPremiumHome .dfPremiumDirectoryGrid a{min-height:80px;border-radius:12px;padding:13px!important}
+.dfPremiumHome .dfPremiumDirectoryGrid a b{font-size:14px}
+.dfPremiumHome .dfPremiumDirectoryGrid a small{font-size:11px}
+.dfPremiumHome .dfInvestgoHomeNotice{font-size:12px;line-height:1.5}
+.dfPremiumHome .dfHomeTrust{margin:12px;gap:8px;flex-wrap:wrap}
+.dfPremiumHome a:focus-visible,.dfPremiumHome button:focus-visible{outline:3px solid #d9ad59;outline-offset:3px}
+}
+@media(prefers-reduced-motion:reduce){.dfPremiumHome *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
