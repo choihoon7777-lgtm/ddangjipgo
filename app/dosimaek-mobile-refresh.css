@@ -26,14 +26,18 @@
 @media(prefers-reduced-motion:reduce){.dfPremiumHome *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
 /* Homepage editorial navigation: visible structural redesign */
-.dfPremiumHome .dfRefreshQuickNav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 16px 18px}
-.dfPremiumHome .dfRefreshQuickNav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:92px;padding:12px 3px;background:#fff;border:1px solid #e7ebf1;border-radius:14px;text-align:center;color:#142b47;text-decoration:none;box-shadow:0 5px 16px rgba(18,36,62,.04)}
-.dfPremiumHome .dfRefreshQuickNav a span{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#f2f4f7;color:#b88b39;font-size:22px}
-.dfPremiumHome .dfRefreshQuickNav a b{font-size:12px;letter-spacing:-.4px;white-space:nowrap}
 .dfPremiumHome .dfRefreshMapLink{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 16px 20px;padding:20px 22px;border-radius:18px;background:linear-gradient(115deg,#102943,#1c4163);color:white;text-decoration:none;box-shadow:0 12px 24px rgba(11,37,64,.16)}
 .dfPremiumHome .dfRefreshMapLink span{display:flex;flex-direction:column;gap:5px}
 .dfPremiumHome .dfRefreshMapLink small{font-size:10px;font-weight:800;letter-spacing:1.6px;color:#d6b67c}
 .dfPremiumHome .dfRefreshMapLink strong{font-size:18px;letter-spacing:-.6px}
 .dfPremiumHome .dfRefreshMapLink em{font-size:12px;font-style:normal;color:#cad8e6}
 .dfPremiumHome .dfRefreshMapLink>b{font-size:28px;color:#e8c589}
-@media(max-width:640px){.dfPremiumHome .dfRefreshQuickNav{gap:5px;margin:12px 12px 14px}.dfPremiumHome .dfRefreshQuickNav a{min-height:80px;padding:9px 1px;gap:6px;border-radius:12px}.dfPremiumHome .dfRefreshQuickNav a span{width:31px;height:31px;font-size:19px}.dfPremiumHome .dfRefreshQuickNav a b{font-size:10px}.dfPremiumHome .dfRefreshMapLink{margin:0 12px 16px;padding:17px;border-radius:15px}.dfPremiumHome .dfRefreshMapLink strong{font-size:16px}.dfPremiumHome .dfRefreshMapLink em{font-size:11px}}
+@media(max-width:640px){.dfPremiumHome .dfRefreshMapLink{margin:0 12px 16px;padding:17px;border-radius:15px}.dfPremiumHome .dfRefreshMapLink strong{font-size:16px}.dfPremiumHome .dfRefreshMapLink em{font-size:11px}}
+
+/* iPhone safe-area and fixed navigation clearance */
+@media(max-width:640px){
+.dfPremiumHome{padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))!important}
+.dfPremiumHome .focusLandBox h1,.dfPremiumHome .focusLandBox .focusLandTagline,.dfPremiumHome .focusLandBoxHead h1{color:#fff!important;opacity:1!important}
+.dfPremiumHome .focusLandBox .focusLandDesc{color:#d8e3ee!important;opacity:1!important}
+.dfPremiumHome .dfRefreshMapLink{margin-bottom:20px}
+}
