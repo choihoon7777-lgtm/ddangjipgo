@@ -41,3 +41,12 @@
 .dfPremiumHome .focusLandBox .focusLandDesc{color:#d8e3ee!important;opacity:1!important}
 .dfPremiumHome .dfRefreshMapLink{margin-bottom:20px}
 }
+
+/* Keep the separate project-map link compact on small phones. */
+@media(max-width:640px){
+.dfPremiumHome .dfRefreshMapLink{padding:12px 14px!important;min-height:58px}
+.dfPremiumHome .dfRefreshMapLink small{display:none}
+.dfPremiumHome .dfRefreshMapLink strong{font-size:14px}
+.dfPremiumHome .dfRefreshMapLink em{font-size:11px}
+.dfPremiumHome .dfRefreshMapLink>b{font-size:22px}
+}
