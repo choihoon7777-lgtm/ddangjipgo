@@ -65,3 +65,27 @@ test("Shared navigation closes on outside tap and restores keyboard focus",async
  assert.match(nav,/aria-current=\{activeFor\(x\)\?"page":undefined\}/);
  assert.match(nav,/시장 분석/);
 });
+
+
+test("Source freshness is explicitly disclosed even for reachable stale content",async()=>{
+ const [home,news]=await Promise.all([read("../app/focus/page.js"),read("../app/focus/live/page.js")]);
+ assert.match(home,/newsStale/);
+ assert.match(home,/newestOfficial/);
+ assert.match(home,/신규 자료 갱신 여부 확인 필요/);
+ assert.match(news,/newsStale/);
+ assert.match(news,/신규 자료 갱신 여부 확인 필요/);
+});
+
+test("Thin official article includes source verification warning and original link",async()=>{
+ const reader=await read("../app/focus/article/article-client.js");
+ assert.match(reader,/needsSourceReview/);
+ assert.match(reader,/기사 본문이 짧아 공식 원문과 대조가 필요합니다/);
+ assert.match(reader,/noopener noreferrer/);
+});
+
+test("Mobile refresh stylesheet overrides editorial defaults and keeps map as separate destination",async()=>{
+ const [layout,css,home]=await Promise.all([read("../app/layout.js"),read("../app/dosimaek-mobile-refresh.css"),read("../app/focus/page.js")]);
+ assert.ok(layout.indexOf('import "./editorial-v2.css";')<layout.indexOf('import "./dosimaek-mobile-refresh.css";'));
+ assert.match(css,/\.dfPremiumHome \.dfRefreshMapLink\{padding:12px 14px/);
+ assert.match(home,/href="\/focus\/projects"/);
+});
