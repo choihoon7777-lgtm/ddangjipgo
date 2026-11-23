@@ -1,6 +1,6 @@
 import "./globals.css";
-import "./dosimaek-mobile-refresh.css";
 import "./editorial-v2.css";
+import "./dosimaek-mobile-refresh.css";
 import{getSiteUrl,SITE_DESCRIPTION,SITE_NAME}from"../lib/df-site";
 const site=getSiteUrl();
 export const metadata={
