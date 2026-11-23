@@ -40,13 +40,15 @@ export default function FocusHome(){
    if(!published.length&&!blog.length)setError("기사를 불러오지 못했습니다.");
   } }finally{if(live)setLoading(false)}})();return()=>{live=false}},[reload]);
  const lead=news[0],seconds=news.slice(1,3),latest=news.slice(3,8);
+ const newestOfficial=news.reduce((v,a)=>Math.max(v,Date.parse(a.published_at||"")||0),0);
+ const newsStale=newestOfficial>0&&Date.now()-newestOfficial>7*86400000;
  const cover=lead?safeEditorialCover(lead.hero_image_url):null;
  return <main className="focusShell dfHigh dfPremiumHome"><DFBrandHeader/>
   <DFLiveNotice placement="home"/>
 <div className="dfPremiumEdition"><span><i aria-hidden="true"></i> DOSIMAEK <em>도시개발·부동산 전문 미디어</em></span><a href="/focus/region">지역별 보기 <span aria-hidden="true">↗</span></a></div>
 
   {error&&<p className="dfReaderStatus" role="alert">{error} <button type="button" onClick={()=>setReload(x=>x+1)}>새로고침</button></p>}
-  {(newsArchiveUsed||archiveUsed)&&<p className="dfReaderStatus" role="status"><span className="dfStatusDot" aria-hidden="true"></span> {newsArchiveUsed?"발행 기사 저장본 제공 중 · 새로운 공식자료 갱신 지연":"투자GO 기존 발행 글 제공 중"} <a href="/focus/live">기사 더 보기</a></p>}
+  {(newsArchiveUsed||archiveUsed||newsStale)&&<p className="dfReaderStatus" role="status"><span className="dfStatusDot" aria-hidden="true"></span> {newsStale?`최신 공식기사 발행 ${originalIssueDate(newestOfficial)} · 신규 자료 갱신 여부 확인 필요`:newsArchiveUsed?"발행 기사 저장본 제공 중 · 새로운 공식자료 갱신 지연":"투자GO 기존 발행 글 제공 중"} <a href="/focus/live">기사 더 보기</a></p>}
   {loading?<section className="focusBlock dfHomeLead dfPremiumCover"><div className="dfHomeSkeleton"><span></span><span></span><span></span><span></span></div></section>:lead?<section className="focusBlock dfHomeLead dfPremiumCover">
    <DFSectionTitle eyebrow="THE LEAD · DEVELOPMENT NEWS" title="주요 개발뉴스" href="/focus/live" label="전체 기사"/>
    <>
